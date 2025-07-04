@@ -16,7 +16,7 @@ public class Account {
 
     private Long userId;
     private AccountType type;
-    private Double balance;
+    private BigDecimal balance;
 
     public Account(){
     }
@@ -45,11 +45,11 @@ public class Account {
         this.type = type;
     }
 
-    public Double getBalance() {
+    public BigDecimal getBalance() {
         return balance;
     }
 
-    public void setBalance(Double balance) {
+    public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
 }

@@ -3,13 +3,14 @@ spring:
     name: auth
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/book_service
+    # Use the transaction DB port from docker-compose.yml
+    url: jdbc:mysql://localhost:3306/auth_db
     username: root
-    password: root
+    # Make sure this matches your docker-compose password
+    password: 123
   jpa:
     hibernate:
-      ddl-auto: none
-    properties:
-      hibernate:
-    show-sql: false
+      ddl-auto: create-drop # This is correct for recreating the DB
+    # Corrected indentation for these properties
+    show-sql: true
     open-in-view: false

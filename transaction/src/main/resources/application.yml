@@ -1,10 +1,12 @@
+server:
+  port: 8100
 spring:
   application:
     name: transaction
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     # Use the transaction DB port from docker-compose.yml
-    url: jdbc:mysql://localhost:3308/transaction_db
+    url: jdbc:mysql://localhost:3309/transaction_db
     username: root
     # Make sure this matches your docker-compose password
     password: 123

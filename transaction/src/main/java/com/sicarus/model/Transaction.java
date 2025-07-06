@@ -27,7 +27,8 @@ public class Transaction {
     @Temporal(TemporalType.TIMESTAMP)
     private Date timestamp;
 
-    @Column
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
     private TransactionStatus transactionStatus;
 
     public Transaction(){}

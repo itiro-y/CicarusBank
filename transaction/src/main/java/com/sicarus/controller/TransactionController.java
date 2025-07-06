@@ -5,6 +5,7 @@ import com.sicarus.model.Transaction;
 import com.sicarus.model.TransactionStatus;
 import com.sicarus.model.TransactionType;
 import com.sicarus.repository.TransactionRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,16 +23,19 @@ public class TransactionController {
     @Autowired
     private TransactionRepository transactionRepository;
 
+    // Get all transactions
     @GetMapping
     public List<Transaction> getAllTransactions() {
         return transactionRepository.findAll();
     }
 
+    // Get transaction by id
     @GetMapping("/{id}")
     public Optional<Transaction> getTransactionById(@PathVariable Long id){
         return transactionRepository.findById(id);
     }
 
+    // Post new transaction passing a JSON request body
     @PostMapping
     public ResponseEntity<String> postTransaction(@RequestBody TransactionRequestDTO request){
         if(request.getAmount() == null || request.getAmount() <= 0){
@@ -49,8 +53,29 @@ public class TransactionController {
         return ResponseEntity.status(HttpStatus.CREATED).body("Transação criada com sucesso!");
     }
 
-    // To-Do -> Cacelamento Logico
+    // Put that cancels a transaction based on a given id
+    @PutMapping("/cancel/{id}")
+    public ResponseEntity<String> cancelTransaction(@PathVariable Long id){
+        if(transactionRepository.findById(id).isPresent()){
+            Transaction transaction = transactionRepository.findById(id).get();
+            transaction.setTransactionStatus(TransactionStatus.CANCELLED);
+            transactionRepository.save(transaction);
+            return ResponseEntity.ok().body("Transação cancelada com sucesso!");
+        }else{
+            return ResponseEntity.badRequest().body("Transação não encontrada.");
+        }
+    }
 
-    // To-Do -> Estorno
-
+    // Put that reversals a transaction based on a given id
+    @PutMapping("/reversal/{id}")
+    public ResponseEntity<String> reversalTransaction(@PathVariable Long id){
+        if(transactionRepository.findById(id).isPresent()){
+            Transaction transaction = transactionRepository.findById(id).get();
+            transaction.setTransactionStatus(TransactionStatus.REVERSED);
+            transactionRepository.save(transaction);
+            return ResponseEntity.ok().body("Transação estornada com sucesso!");
+        }else{
+            return ResponseEntity.badRequest().body("Transação não encontrada.");
+        }
+    }
 }

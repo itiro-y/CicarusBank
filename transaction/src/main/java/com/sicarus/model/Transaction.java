@@ -27,6 +27,9 @@ public class Transaction {
     @Temporal(TemporalType.TIMESTAMP)
     private Date timestamp;
 
+    @Column
+    private TransactionStatus transactionStatus;
+
     public Transaction(){}
 
     public Transaction(Long id, Long accountId, TransactionType transactionType, Double amount, Date timestamp){
@@ -35,6 +38,7 @@ public class Transaction {
         this.transactionType = transactionType;
         this.amount = amount;
         this.timestamp = timestamp;
+        this.setTransactionStatus(TransactionStatus.ACTIVE);
     }
 
     public Long getId() {
@@ -77,17 +81,25 @@ public class Transaction {
         this.timestamp = timestamp;
     }
 
+    public TransactionStatus getTransactionStatus() {
+        return transactionStatus;
+    }
+
+    public void setTransactionStatus(TransactionStatus transactionStatus) {
+        this.transactionStatus = transactionStatus;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Transaction that = (Transaction) o;
-        return Objects.equals(id, that.id) && Objects.equals(accountId, that.accountId) && transactionType == that.transactionType && Objects.equals(amount, that.amount) && Objects.equals(timestamp, that.timestamp);
+        return Objects.equals(id, that.id) && Objects.equals(accountId, that.accountId) && transactionType == that.transactionType && Objects.equals(amount, that.amount) && Objects.equals(timestamp, that.timestamp) && transactionStatus == that.transactionStatus;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, accountId, transactionType, amount, timestamp);
+        return Objects.hash(id, accountId, transactionType, amount, timestamp, transactionStatus);
     }
 
     @Override
@@ -98,6 +110,7 @@ public class Transaction {
                 ", transactionType=" + transactionType +
                 ", amount=" + amount +
                 ", timestamp=" + timestamp +
+                ", transactionStatus=" + transactionStatus +
                 '}';
     }
 }

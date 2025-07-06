@@ -2,6 +2,7 @@ package com.sicarus.controller;
 
 import com.sicarus.dto.TransactionRequestDTO;
 import com.sicarus.model.Transaction;
+import com.sicarus.model.TransactionStatus;
 import com.sicarus.model.TransactionType;
 import com.sicarus.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,7 @@ public class TransactionController {
         transaction.setTransactionType(request.getTransactionType());
         transaction.setAmount(request.getAmount());
         transaction.setTimestamp(new Date());
+        transaction.setTransactionStatus(TransactionStatus.ACTIVE);
 
         transactionRepository.save(transaction);
         return ResponseEntity.status(HttpStatus.CREATED).body("Transação criada com sucesso!");

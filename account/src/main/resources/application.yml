@@ -1,6 +1,7 @@
 server:
   port: 8200
 spring:
+
   application:
     name: account
   datasource:
@@ -10,7 +11,8 @@ spring:
     password: 123
   jpa:
     hibernate:
-      ddl-auto: create-drop
+#      ddl-auto: create-drop
+      ddl-auto: none
     properties:
       hibernate:
     show-sql: false

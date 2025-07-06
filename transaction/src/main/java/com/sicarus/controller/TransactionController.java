@@ -16,7 +16,7 @@ public class TransactionController {
     @Autowired
     private TransactionRepository transactionRepository;
 
-    @GetMapping("/")
+    @GetMapping
     public List<Transaction> getAllTransactions() {
         return transactionRepository.findAll();
     }

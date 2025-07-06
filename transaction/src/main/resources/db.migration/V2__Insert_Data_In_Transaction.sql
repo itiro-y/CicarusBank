@@ -1,4 +1,0 @@
--- INSERT INTO `transactions` (`account_id`, `transaction_type`, `amount`, `timestamp`) VALUES
---                     (null, "WITHDRAW", 2000.0, '2017-11-29 15:15:13.636000'),
---                     (null, "DEPOSIT", 3000.0, '2017-11-29 15:15:13.636000'),
---                     (null, "WITHDRAW", 2000.0, '2017-11-29 15:15:13.636000');

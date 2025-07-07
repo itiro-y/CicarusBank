@@ -1,10 +1,7 @@
 package com.sicarus.model;
 
 import com.sicarus.enums.AccountType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 
@@ -15,8 +12,14 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private Long userId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private AccountType type;
+
+    @Column(nullable = false)
     private BigDecimal balance;
 
     public Account(){

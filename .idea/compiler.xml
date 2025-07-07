@@ -9,12 +9,14 @@
         <module name="auth" />
         <module name="user" />
         <module name="user (1)" />
+        <module name="naming-server" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="auth" options="-parameters" />
+      <module name="naming-server" options="-parameters" />
       <module name="user" options="-parameters" />
       <module name="user (1)" options="-parameters" />
     </option>

@@ -52,6 +52,17 @@ services:
       # Map host port 8761 to container port 8761
       - "8761:8761"
 
+  api-gateway:
+    build:
+      context: ./api-gateway # Path to api-gateway project
+    ports:
+      - "8765:8765"
+    environment:
+      # This overrides the localhost URL in your YAML file
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
+    depends_on:
+      - naming-server
+
 
 volumes:
   auth-data:

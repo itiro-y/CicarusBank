@@ -6,7 +6,6 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="notification" />
         <module name="auth" />
         <module name="user" />
         <module name="user (1)" />
@@ -18,7 +17,6 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="auth" options="-parameters" />
       <module name="naming-server" options="-parameters" />
-      <module name="notification" options="-parameters" />
       <module name="user" options="-parameters" />
       <module name="user (1)" options="-parameters" />
     </option>

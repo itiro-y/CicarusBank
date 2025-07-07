@@ -44,6 +44,15 @@ services:
     volumes:
       - notification-data:/var/lib/mysql
 
+  naming-server:
+    build:
+      # Path to the naming-server project folder
+      context: ./naming-server
+    ports:
+      # Map host port 8761 to container port 8761
+#      - "8761:8761"
+      - "8671:8671"
+
 volumes:
   auth-data:
   account-data:

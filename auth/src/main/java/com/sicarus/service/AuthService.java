@@ -2,7 +2,7 @@ package com.sicarus.service;
 
 import com.sicarus.dto.AuthRequest;
 import com.sicarus.dto.AuthResponse;
-import com.sicarus.entities.User;
+import com.sicarus.model.User;
 import com.sicarus.repository.UserRepository;
 import com.sicarus.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;

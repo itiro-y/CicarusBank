@@ -1,4 +1,4 @@
-package com.sicarus.entities;
+package com.sicarus.model;
 
 import jakarta.persistence.*;
 

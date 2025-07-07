@@ -33,16 +33,16 @@ services:
     volumes:
       - transaction-data:/var/lib/mysql
 
-    mysql-customer:
-      image: mysql:8.0
-      restart: always
-      environment:
-        MYSQL_ROOT_PASSWORD: 123
-        MYSQL_DATABASE: customer_db
-      ports:
-        - "3311:3306"
-      volumes:
-        - customer-data:/var/lib/mysql
+  mysql-customer:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_DATABASE: customer_db
+    ports:
+      - "3311:3306"
+    volumes:
+      - customer-data:/var/lib/mysql
 
 volumes:
   auth-data:

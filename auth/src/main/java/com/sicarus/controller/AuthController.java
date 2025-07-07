@@ -1,3 +1,5 @@
+package com.sicarus.controller;
+
 import com.sicarus.dto.AuthRequest;
 import com.sicarus.dto.AuthResponse;
 import com.sicarus.service.AuthService;

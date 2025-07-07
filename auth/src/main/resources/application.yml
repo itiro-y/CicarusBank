@@ -24,17 +24,21 @@ spring:
     logging:
       level:
         org.flywaydb.core: DEBUG
-  jwt:
-    secret: cicarusbank-spring-jwt-authentication-secret-key-32
-    expiration: 86400000 # 24 horas em ms
+jwt:
+  secret: hzAS6BikJ_2Ft3fEye-lqwGviIeGbWFRG9mEnNDzQp4=
+  expiration: 86400000 # 24 horas em ms
 
-  logging:
-    level:
-      org.springframework.security: DEBUG
+logging:
+  spring:
+    security:
+      debug: true
+  level:
+    org.springframework.security: TRACE
+    org.springframework.security.web: TRACE
 
-  management:
-    endpoints:
-      web:
-        exposure:
-          include: "*"
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
 

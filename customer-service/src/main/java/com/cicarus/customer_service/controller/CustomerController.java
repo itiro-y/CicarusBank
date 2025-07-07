@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/customers")
+@RequestMapping("customers")
 public class CustomerController {
 
     @Autowired
     private CustomerService service;
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<CustomerResponse> create(@RequestBody CustomerRequest request) {
         return ResponseEntity.ok(service.create(request));
     }

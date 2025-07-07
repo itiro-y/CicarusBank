@@ -7,3 +7,13 @@ Account Microservice - 8200, 8201, 8203...
 Netflix Eureka Naming Server - 8671
 API Gateway - 8125
 Zipkin Distributed Tracing Server - 9411
+
+
+Apresentacao
+
+diagrama de arquitetura
+    - tecnologias
+    - rapido fluxo
+    - mostrar o banco de dados
+    - fluxo de sequencia de funcionalidades (nada detalhado - 1slide)
+

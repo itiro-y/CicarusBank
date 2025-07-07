@@ -50,8 +50,8 @@ services:
       context: ./naming-server
     ports:
       # Map host port 8761 to container port 8761
-#      - "8761:8761"
-      - "8671:8671"
+      - "8761:8761"
+
 
 volumes:
   auth-data:

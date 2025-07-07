@@ -18,10 +18,9 @@ public class Notification {
     private Long id;
 
     private Long customerId;
-
-    private String channel; // EMAIL, SMS, PUSH
-
+    private String channel;
     private String message;
-
     private Instant sentAt;
+
+    private String recipientEmail; // <- opcional, útil para histórico
 }

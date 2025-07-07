@@ -10,4 +10,5 @@ public class NotificationEvent {
     private Long customerId;
     private String channel;
     private String message;
+    private String recipientEmail; // <- novo campo
 }

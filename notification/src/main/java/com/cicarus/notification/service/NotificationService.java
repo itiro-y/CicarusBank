@@ -23,6 +23,7 @@ public class NotificationService {
                 .customerId(event.getCustomerId())
                 .channel(event.getChannel())
                 .message(event.getMessage())
+                .recipientEmail(event.getRecipientEmail())
                 .sentAt(Instant.now())
                 .build();
 

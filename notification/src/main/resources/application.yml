@@ -8,6 +8,18 @@ spring:
       ddl-auto: update
     show-sql: true
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: cicarusbank@gmail.com
+    password: hugk nhwa treu tdqj
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
   rabbitmq:
     host: localhost
     port: 5672

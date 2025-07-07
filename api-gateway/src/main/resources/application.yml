@@ -1,0 +1,29 @@
+server:
+  port: 8765
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+
+            - id: account
+              uri: lb://account
+              predicates:
+                - Path=/account/**
+
+            - id: auth
+              uri: lb://auth
+              predicates:
+                - Path=/auth/**
+
+            - id: transaction
+              uri: lb://transaction
+              predicates:
+                - Path=/transaction/**

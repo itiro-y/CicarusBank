@@ -21,6 +21,21 @@ spring:
     baseline-on-migrate: true
     validate-on-migrate: true
 
-    logging:
-      level:
-        org.flywaydb.core: DEBUG
+logging:
+  level:
+    org.flywaydb.core: DEBUG
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: false     # opcional: se quiser registrar pelo IP em vez de hostname
+    lease-renewal-interval-in-seconds: 5
+    health-check-url-path: /actuator/health
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

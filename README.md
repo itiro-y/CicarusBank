@@ -11,4 +11,14 @@ Projeto de microsserviços simulando um banco
     - Fazer o tratamento dos endpoints de cada Client pelo Servidor
   - Adicionar mais micros
   - Front-end (BOMBA)
+
+# Para roda bancos + eureka no docker
+- navegar para CicarusBank/naming-server
+- rodar ``./mvnw clean package``
+- voltar para a raiz do projeto com ``cd ..`` 
+- navegar para CicarusBank/api-gateway
+- rodar ``./mvnw clean package``
+- voltar para a raiz do projeto com ``cd ..``
+- rodar ``docker-compose up --build -d``
+- verificar usando ``docker compose ps``
   

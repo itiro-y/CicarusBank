@@ -12,7 +12,33 @@ spring:
     password: 123
   jpa:
     hibernate:
-      ddl-auto: create-drop # This is correct for recreating the DB
+      ddl-auto: none # This is correct for recreating the DB
     # Corrected indentation for these properties
     show-sql: true
     open-in-view: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    validate-on-migrate: true
+    logging:
+      level:
+        org.flywaydb.core: DEBUG
+jwt:
+  secret: hzAS6BikJ_2Ft3fEye-lqwGviIeGbWFRG9mEnNDzQp4=
+  expiration: 86400000 # 24 horas em ms
+
+logging:
+  spring:
+    security:
+      debug: true
+  level:
+    org.springframework.security: TRACE
+    org.springframework.security.web: TRACE
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+

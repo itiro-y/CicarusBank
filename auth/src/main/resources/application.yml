@@ -24,6 +24,17 @@ spring:
     logging:
       level:
         org.flywaydb.core: DEBUG
+
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: false     # opcional: se quiser registrar pelo IP em vez de hostname
+    lease-renewal-interval-in-seconds: 5
+    health-check-url-path: /actuator/health
+
 jwt:
   secret: hzAS6BikJ_2Ft3fEye-lqwGviIeGbWFRG9mEnNDzQp4=
   expiration: 86400000 # 24 horas em ms
@@ -41,4 +52,3 @@ management:
     web:
       exposure:
         include: "*"
-

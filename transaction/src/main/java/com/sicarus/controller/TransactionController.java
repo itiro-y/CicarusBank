@@ -48,8 +48,39 @@ public class TransactionController {
     // Post new transaction passing a JSON request body
     @PostMapping
     public ResponseEntity<String> postTransaction(@RequestBody TransactionRequestDTO request){
+
+        // Pega um AccountDTO por ID do micro Account
+        AccountDTO account = transactionService.getAccount(request.getAccountId());
+
+
+
         if(request.getAmount() == null || request.getAmount().compareTo(BigDecimal.ZERO) <= 0){
-            return ResponseEntity.badRequest().body("Amount given as parameter is zero/negative/null.");
+            return ResponseEntity.badRequest().body("Quantia recebida como parâmetro é zero/negativo/null");
+        }
+
+        // Verificar se a conta existe
+        if(account == null) {
+            return ResponseEntity.badRequest().body("Conta não existe");
+        }
+
+        // Verificar se a conta possui saldo
+        if(transactionService.validaSaldo(request.getAccountId(), request.getAmount())){
+            return ResponseEntity.badRequest().body("Conta não possui saldo suficiente");
+        }
+
+        if(request.getTransactionType().equals(TransactionType.DEPOSIT)){
+            // Depositar no account e salvar no banco de account
+        }
+
+        if(request.getTransactionType().equals(TransactionType.WITHDRAWAL)){
+            // Sacar de account e salvar novo saldo no banco de account
+        }
+
+        if(request.getTransactionType().equals(TransactionType.TRANSFER)){
+            // Transferir dinheiro de account para accountTo e salvar ambos saldos
+
+            AccountDTO accountTo = transactionService.getAccount(request.getAccountToId());
+
         }
 
         Transaction transaction = new Transaction();
@@ -89,9 +120,10 @@ public class TransactionController {
         }
     }
 
+    // Get account by Id
     @GetMapping("/account/{id}")
     public ResponseEntity<AccountDTO> getAccountById(@PathVariable Long id){
-        AccountDTO account = transactionService.validaSaldo(id, BigDecimal.valueOf(1));
+        AccountDTO account = transactionService.getAccount(id);
         return ResponseEntity.ok(account);
     }
 

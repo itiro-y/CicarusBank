@@ -17,4 +17,3 @@ diagrama de arquitetura
     - rapido fluxo
     - mostrar o banco de dados
     - fluxo de sequencia de funcionalidades (nada detalhado - 1slide)
-

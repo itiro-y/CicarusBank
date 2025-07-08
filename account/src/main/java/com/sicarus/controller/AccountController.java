@@ -1,10 +1,13 @@
 package com.sicarus.controller;
 
+import com.sicarus.enums.TipoTransacao;
 import com.sicarus.model.Account;
 import com.sicarus.model.AccountRepository;
 import jakarta.websocket.server.PathParam;
+import jakarta.ws.rs.Path;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,5 +50,18 @@ public class AccountController {
                 .orElseGet(() -> {
                    return accountRepository.save(updatedAccount);
                 });
+    }
+
+    @PutMapping("/account/{id}/{saldo}/{tipoTransacao}")
+    public Account alterarSaldo(
+            @PathVariable Long id,
+            @PathVariable BigDecimal saldo,
+            @PathVariable TipoTransacao tipoTransacao
+            ){
+        Optional<Account> contaModificada = accountRepository.findById(id);
+
+        if(tipoTransacao == TipoTransacao.DEPOSITAR){
+
+        }
     }
 }

@@ -66,10 +66,8 @@ public class AccountController {
             Account conta = contaModificada.get();
             if (tipoTransacao == TipoTransacao.DEPOSITAR) {
                 conta.setBalance(conta.getBalance().add(saldo));
-                return conta;
             }else if(tipoTransacao == TipoTransacao.SACAR){
                 conta.setBalance(conta.getBalance().subtract(saldo));
-                return conta;
             }
             return accountRepository.save(conta);
         }else{

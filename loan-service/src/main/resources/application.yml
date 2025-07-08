@@ -2,7 +2,7 @@ server:
   port: 8400
 spring:
   application:
-    name: loan-service
+    name: loan
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3312/loan_db
@@ -15,3 +15,14 @@ spring:
       hibernate:
     show-sql: false
     open-in-view: false
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true     # opcional: se quiser registrar pelo IP em vez de hostname
+    instance-id: ${spring.application.name}:${server.port}
+    hostname: localhost
+    lease-renewal-interval-in-seconds: 5
+    health-check-url-path: /actuator/health

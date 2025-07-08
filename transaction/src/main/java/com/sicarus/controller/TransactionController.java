@@ -1,16 +1,20 @@
 package com.sicarus.controller;
 
+import com.sicarus.clients.AccountClient;
+import com.sicarus.dto.AccountDTO;
 import com.sicarus.dto.TransactionRequestDTO;
 import com.sicarus.model.Transaction;
 import com.sicarus.model.TransactionStatus;
 import com.sicarus.model.TransactionType;
 import com.sicarus.repository.TransactionRepository;
+import com.sicarus.service.TransactionService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -22,6 +26,12 @@ public class TransactionController {
 
     @Autowired
     private TransactionRepository transactionRepository;
+
+    private TransactionService transactionService;
+
+    public TransactionController(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
 
     // Get all transactions
     @GetMapping
@@ -38,7 +48,7 @@ public class TransactionController {
     // Post new transaction passing a JSON request body
     @PostMapping
     public ResponseEntity<String> postTransaction(@RequestBody TransactionRequestDTO request){
-        if(request.getAmount() == null || request.getAmount() <= 0){
+        if(request.getAmount() == null || request.getAmount().compareTo(BigDecimal.ZERO) <= 0){
             return ResponseEntity.badRequest().body("Amount given as parameter is zero/negative/null.");
         }
 
@@ -78,4 +88,11 @@ public class TransactionController {
             return ResponseEntity.badRequest().body("Transação não encontrada.");
         }
     }
+
+    @GetMapping("/account/{id}")
+    public ResponseEntity<AccountDTO> getAccountById(@PathVariable Long id){
+        AccountDTO account = transactionService.validaSaldo(id, BigDecimal.valueOf(1));
+        return ResponseEntity.ok(account);
+    }
+
 }

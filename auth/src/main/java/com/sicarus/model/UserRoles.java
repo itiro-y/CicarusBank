@@ -1,4 +1,4 @@
-package com.sicarus.entities;
+package com.sicarus.model;
 
 public enum UserRoles {
     ROLE_ADMIN,

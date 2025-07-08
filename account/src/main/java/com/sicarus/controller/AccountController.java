@@ -9,33 +9,34 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@RequestMapping("account")
 public class AccountController {
     private final AccountRepository accountRepository;
     public AccountController(AccountRepository accountRepository){
         this.accountRepository = accountRepository;
     }
 
-    @GetMapping("/account")
+    @GetMapping()
     public List<Account> getAll(){
         return accountRepository.findAll();
     }
 
-    @GetMapping("/account/{id}")
+    @GetMapping("/{id}")
     public Optional<Account> getById(@PathVariable Long id){
         return accountRepository.findById(id);
     }
 
-    @PostMapping("/account")
+    @PostMapping()
     public Account createAccount(@RequestBody Account account){
         return accountRepository.save(account);
     }
 
-    @DeleteMapping("/account/{id}")
+    @DeleteMapping("/{id}")
     public void deleteAccount(@PathVariable Long id){
         accountRepository.deleteById(id);
     }
 
-    @PutMapping("/account/{id}")
+    @PutMapping("/{id}")
     public Account updateAccount(@PathVariable Long id, @RequestBody Account updatedAccount){
         return accountRepository.findById(id)
                 .map(account -> {

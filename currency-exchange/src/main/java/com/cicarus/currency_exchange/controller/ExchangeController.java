@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 
 @RestController
-@RequestMapping
+@RequestMapping("/exchange")
 public class ExchangeController {
 
     private final ExchangeService service;

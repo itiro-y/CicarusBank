@@ -82,6 +82,34 @@ services:
     depends_on:
       - naming-server
 
+  account:
+    build:
+      context: ./account
+    ports:
+      - "8200:8200"
+    environment:
+      # Override the datasource URL to point to the MySQL container's service name
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-account:3306/account_db
+      # You also need to do this for Eureka!
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
+    depends_on:
+      - mysql-account
+      - naming-server
+
+  auth:
+    build:
+      context: ./auth
+    ports:
+      - "8200:8200"
+    environment:
+      # Override the datasource URL to point to the MySQL container's service name
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-auth:3306/auth_db
+      # You also need to do this for Eureka!
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
+    depends_on:
+      - mysql-auth
+      - naming-server
+
 volumes:
   auth-data:
   account-data:

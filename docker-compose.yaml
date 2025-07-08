@@ -43,6 +43,17 @@ services:
     volumes:
       - customer-data:/var/lib/mysql
 
+  mysql-currency:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_DATABASE: exchange_db
+    ports:
+      - "3313:3306" # Notification DB on host port 3313
+    volumes:
+      - currency-data:/var/lib/mysql
+
   mysql-notification: # From main branch
     image: mysql:8.0
     restart: always
@@ -88,4 +99,5 @@ volumes:
   transaction-data:
   loan-data:
   customer-data: # Added from guilherme-Customer branch
+  currency-data:
   notification-data: # Added from main branch

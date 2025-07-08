@@ -152,6 +152,20 @@ services:
       - mysql-notification
       - naming-server
 
+  transaction:
+    build:
+      context: ./auth
+    ports:
+      - "8100:8100"
+    environment:
+      # Override the datasource URL to point to the MySQL container's service name
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-transaction:3306/transaction_db
+      # You also need to do this for Eureka!
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
+    depends_on:
+      - mysql-transaction
+      - naming-server
+
 
 volumes:
   auth-data:

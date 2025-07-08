@@ -16,6 +16,9 @@ Projeto de microsserviços simulando um banco
 - navegar para CicarusBank/naming-server
 - rodar ``./mvnw clean package``
 - voltar para a raiz do projeto com ``cd ..`` 
+- navegar para CicarusBank/api-gateway
+- rodar ``./mvnw clean package``
+- voltar para a raiz do projeto com ``cd ..``
 - rodar ``docker-compose up --build -d``
 - verificar usando ``docker compose ps``
   

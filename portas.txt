@@ -8,3 +8,13 @@ Loan Microservice - 8400, 8401...
 Netflix Eureka Naming Server - 8671
 API Gateway - 8125
 Zipkin Distributed Tracing Server - 9411
+
+
+Apresentacao
+
+diagrama de arquitetura
+    - tecnologias
+    - rapido fluxo
+    - mostrar o banco de dados
+    - fluxo de sequencia de funcionalidades (nada detalhado - 1slide)
+

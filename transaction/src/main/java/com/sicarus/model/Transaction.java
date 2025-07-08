@@ -2,6 +2,7 @@ package com.sicarus.model;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Objects;
 
@@ -21,7 +22,7 @@ public class Transaction {
     private TransactionType transactionType;
 
     @Column
-    private Double amount;
+    private BigDecimal amount;
 
     @Column
     @Temporal(TemporalType.TIMESTAMP)
@@ -33,7 +34,7 @@ public class Transaction {
 
     public Transaction(){}
 
-    public Transaction(Long id, Long accountId, TransactionType transactionType, Double amount, Date timestamp){
+    public Transaction(Long id, Long accountId, TransactionType transactionType, BigDecimal amount, Date timestamp){
         this.id = id;
         this.accountId = accountId;
         this.transactionType = transactionType;
@@ -66,11 +67,11 @@ public class Transaction {
         this.transactionType = transactionType;
     }
 
-    public Double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

@@ -110,6 +110,21 @@ services:
       - mysql-auth
       - naming-server
 
+  customer-service:
+    build:
+      context: ./auth
+    ports:
+      - "8300:8300"
+    environment:
+      # Override the datasource URL to point to the MySQL container's service name
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-customer:3306/customer_db
+      # You also need to do this for Eureka!
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
+    depends_on:
+      - mysql-customer
+      - naming-server
+
+
 volumes:
   auth-data:
   account-data:

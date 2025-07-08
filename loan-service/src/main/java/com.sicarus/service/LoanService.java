@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,7 +65,9 @@ public class LoanService {
         loan.setTermMonths(request.termMonths());
         loan.setInterestRate(request.interestRate());
         loan.setStatus(LoanStatus.PENDING);
-        loan.setCreatedAt(Instant.from(LocalDateTime.now()));
+
+        ZoneId zone = ZoneId.systemDefault();
+        loan.setCreatedAt(LocalDateTime.now().atZone(zone).toInstant());
 
         Loan saved = loanRepository.save(loan);
         return toResponse(saved);

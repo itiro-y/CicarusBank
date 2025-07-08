@@ -1,12 +1,11 @@
 package com.sicarus.service;
 
-import com.sicarus.dto.InstallmentDTO;
-import com.sicarus.dto.LoanRequest;
-import com.sicarus.dto.LoanResponse;
-import com.sicarus.dto.SimulateLoanRequest;
+import com.sicarus.clients.LoanCustomer;
+import com.sicarus.dto.*;
 import com.sicarus.model.Loan;
 import com.sicarus.model.LoanStatus;
 import com.sicarus.repository.LoanRepository;
+import feign.FeignException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -19,17 +18,19 @@ import java.util.List;
 
 @Service
 public class LoanService {
-    private LoanRepository loanRepository;
+    private final LoanRepository loanRepository;
+    private final LoanCustomer loanCustomer;
     //private final NotificationClient notificationClient; // envia evento
 
-    public LoanService(LoanRepository loanRepository) {
+    public LoanService(LoanRepository loanRepository, LoanCustomer loanCustomer) {
         this.loanRepository = loanRepository;
+        this.loanCustomer = loanCustomer;
     }
 
     public List<InstallmentDTO> simulateLoanSchedule(SimulateLoanRequest request) {
-        BigDecimal principal = request.principal();
-        int n = request.termMonths();
-        BigDecimal i = request.interestRate();
+        BigDecimal principal = request.getPrincipal();
+        int n = request.getTermMonths();
+        BigDecimal i = request.getInterestRate();
 
         // Cálculo da parcela fixa (Sistema Price)
         BigDecimal onePlusI = BigDecimal.ONE.add(i);
@@ -103,5 +104,21 @@ public class LoanService {
         );
     }
 
+    public CustomerDto getCustomerByID(Long id) {
+        try {
+            // Verifica se o cliente existe
+            CustomerDto customer = loanCustomer.findById(id);
 
+//            // Cria empréstimo
+//            Loan loan = new Loan();
+//            loan.setCustomerId(customer.getId());
+//            loan.setAmount(request.getAmount());
+//            loan.setCreatedAt(LocalDate.now());
+
+            return customer;
+
+        } catch (FeignException.NotFound e) {
+            throw new IllegalArgumentException("Cliente não encontrado.");
+        }
+    }
 }

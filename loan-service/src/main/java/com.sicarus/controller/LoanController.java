@@ -1,9 +1,6 @@
 package com.sicarus.controller;
 
-import com.sicarus.dto.InstallmentDTO;
-import com.sicarus.dto.LoanRequest;
-import com.sicarus.dto.LoanResponse;
-import com.sicarus.dto.SimulateLoanRequest;
+import com.sicarus.dto.*;
 import com.sicarus.service.LoanService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +39,11 @@ public class LoanController {
     @GetMapping("/client/{customerId}")
     public ResponseEntity<List<LoanResponse>> getByCustomer(@PathVariable Long customerId) {
         return ResponseEntity.ok(loanService.listLoansByCustomer(customerId));
+    }
+
+    @GetMapping("/clientData/{customerId}")
+    public ResponseEntity<CustomerDto> getCustomerById(@PathVariable Long customerId) {
+        return ResponseEntity.ok(loanService.getCustomerByID(customerId));
     }
 
 }

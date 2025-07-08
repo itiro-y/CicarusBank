@@ -86,6 +86,6 @@ volumes:
   auth-data:
   account-data:
   transaction-data:
+  loan-data:
   customer-data: # Added from guilherme-Customer branch
   notification-data: # Added from main branch
-  loan-data:

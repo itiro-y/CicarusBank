@@ -5,7 +5,9 @@ import com.sicarus.model.Account;
 import com.sicarus.model.AccountRepository;
 import jakarta.websocket.server.PathParam;
 import jakarta.ws.rs.Path;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -60,8 +62,18 @@ public class AccountController {
             ){
         Optional<Account> contaModificada = accountRepository.findById(id);
 
-        if(tipoTransacao == TipoTransacao.DEPOSITAR){
-
+        if (contaModificada.isPresent()) {
+            Account conta = contaModificada.get();
+            if (tipoTransacao == TipoTransacao.DEPOSITAR) {
+                conta.setBalance(conta.getBalance().add(saldo));
+                return conta;
+            }else if(tipoTransacao == TipoTransacao.SACAR){
+                conta.setBalance(conta.getBalance().subtract(saldo));
+                return conta;
+            }
+            return accountRepository.save(conta);
+        }else{
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "account not found");
         }
     }
 }

@@ -27,3 +27,16 @@ spring:
               uri: lb://transaction
               predicates:
                 - Path=/transaction/**
+
+            - id: loan
+              uri: lb://loan
+              predicates:
+                - Path=/loan/**
+
+            - id: customers
+              uri: lb://customers
+              predicates:
+                - Path=/customers/**
+
+
+

@@ -40,7 +40,7 @@ public class Transaction {
         this.transactionType = transactionType;
         this.amount = amount;
         this.timestamp = timestamp;
-        this.setTransactionStatus(TransactionStatus.ACTIVE);
+        this.setTransactionStatus(TransactionStatus.COMPLETED);
     }
 
     public Long getId() {

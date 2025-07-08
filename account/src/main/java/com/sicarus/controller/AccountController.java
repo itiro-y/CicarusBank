@@ -1,10 +1,8 @@
 package com.sicarus.controller;
 
-import com.sicarus.enums.TipoTransacao;
+import com.sicarus.enums.TransactionType;
 import com.sicarus.model.Account;
 import com.sicarus.model.AccountRepository;
-import jakarta.websocket.server.PathParam;
-import jakarta.ws.rs.Path;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -58,15 +56,15 @@ public class AccountController {
     public Account alterarSaldo(
             @PathVariable Long id,
             @PathVariable BigDecimal saldo,
-            @PathVariable TipoTransacao tipoTransacao
+            @PathVariable TransactionType tipoTransacao
             ){
         Optional<Account> contaModificada = accountRepository.findById(id);
 
         if (contaModificada.isPresent()) {
             Account conta = contaModificada.get();
-            if (tipoTransacao == TipoTransacao.DEPOSITAR) {
+            if (tipoTransacao == TransactionType.DEPOSIT) {
                 conta.setBalance(conta.getBalance().add(saldo));
-            }else if(tipoTransacao == TipoTransacao.SACAR){
+            }else if(tipoTransacao == TransactionType.WITHDRAWAL){
                 conta.setBalance(conta.getBalance().subtract(saldo));
             }
             return accountRepository.save(conta);

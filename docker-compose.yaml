@@ -124,6 +124,34 @@ services:
       - mysql-customer
       - naming-server
 
+  loan-service:
+    build:
+      context: ./auth
+    ports:
+      - "8400:8400"
+    environment:
+      # Override the datasource URL to point to the MySQL container's service name
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-loan:3306/loan_db
+      # You also need to do this for Eureka!
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
+    depends_on:
+      - mysql-loan
+      - naming-server
+
+  notification:
+    build:
+      context: ./auth
+    ports:
+      - "8082:8082"
+    environment:
+      # Override the datasource URL to point to the MySQL container's service name
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-notification:3306/notification_db
+      # You also need to do this for Eureka!
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
+    depends_on:
+      - mysql-notification
+      - naming-server
+
 
 volumes:
   auth-data:

@@ -1,6 +1,8 @@
 server:
   port: 8300
 spring:
+  application:
+    name: customers
   datasource:
     url: jdbc:mysql://localhost:3311/customer_db
     username: root
@@ -11,3 +13,12 @@ spring:
       ddl-auto: update
       show-sql: true
     database-platform: org.hibernate.dialect.MySQL8Dialect
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: false     # opcional: se quiser registrar pelo IP em vez de hostname
+    lease-renewal-interval-in-seconds: 5
+    health-check-url-path: /actuator/health

@@ -100,7 +100,7 @@ services:
     build:
       context: ./auth
     ports:
-      - "8200:8200"
+      - "8000:8000"
     environment:
       # Override the datasource URL to point to the MySQL container's service name
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-auth:3306/auth_db

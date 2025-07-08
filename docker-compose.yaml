@@ -54,6 +54,18 @@ services:
     volumes:
       - notification-data:/var/lib/mysql
 
+
+  mysql-loan:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_DATABASE: loan_db
+    ports:
+      - "3312:3306"  # Loan DB on host port 3312
+    volumes:
+      - loan-data:/var/lib/mysql
+
   naming-server:
     build:
       context: ./naming-server # Path to the naming-server project folder
@@ -74,5 +86,6 @@ volumes:
   auth-data:
   account-data:
   transaction-data:
+  loan-data:
   customer-data: # Added from guilherme-Customer branch
   notification-data: # Added from main branch

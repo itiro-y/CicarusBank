@@ -1,0 +1,15 @@
+
+Testar o @PostMapping("/simulate")
+{
+  "principal": 10000.00,
+  "termMonths": 12,
+  "interestRate": 0.019
+}
+
+Testar o @PostMapping
+{
+  "customerId": 123,
+  "amount": 5000.00,
+  "termMonths": 24,
+  "interestRate": 0.015
+}

@@ -1,7 +1,6 @@
 package com.sicarus.util;
 
-import com.sicarus.entities.User;
-import com.sicarus.entities.UserRoles;
+import com.sicarus.model.UserRoles;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

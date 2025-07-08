@@ -1,0 +1,17 @@
+server:
+  port: 8400
+spring:
+  application:
+    name: loan-service
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3312/loan_db
+    username: root
+    password: 123
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+    show-sql: false
+    open-in-view: false

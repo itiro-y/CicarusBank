@@ -52,43 +52,59 @@ public class TransactionController {
         // Pega um AccountDTO por ID do micro Account
         AccountDTO account = transactionService.getAccount(request.getAccountId());
 
-
-
         if(request.getAmount() == null || request.getAmount().compareTo(BigDecimal.ZERO) <= 0){
+            Transaction transaction = transactionService.createAndSetTransaction(request.getAccountId(),
+                                                                                 request.getAmount(),
+                                                                                 request.getTransactionType(),
+                                                                                 TransactionStatus.DECLINED);
+            transactionRepository.save(transaction);
             return ResponseEntity.badRequest().body("Quantia recebida como parâmetro é zero/negativo/null");
         }
 
         // Verificar se a conta existe
         if(account == null) {
+            Transaction transaction = transactionService.createAndSetTransaction(request.getAccountId(),
+                                                                                 request.getAmount(),
+                                                                                 request.getTransactionType(),
+                                                                                 TransactionStatus.DECLINED);
+            transactionRepository.save(transaction);
             return ResponseEntity.badRequest().body("Conta não existe");
         }
 
         // Verificar se a conta possui saldo
-        if(transactionService.validaSaldo(request.getAccountId(), request.getAmount())){
-            return ResponseEntity.badRequest().body("Conta não possui saldo suficiente");
+        if(transactionService.validateBalance(request.getAccountId(), request.getAmount(), request.getTransactionType())){
+            Transaction transaction = transactionService.createAndSetTransaction(request.getAccountId(),
+                                                                                 request.getAmount(),
+                                                                                 request.getTransactionType(),
+                                                                                 TransactionStatus.DECLINED);
+            transactionRepository.save(transaction);
+            return ResponseEntity.badRequest().body("Erro: Saldo insuficiente/nulo");
         }
 
         if(request.getTransactionType().equals(TransactionType.DEPOSIT)){
             // Depositar no account e salvar no banco de account
+            transactionService.depositBalance(account.getId(), request.getAmount());
         }
 
         if(request.getTransactionType().equals(TransactionType.WITHDRAWAL)){
             // Sacar de account e salvar novo saldo no banco de account
+            transactionService.withdrawBalance(account.getId(), request.getAmount());
         }
 
         if(request.getTransactionType().equals(TransactionType.TRANSFER)){
             // Transferir dinheiro de account para accountTo e salvar ambos saldos
-
             AccountDTO accountTo = transactionService.getAccount(request.getAccountToId());
 
+            Long accountFromId = account.getId();
+            Long accountToId = accountTo.getId();
+            BigDecimal amount = request.getAmount();
+            transactionService.transferBalance(accountFromId, accountToId, amount);
         }
 
-        Transaction transaction = new Transaction();
-        transaction.setAccountId(request.getAccountId());
-        transaction.setTransactionType(request.getTransactionType());
-        transaction.setAmount(request.getAmount());
-        transaction.setTimestamp(new Date());
-        transaction.setTransactionStatus(TransactionStatus.ACTIVE);
+        Transaction transaction = transactionService.createAndSetTransaction(request.getAccountId(),
+                                                                             request.getAmount(),
+                                                                             request.getTransactionType(),
+                                                                             TransactionStatus.COMPLETED);
 
         transactionRepository.save(transaction);
         return ResponseEntity.status(HttpStatus.CREATED).body("Transação criada com sucesso!");

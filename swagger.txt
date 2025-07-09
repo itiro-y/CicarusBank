@@ -58,6 +58,7 @@ springdoc:
     path: /transaction/v3/api-docs
   swagger-ui:
     url: /transaction/v3/api-docs
+  override-server-url: true
 
 
 

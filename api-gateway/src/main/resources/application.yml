@@ -37,6 +37,16 @@ spring:
               predicates:
                 - Path=/customers/**
 
+            - id: exchange
+              uri: lb://exchange
+              predicates:
+                - Path=/exchange/**
+
+            - id: notification
+              uri: lb://notification
+              predicates:
+                - Path=/notification/**
+
 springdoc:
   swagger-ui:
     urls:
@@ -44,15 +54,11 @@ springdoc:
         url: /transaction/v3/api-docs
       - name: auth
         url: /auth/v3/api-docs
+      - name: notification
+        url: /notification/v3/api-docs
       - name: customers
         url: /customers/v3/api-docs
       - name: exchange
         url: /exchange/v3/api-docs
   override-server-url: true
-
-
-
-
-
-
 

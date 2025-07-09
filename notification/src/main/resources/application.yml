@@ -22,10 +22,6 @@ spring:
           starttls:
             enable: true
 
-  rabbitmq:
-    host: localhost
-    port: 5672
-
 server:
   port: 8082
 
@@ -39,6 +35,9 @@ eureka:
     health-check-url-path: /actuator/health
 
 management:
+  health:
+   rabbit:
+     enabled: false
   endpoints:
     web:
       exposure:

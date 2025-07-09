@@ -21,6 +21,21 @@ public class OpenApiConfiguration {
     }
 }
 
+
+--com.cicarus.config (trocar o nome do microservice de acordo)--
+
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                    .allowedOriginPatterns("*")
+                    .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+                    .allowCredentials(true)
+                    .maxAge(3600);
+    }
+}
+
 --no controller de cada micro--
 
 	@Tag(name = "Transaction Endpoint")
@@ -33,3 +48,25 @@ public class OpenApiConfiguration {
         		return transactionRepository.findAll();
     		}
 	}
+
+-- no application.yml --
+
+springdoc:
+  api-docs:
+    path: /transaction/v3/api-docs
+  swagger-ui:
+    url: /transaction/v3/api-docs
+
+
+
+-- no application.yml do api-gateway --
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: transaction
+        url: /transaction/v3/api-docs
+      - name: seu-micro
+        url: /seu-micro/v3/api-docs
+  override-server-url: true
+

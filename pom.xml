@@ -12,6 +12,7 @@
         <module>account</module>
         <module>api-gateway</module>
         <module>auth</module>
+        <module>loan-service</module>
         <module>customer-service</module>
         <module>naming-server</module>
         <module>notification</module>

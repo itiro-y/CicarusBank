@@ -10,7 +10,7 @@ import java.util.List;
 
 @Tag(name = " Notification Endpoint")
 @RestController
-@RequestMapping("/notifications")
+@RequestMapping("/notification")
 public class NotificationController {
 
     private final NotificationRepository repository;

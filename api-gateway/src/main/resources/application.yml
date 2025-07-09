@@ -42,10 +42,10 @@ spring:
               predicates:
                 - Path=/exchange/**
 
-            - id: notifications
-              uri: lb://notifications
+            - id: notification
+              uri: lb://notification
               predicates:
-                - Path=/notifications/**
+                - Path=/notification/**
 
 springdoc:
   swagger-ui:
@@ -54,8 +54,8 @@ springdoc:
         url: /transaction/v3/api-docs
       - name: auth
         url: /auth/v3/api-docs
-      - name: notifications
-        url: /notifications/v3/api-docs
+      - name: notification
+        url: /notification/v3/api-docs
 
 
 

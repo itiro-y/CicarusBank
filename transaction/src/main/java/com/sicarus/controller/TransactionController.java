@@ -8,6 +8,8 @@ import com.sicarus.model.TransactionStatus;
 import com.sicarus.model.TransactionType;
 import com.sicarus.repository.TransactionRepository;
 import com.sicarus.service.TransactionService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+@Tag(name = "Transaction Endpoint")
 @RestController
 @RequestMapping("transaction")
 public class TransactionController {
@@ -34,18 +37,21 @@ public class TransactionController {
     }
 
     // Get all transactions
+    @Operation(summary = "Get all transactions")
     @GetMapping
     public List<Transaction> getAllTransactions() {
         return transactionRepository.findAll();
     }
 
     // Get transaction by id
+    @Operation(summary = "Get a transaction by id")
     @GetMapping("/{id}")
     public Optional<Transaction> getTransactionById(@PathVariable Long id){
         return transactionRepository.findById(id);
     }
 
     // Post new transaction passing a JSON request body
+    @Operation(summary = "Post a new transaction. It receives a JSON request body of type TransactionRequestDTO")
     @PostMapping
     public ResponseEntity<String> postTransaction(@RequestBody TransactionRequestDTO request){
 
@@ -111,6 +117,7 @@ public class TransactionController {
     }
 
     // Put that cancels a transaction based on a given id
+    @Operation(summary = "Put that cancels a transaction based on a given id")
     @PutMapping("/cancel/{id}")
     public ResponseEntity<String> cancelTransaction(@PathVariable Long id){
         if(transactionRepository.findById(id).isPresent()){
@@ -124,6 +131,7 @@ public class TransactionController {
     }
 
     // Put that reversals a transaction based on a given id
+    @Operation(summary = "Put that reversals a transaction based on a given id")
     @PutMapping("/reversal/{id}")
     public ResponseEntity<String> reversalTransaction(@PathVariable Long id){
         if(transactionRepository.findById(id).isPresent()){
@@ -137,6 +145,7 @@ public class TransactionController {
     }
 
     // Get account by Id
+    @Operation(summary = "Get account from (account microservice) by Id")
     @GetMapping("/account/{id}")
     public ResponseEntity<AccountDTO> getAccountById(@PathVariable Long id){
         AccountDTO account = transactionService.getAccount(id);

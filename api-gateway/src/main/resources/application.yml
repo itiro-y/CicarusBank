@@ -12,7 +12,6 @@ spring:
       server:
         webflux:
           routes:
-
             - id: account
               uri: lb://account
               predicates:
@@ -27,3 +26,25 @@ spring:
               uri: lb://transaction
               predicates:
                 - Path=/transaction/**
+
+            - id: loan
+              uri: lb://loan
+              predicates:
+                - Path=/loan/**
+
+            - id: customers
+              uri: lb://customers
+              predicates:
+                - Path=/customers/**
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: transaction
+        url: /transaction/v3/api-docs
+      - name: auth
+        url: /auth/v3/api-docs
+
+
+
+

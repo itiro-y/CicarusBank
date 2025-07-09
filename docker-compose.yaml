@@ -1,4 +1,3 @@
-
 services:
   mysql-auth:
     image: mysql:8.0
@@ -33,28 +32,157 @@ services:
     volumes:
       - transaction-data:/var/lib/mysql
 
-  mysql-notification:
+  mysql-customer: # From guilherme-Customer branch
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_DATABASE: customer_db
+    ports:
+      - "3311:3306"
+    volumes:
+      - customer-data:/var/lib/mysql
+
+  mysql-currency:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_DATABASE: exchange_db
+    ports:
+      - "3313:3306" # Notification DB on host port 3313
+    volumes:
+      - currency-data:/var/lib/mysql
+
+  mysql-notification: # From main branch
     image: mysql:8.0
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: 123
       MYSQL_DATABASE: notification_db
     ports:
-      - "3310:3306"  # Notification DB on host port 3310
+      - "3310:3306" # Notification DB on host port 3310
     volumes:
       - notification-data:/var/lib/mysql
 
+
+  mysql-loan:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_DATABASE: loan_db
+    ports:
+      - "3312:3306"  # Loan DB on host port 3312
+    volumes:
+      - loan-data:/var/lib/mysql
+
   naming-server:
     build:
-      # Path to the naming-server project folder
-      context: ./naming-server
+      context: ./naming-server # Path to the naming-server project folder
     ports:
-      # Map host port 8761 to container port 8761
-      - "8761:8761"
+      - "8761:8761" # Map host port 8761 to container port 8761
+
+  api-gateway:
+    build:
+      context: ./api-gateway # Path to api-gateway project
+    ports:
+      - "8765:8765"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
+    depends_on:
+      - naming-server
+
+  account:
+    build:
+      context: ./account
+    ports:
+      - "8200:8200"
+    environment:
+      # Override the datasource URL to point to the MySQL container's service name
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-account:3306/account_db
+      # You also need to do this for Eureka!
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
+    depends_on:
+      - mysql-account
+      - naming-server
+
+  auth:
+    build:
+      context: ./auth
+    ports:
+      - "8000:8000"
+    environment:
+      # Override the datasource URL to point to the MySQL container's service name
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-auth:3306/auth_db
+      # You also need to do this for Eureka!
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
+    depends_on:
+      - mysql-auth
+      - naming-server
+
+  customer-service:
+    build:
+      context: ./customer-service
+    ports:
+      - "8300:8300"
+    environment:
+      # Override the datasource URL to point to the MySQL container's service name
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-customer:3306/customer_db
+      # You also need to do this for Eureka!
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
+    depends_on:
+      - mysql-customer
+      - naming-server
+
+  loan-service:
+    build:
+      context: ./loan-service
+    ports:
+      - "8400:8400"
+    environment:
+      # Override the datasource URL to point to the MySQL container's service name
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-loan:3306/loan_db
+      # You also need to do this for Eureka!
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
+    depends_on:
+      - mysql-loan
+      - naming-server
+
+  notification:
+    build:
+      context: ./notification
+    ports:
+      - "8082:8082"
+    environment:
+      # Override the datasource URL to point to the MySQL container's service name
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-notification:3306/notification_db
+      # You also need to do this for Eureka!
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
+    depends_on:
+      - mysql-notification
+      - naming-server
+
+  transaction:
+    build:
+      context: ./transaction
+    ports:
+      - "8100:8100"
+    environment:
+      # Override the datasource URL to point to the MySQL container's service name
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-transaction:3306/transaction_db
+      # You also need to do this for Eureka!
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
+    depends_on:
+      - mysql-transaction
+      - naming-server
 
 
 volumes:
   auth-data:
   account-data:
   transaction-data:
-  notification-data:
+  loan-data:
+  customer-data: # Added from guilherme-Customer branch
+  currency-data:
+  notification-data: # Added from main branch

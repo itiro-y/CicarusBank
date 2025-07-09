@@ -1,10 +1,13 @@
 package com.sicarus.controller;
 
+import com.sicarus.enums.TransactionType;
 import com.sicarus.model.Account;
 import com.sicarus.model.AccountRepository;
-import jakarta.websocket.server.PathParam;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,5 +51,26 @@ public class AccountController {
                 .orElseGet(() -> {
                    return accountRepository.save(updatedAccount);
                 });
+    }
+
+    @PutMapping("/account/{id}/{saldo}/{tipoTransacao}")
+    public Account alterarSaldo(
+            @PathVariable Long id,
+            @PathVariable BigDecimal saldo,
+            @PathVariable TransactionType tipoTransacao
+            ){
+        Optional<Account> contaModificada = accountRepository.findById(id);
+
+        if (contaModificada.isPresent()) {
+            Account conta = contaModificada.get();
+            if (tipoTransacao == TransactionType.DEPOSIT) {
+                conta.setBalance(conta.getBalance().add(saldo));
+            }else if(tipoTransacao == TransactionType.WITHDRAWAL){
+                conta.setBalance(conta.getBalance().subtract(saldo));
+            }
+            return accountRepository.save(conta);
+        }else{
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "account not found");
+        }
     }
 }

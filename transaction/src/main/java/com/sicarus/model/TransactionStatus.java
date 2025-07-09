@@ -1,8 +1,9 @@
 package com.sicarus.model;
 
 public enum TransactionStatus {
-    ACTIVE,
+    COMPLETED,
     CANCELLED,
+    DECLINED,
     PENDING,
     REVERSED
 }

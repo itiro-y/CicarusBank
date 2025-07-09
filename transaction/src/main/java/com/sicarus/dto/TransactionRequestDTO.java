@@ -2,10 +2,21 @@ package com.sicarus.dto;
 
 import com.sicarus.model.TransactionType;
 
+import java.math.BigDecimal;
+
 public class TransactionRequestDTO {
     private Long accountId;
+    private Long accountToId;
     private TransactionType transactionType;
-    private Double amount;
+    private BigDecimal amount;
+
+    public Long getAccountToId() {
+        return accountToId;
+    }
+
+    public void setAccountToId(Long accountToId) {
+        this.accountToId = accountToId;
+    }
 
     public Long getAccountId() {
         return accountId;
@@ -15,11 +26,11 @@ public class TransactionRequestDTO {
         this.accountId = accountId;
     }
 
-    public Double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

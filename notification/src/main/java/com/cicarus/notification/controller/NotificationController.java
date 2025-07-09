@@ -20,4 +20,9 @@ public class NotificationController {
     public List<Notification> getByCustomer(@RequestParam Long customerId) {
         return repository.findByCustomerId(customerId);
     }
+
+    @GetMapping("/hello")
+    public String helloEndpoint(){
+        return "Hello from notification ms!";
+    }
 }

@@ -25,6 +25,7 @@ public class CustomerService {
         BeanUtils.copyProperties(saved, Response);
         return Response;
     }
+
     public CustomerResponse getById(Long id) {
         Customer customer = repository.findById(id).orElseThrow(() -> new RuntimeException("Customer not found"));
 
@@ -32,6 +33,7 @@ public class CustomerService {
         BeanUtils.copyProperties(customer,response);
         return response;
     }
+
     public List<CustomerResponse> getAll() {
         return repository.findAll().stream().map(customer -> {
             CustomerResponse resp = new CustomerResponse();
@@ -39,6 +41,7 @@ public class CustomerService {
             return resp;
         }).toList();
     }
+
     public void delete(Long id) {
         repository.deleteById(id);
     }

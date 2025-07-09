@@ -1,6 +1,8 @@
 spring:
   application:
     name: notification
+  kafka:
+    bootstrap-servers: kafka:9092
   datasource:
     url: jdbc:mysql://localhost:3310/notification_db
     username: root

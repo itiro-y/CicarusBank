@@ -13,21 +13,31 @@ public class NotificationService {
     private final NotificationRepository repository;
     private final NotificationSender sender;
 
+
     public NotificationService(NotificationRepository repository, NotificationSender sender) {
         this.repository = repository;
         this.sender = sender;
     }
 
     public void processNotification(NotificationEvent event) {
-        Notification notification = Notification.builder()
-                .customerId(event.getCustomerId())
-                .channel(event.getChannel())
-                .message(event.getMessage())
-                .recipientEmail(event.getRecipientEmail())
-                .sentAt(Instant.now())
-                .build();
+        Notification notification = new Notification(
+                event.getCustomerId(),
+                Long.parseLong(event.getChannel()),
+                event.getMessage(),
+                event.getRecipientEmail(),
+                Instant.now());
 
         repository.save(notification);
         sender.send(notification);
     }
+
+    public NotificationRepository getRepository() {
+        return repository;
+    }
+
+    public NotificationSender getSender() {
+        return sender;
+    }
+
+
 }

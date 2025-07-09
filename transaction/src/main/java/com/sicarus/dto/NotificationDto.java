@@ -1,15 +1,8 @@
-package com.cicarus.notification.model;
-
-import jakarta.persistence.*;
-import lombok.*;
+package com.sicarus.dto;
 
 import java.time.Instant;
 
-@Entity
-public class Notification {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class NotificationDto {
     private Long id;
 
     private Long customerId;
@@ -19,10 +12,10 @@ public class Notification {
 
     private String recipientEmail; // <- opcional, útil para histórico
 
-    public Notification() {
+    public NotificationDto() {
     }
 
-    public Notification(Long id, Long customerId, String channel, String message, Instant sentAt) {
+    public NotificationDto(Long id, Long customerId, String channel, String message, Instant sentAt) {
         this.id = id;
         this.customerId = customerId;
         this.channel = channel;

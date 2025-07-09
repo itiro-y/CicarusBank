@@ -1,14 +1,51 @@
 package com.cicarus.notification.dto;
 
-import lombok.*;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class NotificationEvent {
     private Long customerId;
     private String channel;
     private String message;
     private String recipientEmail; // <- novo campo
+
+    public NotificationEvent() {
+    }
+
+    public NotificationEvent(Long customerId, String channel, String message, String recipientEmail) {
+        this.customerId = customerId;
+        this.channel = channel;
+        this.message = message;
+        this.recipientEmail = recipientEmail;
+    }
+
+    public Long getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
+    }
+
+    public String getChannel() {
+        return channel;
+    }
+
+    public void setChannel(String channel) {
+        this.channel = channel;
+    }
+
+    public String getRecipientEmail() {
+        return recipientEmail;
+    }
+
+    public void setRecipientEmail(String recipientEmail) {
+        this.recipientEmail = recipientEmail;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
 }

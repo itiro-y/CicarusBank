@@ -14,3 +14,39 @@ Requisitos funcionais
 | 01     | Manter todos os dados do cliente                                 | Alta           |
 | 02     | Validação dos campos                                             | Alta           |
 | 03     | CRUD                                                             | Alta           |
+
+`Transaction`
+| **ID**  | **Requisito**                                                   | **Prioridade** |
+|--------|------------------------------------------------------------------|----------------|
+| 01     | Manter todos os dados do cliente                                 | Alta           |
+| 02     | Validação dos campos                                             | Alta           |
+| 03     | CRUD                                                             | Alta           |
+
+`Account`
+| **ID**  | **Requisito**                                                   | **Prioridade** |
+|--------|------------------------------------------------------------------|----------------|
+| 01     | Manter todos os dados do cliente                                 | Alta           |
+| 02     | Validação dos campos                                             | Alta           |
+| 03     | CRUD                                                             | Alta           |
+
+`Loan-Service`
+| **ID**  | **Requisito**                                                   | **Prioridade** |
+|--------|------------------------------------------------------------------|----------------|
+| 01     | Manter todos os dados do cliente                                 | Alta           |
+| 02     | Validação dos campos                                             | Alta           |
+| 03     | CRUD                                                             | Alta           |
+
+`Notification`
+| **ID**  | **Requisito**                                                   | **Prioridade** |
+|--------|------------------------------------------------------------------|----------------|
+| 01     | Manter todos os dados do cliente                                 | Alta           |
+| 02     | Validação dos campos                                             | Alta           |
+| 03     | CRUD                                                             | Alta           |
+
+`Currency-Exchange`
+| **ID**  | **Requisito**                                                   | **Prioridade** |
+|--------|------------------------------------------------------------------|----------------|
+| 01     | Manter todos os dados do cliente                                 | Alta           |
+| 02     | Validação dos campos                                             | Alta           |
+| 03     | CRUD                                                             | Alta           |
+

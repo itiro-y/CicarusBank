@@ -56,6 +56,9 @@ springdoc:
         url: /auth/v3/api-docs
       - name: notification
         url: /notification/v3/api-docs
-
-
+      - name: customers
+        url: /customers/v3/api-docs
+      - name: exchange
+        url: /exchange/v3/api-docs
+  override-server-url: true
 

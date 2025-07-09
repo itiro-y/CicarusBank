@@ -37,6 +37,16 @@ spring:
               predicates:
                 - Path=/customers/**
 
+            - id: notifications
+              uri: lb://notifications
+              predicates:
+                - Path=/notifications/**
+
+            - id: exchange
+              uri: lb://exchange
+              predicates:
+                - Path=/exchange/**
+
 springdoc:
   swagger-ui:
     urls:

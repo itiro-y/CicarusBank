@@ -1,4 +1,4 @@
---importar--
+--importar no pom--
 
 		<dependency>
 			<groupId>org.springdoc</groupId>
@@ -6,6 +6,7 @@
 			<version>2.8.9</version>
 		</dependency>
 
+-- ATUALIZAR O MAVEN --
 
 --com.cicarus.config (trocar o nome do microservice de acordo)--
 
@@ -22,7 +23,7 @@ public class OpenApiConfiguration {
 }
 
 
---com.cicarus.config (trocar o nome do microservice de acordo)--
+--com.cicarus.config--
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
@@ -38,18 +39,19 @@ public class WebConfig implements WebMvcConfigurer {
 
 --no controller de cada micro--
 
-	@Tag(name = "Transaction Endpoint")
+->	@Tag(name = " Seu-Micro Endpoint")
 	@RestController
 	@RequestMapping("transaction")
 	public class TransactionController {
-		@Operation(summary = "Get all transactions")
-    		@GetMapping
-    		public List<Transaction> getAllTransactions() {
-        		return transactionRepository.findAll();
-    		}
+
+->		@Operation(summary = "Descricao do que este metodo faz")
+    	@GetMapping
+    	public List<Transaction> getAllTransactions() {
+        	return transactionRepository.findAll();
+    	}
 	}
 
--- no application.yml --
+-- no application.yml do micro (indentacao root - mesma que spring) --
 
 springdoc:
   api-docs:
@@ -59,7 +61,7 @@ springdoc:
 
 
 
--- no application.yml do api-gateway --
+-- adicione seu micro na lista no application.yml do api-gateway --
 
 springdoc:
   swagger-ui:

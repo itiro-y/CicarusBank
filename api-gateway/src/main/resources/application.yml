@@ -42,6 +42,8 @@ springdoc:
     urls:
       - name: transaction
         url: /transaction/v3/api-docs
+      - name: auth
+        url: /auth/v3/api-docs
 
 
 

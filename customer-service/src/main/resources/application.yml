@@ -19,8 +19,6 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
     validate-on-migrate: true
-
-
 eureka:
   client:
     service-url:
@@ -31,3 +29,8 @@ eureka:
     hostname: localhost
     lease-renewal-interval-in-seconds: 5
     health-check-url-path: /actuator/health
+
+management:
+  health:
+    rabbit:
+      enabled: false

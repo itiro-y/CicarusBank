@@ -46,8 +46,8 @@ springdoc:
         url: /auth/v3/api-docs
       - name: customers
         url: /customers/v3/api-docs
-      - name: currency-exchange
-        url: /currency-exchange/v3/api-docs
+      - name: exchange
+        url: /exchange/v3/api-docs
   override-server-url: true
 
 

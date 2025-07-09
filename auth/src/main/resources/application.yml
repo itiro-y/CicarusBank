@@ -52,3 +52,9 @@ management:
     web:
       exposure:
         include: "*"
+
+springdoc:
+  api-docs:
+    path: /auth/v3/api-docs
+  swagger-ui:
+    url: /auth/v3/api-docs

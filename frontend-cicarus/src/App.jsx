@@ -1,15 +1,18 @@
-// src/App.jsx
+// Em: src/App.jsx
 import { Routes, Route } from 'react-router-dom';
-import LoginPage from './pages/LoginPage';
-import DashboardPage from './pages/DashboardPage';
+import SignInPage from './pages/SignIn.jsx';
+import DashboardPage from './pages/DashboardPage.jsx'; // Importa a nova página de Dashboard
+import AppTheme from './theme/AppTheme.jsx';
 
 function App() {
     return (
-        <Routes>
-            <Route path="/" element={<LoginPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
-        </Routes>
+        <AppTheme>
+            <Routes>
+                <Route path="/" element={<SignInPage />} />
+                <Route path="/login" element={<SignInPage />} />
+                <Route path="/dashboard" element={<DashboardPage />} />
+            </Routes>
+        </AppTheme>
     );
 }
 

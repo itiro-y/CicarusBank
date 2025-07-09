@@ -2,6 +2,8 @@ server:
   port: 8500
 
 spring:
+  application:
+    name: currency-exchange
   datasource:
     url: jdbc:mysql://localhost:3313/exchange_db
     username: root
@@ -23,4 +25,17 @@ spring:
   properties:
     hibernate:
       format_sql: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/ # Mesma URL do Eureka Server
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+    hostname: localhost
+    lease-renewal-interval-in-seconds: 5
+    health-check-url-path: /actuator/health
+
+
 

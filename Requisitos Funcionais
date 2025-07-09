@@ -1,0 +1,16 @@
+Requisitos funcionais
+
+`Auth`
+| **ID**  | **Requisito**                                                   | **Prioridade** |
+|--------|------------------------------------------------------------------|----------------|
+| 01     | O usuário pode fazer login com e-mail e senha.                   | Alta           |
+| 02     | Mensagens de erro caso algum campo seja digitado incorretamente  | Alta           |
+| 03     | CRUD                                                             | Alta           |
+
+
+`Customer-Service`
+| **ID**  | **Requisito**                                                   | **Prioridade** |
+|--------|------------------------------------------------------------------|----------------|
+| 01     | Manter todos os dados do cliente                                 | Alta           |
+| 02     | Validação dos campos                                             | Alta           |
+| 03     | CRUD                                                             | Alta           |

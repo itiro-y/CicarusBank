@@ -43,3 +43,9 @@ management:
       exposure:
         include: health,info
 
+springdoc:
+  api-docs:
+    path: /notifications/v3/api-docs
+  swagger-ui:
+    url: /notifications/v3/api-docs
+  override-server-url: true

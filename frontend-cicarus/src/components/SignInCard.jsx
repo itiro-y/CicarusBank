@@ -1,35 +1,12 @@
-// Em: src/components/SignInCard.jsx
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import MuiCard from '@mui/material/Card';
-import Checkbox from '@mui/material/Checkbox';
-import FormLabel from '@mui/material/FormLabel';
-import FormControl from '@mui/material/FormControl';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Link from '@mui/material/Link';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import { styled } from '@mui/material/styles';
+import {
+    Box, Button, Card, Checkbox, FormControl, FormControlLabel, Link as MuiLink, TextField, Typography
+} from '@mui/material';
 import ForgotPassword from './ForgotPassword.jsx';
 
-const Card = styled(MuiCard)(({ theme }) => ({
-    display: 'flex',
-    flexDirection: 'column',
-    alignSelf: 'center',
-    width: '100%',
-    padding: theme.spacing(4),
-    gap: theme.spacing(3),
-    backgroundColor: 'transparent',
-    border: 'none',
-    boxShadow: 'none',
-    [theme.breakpoints.up('sm')]: {
-        width: '450px',
-    },
-}));
-
-export default function SignInCard() {
+// 1. O componente agora recebe a prop 'onSwitchToSignUp' para acionar a animação.
+export default function SignInCard({ onSwitchToSignUp }) {
     const [open, setOpen] = React.useState(false);
     const navigate = useNavigate();
 
@@ -42,13 +19,26 @@ export default function SignInCard() {
         if (username === 'admin' && password === 'admin123') {
             navigate('/dashboard');
         } else {
-            alert("Username ou senha inválidos.");
+            alert("Usuário ou senha inválidos.");
         }
     };
 
+    const handleForgotPasswordOpen = () => setOpen(true);
+    const handleForgotPasswordClose = () => setOpen(false);
+
     return (
-        <Card>
-            {/* IMAGEM ADICIONADA AQUI */}
+        <Card sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignSelf: 'center',
+            width: '100%',
+            maxWidth: '450px', // Definindo uma largura máxima
+            p: 4,
+            gap: 3,
+            backgroundColor: 'transparent',
+            border: 'none',
+            boxShadow: 'none',
+        }}>
             <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
                 <img
                     src="https://i.postimg.cc/HntRVrDy/f85b6d78-659d-4b19-85b2-ed764895fa09-removebg-preview.png"
@@ -57,17 +47,14 @@ export default function SignInCard() {
                 />
             </Box>
 
+            {/* 2. Textos traduzidos para português */}
             <Typography component="h1" variant="h4" sx={{ color: '#fff', fontWeight: 'bold', textAlign: 'center' }}>
                 Acesse sua conta
             </Typography>
-            <Box
-                component="form"
-                onSubmit={handleSubmit}
-                noValidate
-                sx={{ display: 'flex', flexDirection: 'column', width: '100%', gap: 2 }}
-            >
+
+            <Box component="form" onSubmit={handleSubmit} noValidate sx={{ display: 'flex', flexDirection: 'column', width: '100%', gap: 2 }}>
                 <FormControl>
-                    <FormLabel htmlFor="username" sx={{ color: 'grey.400' }}>Username</FormLabel>
+                    <Typography component="label" htmlFor="username" sx={{ color: 'grey.400', mb: 1 }}>Usuário</Typography>
                     <TextField
                         id="username"
                         name="username"
@@ -77,7 +64,6 @@ export default function SignInCard() {
                         fullWidth
                         variant="outlined"
                         sx={{
-                            mt: 1,
                             '& .MuiOutlinedInput-root': {
                                 backgroundColor: 'rgba(255, 255, 255, 0.05)',
                                 color: '#fff',
@@ -89,11 +75,11 @@ export default function SignInCard() {
                     />
                 </FormControl>
                 <FormControl>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <FormLabel htmlFor="password" sx={{ color: 'grey.400' }}>Password</FormLabel>
-                        <Link component="button" type="button" onClick={() => setOpen(true)} variant="body2" sx={{ color: 'grey.400', '&:hover': { color: '#e46820' } }}>
-                            Forgot your password?
-                        </Link>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography component="label" htmlFor="password" sx={{ color: 'grey.400' }}>Senha</Typography>
+                        <MuiLink component="button" type="button" onClick={handleForgotPasswordOpen} variant="body2" sx={{ color: 'grey.400', '&:hover': { color: '#e46820' } }}>
+                            Esqueceu sua senha?
+                        </MuiLink>
                     </Box>
                     <TextField
                         name="password"
@@ -117,33 +103,42 @@ export default function SignInCard() {
                 </FormControl>
                 <FormControlLabel
                     control={<Checkbox value="remember" sx={{ color: 'grey.500', '&.Mui-checked': { color: '#e46820' } }} />}
-                    label="Remember me"
+                    label="Lembrar-me"
                     sx={{ color: 'grey.300' }}
                 />
-                <ForgotPassword open={open} handleClose={() => setOpen(false)} />
-                <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    sx={{
-                        mt: 2,
-                        py: 1.5,
-                        fontSize: '1rem',
-                        fontWeight: 'bold',
-                        backgroundColor: '#e46820',
-                        '&:hover': {
-                            backgroundColor: '#d15e1c',
-                        },
-                    }}
-                >
-                    Sign in
+
+                {/* 3. Prop 'onClose' corrigida para o padrão */}
+                <ForgotPassword open={open} onClose={handleForgotPasswordClose} />
+
+                <Button type="submit" fullWidth variant="contained" sx={{ mt: 2, py: 1.5, fontSize: '1rem', fontWeight: 'bold', backgroundColor: '#e46820', '&:hover': { backgroundColor: '#d15e1c' } }}>
+                    Entrar
                 </Button>
-                <Typography sx={{ textAlign: 'center', color: 'grey.500', mt: 2 }}>
-                    Don't have an account?{' '}
-                    <Link href="#" variant="body2" sx={{ color: '#e46820', fontWeight: 'bold' }}>
-                        Sign up
-                    </Link>
-                </Typography>
+
+                <Box sx={{ mt: 2, textAlign: 'center' }}>
+                    <Typography variant="body2" sx={{ color: 'grey.300' }}>
+                        Não tem uma conta?{' '}
+                        <MuiLink
+                            component="button"
+                            type="button" // Adicionado para evitar envio de formulário
+                            variant="body2"
+                            onClick={onSwitchToSignUp} // Ação para trocar para o card de cadastro
+                            sx={{
+                                color: '#e46820',
+                                fontWeight: 'bold',
+                                textDecoration: 'none',
+                                cursor: 'pointer',
+                                background: 'none',
+                                border: 'none',
+                                p: 0,
+                                fontFamily: 'inherit',
+                                fontSize: 'inherit'
+                            }}
+                        >
+                            Cadastre-se
+                        </MuiLink>
+                    </Typography>
+                </Box>
+                {/* 4. O link duplicado e incorreto foi removido daqui */}
             </Box>
         </Card>
     );

@@ -40,6 +40,7 @@ function SignUpCard({ onSwitchToSignIn }) {
             name: formData.name,
             document: formData.document,
             email: formData.email,
+            password: formData.password,
             birthDate: formData.birthDate,
             address: {
                 street: formData.street,

@@ -29,6 +29,7 @@ import {
     ResponsiveContainer,
     CartesianGrid
 } from 'recharts';
+import { orange } from '@mui/material/colors';
 import AppAppBar from '../components/AppAppBar.jsx';
 
 // 1) Card de Saldo
@@ -44,6 +45,19 @@ function BalanceCard({ balance }) {
                     currency: 'BRL'
                 })}
             </Typography>
+            <Paper sx={{ flex: 1, p: 1, mt: 2, ml: -1}}>
+                <Typography variant="subtitle3" color="text.secondary">Resumo Mensal</Typography>
+                <Stack direction="row" justifyContent="flex-start" sx={{mt: 0.5}}>
+                    <Box>
+                        <Typography variant="h6">+ R$ 3.200</Typography>
+                        <Typography variant="caption">Entradas</Typography>
+                    </Box>
+                    <Box marginLeft={2}>
+                        <Typography variant="h6" >– R$ 1.850</Typography>
+                        <Typography variant="caption">Saídas</Typography>
+                    </Box>
+                </Stack>
+            </Paper>
         </Paper>
     );
 }
@@ -55,7 +69,7 @@ function BalanceChart({ data }) {
             <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                 Histórico de Saldo
             </Typography>
-            <ResponsiveContainer width="100%" height={60}>
+            <ResponsiveContainer width="100%" height={150}>
                 <LineChart data={data}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <XAxis dataKey="name" axisLine={false} tickLine={false} />
@@ -80,13 +94,13 @@ function ActionPanel({ onWithdraw, onDeposit, onTransfer }) {
                 Ações
             </Typography>
             <Stack spacing={2}>
-                <Button variant="contained" color="primary" onClick={onWithdraw}>
+                <Button variant="contained" onClick={onWithdraw} sx={{'&:hover': {bgcolor: orange[500], olor: '#fff'}}}>
                     Sacar
                 </Button>
-                <Button variant="contained" color="primary" onClick={onDeposit}>
+                <Button variant="contained" onClick={onDeposit} sx={{'&:hover': {bgcolor: orange[500], color: '#fff'}}}>
                     Depositar
                 </Button>
-                <Button variant="contained" color="primary" onClick={onTransfer}>
+                <Button variant="contained" onClick={onTransfer} sx={{'&:hover': {bgcolor: orange[500], color: '#fff'}}}>
                     Transferir
                 </Button>
             </Stack>
@@ -104,7 +118,7 @@ function TransactionsTable({ transactions }) {
                         <TableCell>ID</TableCell>
                         <TableCell>Conta</TableCell>
                         <TableCell>Tipo</TableCell>
-                        <TableCell align="right">Valor</TableCell>
+                        <TableCell>Valor</TableCell>
                         <TableCell>Data/Hora</TableCell>
                         <TableCell>Status</TableCell>
                     </TableRow>
@@ -115,7 +129,7 @@ function TransactionsTable({ transactions }) {
                             <TableCell>{tx.id}</TableCell>
                             <TableCell>{tx.accountId}</TableCell>
                             <TableCell>{tx.type}</TableCell>
-                            <TableCell align="right">
+                            <TableCell>
                                 {tx.amount.toLocaleString('pt-BR', {
                                     style: 'currency',
                                     currency: 'BRL'

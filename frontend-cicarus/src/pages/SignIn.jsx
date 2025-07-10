@@ -1,48 +1,54 @@
-// Em: src/pages/SignIn.jsx
 import * as React from 'react';
-import CssBaseline from '@mui/material/CssBaseline';
-import Stack from '@mui/material/Stack';
-import Box from '@mui/material/Box';
-import SignInCard from '../components/SignInCard.jsx';
-import Content from '../components/Content.jsx';
+import { Box, CssBaseline, Stack } from '@mui/material';
+import { motion, AnimatePresence } from 'framer-motion';
 
-// Removido o ThemeProvider daqui
+import AppTheme from '../theme/AppTheme.jsx';
+import Content from '../components/Content.jsx';
+import SignInCard from '../components/SignInCard.jsx';
+import SignUpCard from '../components/SignUpCard.jsx';
 
 export default function SignInPage() {
+    const [showSignUp, setShowSignUp] = React.useState(false);
+
+    const handleSwitchToSignUp = () => setShowSignUp(true);
+    const handleSwitchToSignIn = () => setShowSignUp(false);
+
+    const flipVariants = {
+        hidden: { rotateY: -180, opacity: 0, scale: 0.9 },
+        visible: { rotateY: 0, opacity: 1, scale: 1 },
+        exit: { rotateY: 180, opacity: 0, scale: 0.9 }
+    };
+
     return (
-        <>
+        <AppTheme>
             <CssBaseline />
             <Stack direction={{ xs: 'column', md: 'row' }} sx={{ minHeight: '100vh' }}>
-
-                {/* Lado Esquerdo - Branding */}
-                <Stack
-                    sx={{
-                        width: { xs: '100%', md: '50%' },
-                        // Cor de fundo principal
-                        backgroundColor: '#111010', // rgb(17,16,16)
-                        justifyContent: 'center',
-                        alignItems: 'center', // Adicionado para centrar o conteúdo
-                        p: 4,
-                    }}
-                >
+                <Stack sx={{ width: { xs: '100%', md: '50%' }, backgroundColor: '#111010', justifyContent: 'center', alignItems: 'center', p: 4 }}>
                     <Content />
                 </Stack>
-
-                {/* Lado Direito - Formulário */}
+                {/* ESTE STACK NÃO É MAIS UM FORMULÁRIO. ELE APENAS EXIBE O CARD CORRETO. */}
                 <Stack
                     component="main"
-                    sx={{
-                        width: { xs: '100%', md: '50%' },
-                        // Cor de fundo secundária
-                        backgroundColor: '#282d34', // rgb(40,45,52)
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        p: 4,
-                    }}
+                    sx={{ width: { xs: '100%', md: '50%' }, backgroundColor: '#282d34', justifyContent: 'center', alignItems: 'center', p: 4, perspective: '1200px' }}
                 >
-                    <SignInCard />
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={showSignUp ? 'signup' : 'signin'}
+                            variants={flipVariants}
+                            initial="hidden"
+                            animate="visible"
+                            exit="exit"
+                            transition={{ duration: 0.6, ease: 'easeInOut' }}
+                        >
+                            {showSignUp ? (
+                                <SignUpCard onSwitchToSignIn={handleSwitchToSignIn} />
+                            ) : (
+                                <SignInCard onSwitchToSignUp={handleSwitchToSignUp} />
+                            )}
+                        </motion.div>
+                    </AnimatePresence>
                 </Stack>
             </Stack>
-        </>
+        </AppTheme>
     );
 }

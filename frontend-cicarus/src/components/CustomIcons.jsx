@@ -118,3 +118,11 @@ export function GoogleIcon() {
         </SvgIcon>
     );
 }
+
+export const CicarusFullLogo = () => (
+    <img
+        src="https://i.postimg.cc/HntRVrDy/f85b6d78-659d-4b19-85b2-ed764895fa09-removebg-preview.png"
+        alt="CicarusBank Logo"
+        style={{ width: '200px', height: 'auto' }}
+    />
+);

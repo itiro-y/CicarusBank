@@ -30,7 +30,13 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                 try {
                     jwtUtil.validateToken(token);
                 } catch (Exception e) {
+//                    throw new HttpClientErrorException(org.springframework.http.HttpStatus.UNAUTHORIZED, "Invalid or expired token");
+                    // THIS LINE WILL PRINT THE REAL ERROR TO THE CONSOLE
+                    System.err.println("JWT Validation Failed: " + e.getMessage());
+
+                    // You can keep this line to return the 401 to the client
                     throw new HttpClientErrorException(org.springframework.http.HttpStatus.UNAUTHORIZED, "Invalid or expired token");
+
                 }
             }
 

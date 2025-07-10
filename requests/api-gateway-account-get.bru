@@ -1,0 +1,15 @@
+meta {
+  name: api-gateway-account-get
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://localhost:8765/account/ping
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIiwicm9sZXMiOiJST0xFX1VTRVIiLCJpYXQiOjE3NTIxNTcyMzEsImV4cCI6MTc1MjI0MzYzMX0.ksrPIiU82rQwL1AoZBmIznIcwFz-mTJdXY8ymeusIOQ
+}

@@ -30,4 +30,9 @@ public class NotificationController {
     public String helloEndpoint(){
         return "Hello from notification ms!";
     }
+
+    @GetMapping("/ping")
+    public String ping(){
+        return "Pong!";
+    }
 }

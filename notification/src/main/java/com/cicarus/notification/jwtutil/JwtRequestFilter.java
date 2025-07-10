@@ -1,7 +1,6 @@
-package com.cicarus.currency_exchange.jwtutil;
+package com.cicarus.notification.jwtutil;
 
 // account-service/src/main/java/com/yourcompany/account/filter/JwtRequestFilter.java
-
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

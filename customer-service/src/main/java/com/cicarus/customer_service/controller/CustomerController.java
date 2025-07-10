@@ -48,5 +48,10 @@ public class CustomerController {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/ping")
+    public String ping(){
+        return "pong";
+    }
 }
 

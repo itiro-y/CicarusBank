@@ -1,5 +1,6 @@
 package com.cicarus.notification.controller;
 
+import com.cicarus.notification.dto.NotificationDto;
 import com.cicarus.notification.dto.NotificationEvent;
 import com.cicarus.notification.service.NotificationService;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +16,7 @@ public class TestController {
     }
 
     @PostMapping("/send")
-    public void sendTestEvent(@RequestBody NotificationEvent event) {
+    public void sendTestEvent(@RequestBody NotificationDto event) {
         service.processNotification(event);
     }
 }

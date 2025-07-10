@@ -1,5 +1,6 @@
 package com.cicarus.notification.service;
 
+import com.cicarus.notification.dto.NotificationDto;
 import com.cicarus.notification.dto.NotificationEvent;
 import com.cicarus.notification.model.Notification;
 import com.cicarus.notification.repository.NotificationRepository;
@@ -19,7 +20,7 @@ public class NotificationService {
         this.sender = sender;
     }
 
-    public void processNotification(NotificationEvent event) {
+    public void processNotification(NotificationDto event) {
         Notification notification = new Notification(
                 event.getCustomerId(),
                 event.getChannel(),

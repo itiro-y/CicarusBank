@@ -1,44 +1,21 @@
-package com.cicarus.notification.model;
+package com.cicarus.notification.dto;
 
-import jakarta.persistence.*;
-import lombok.*;
-
-import java.time.Instant;
-
-@Entity
-public class Notification {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+public class NotificationDto {
     private Long customerId;
     private String channel;
-
-    @Column(nullable = false, length = 1000)
     private String message;
+    private String recipientEmail;
 
-    private Instant sentAt;
-
-    private String recipientEmail; // <- opcional, útil para histórico
-
-    public Notification() {
+    public NotificationDto() {
     }
 
-    public Notification(Long customerId, String channel, String message, String recipientEmail, Instant sentAt) {
+    public NotificationDto(Long customerId, String channel, String message, String recipientEmail) {
         this.customerId = customerId;
         this.channel = channel;
         this.message = message;
         this.recipientEmail = recipientEmail;
-        this.sentAt = sentAt;
     }
 
-    public Long getId() {
-        return id;
-    }
-    public void setId(Long id) {
-        this.id = id;
-    }
     public Long getCustomerId() {
         return customerId;
     }
@@ -57,16 +34,20 @@ public class Notification {
     public void setMessage(String message) {
         this.message = message;
     }
-    public Instant getSentAt() {
-        return sentAt;
-    }
-    public void setSentAt(Instant sentAt) {
-        this.sentAt = sentAt;
-    }
     public String getRecipientEmail() {
         return recipientEmail;
     }
     public void setRecipientEmail(String recipientEmail) {
         this.recipientEmail = recipientEmail;
+    }
+
+    @Override
+    public String toString() {
+        return "NotificationDto{" +
+                "customerId=" + customerId +
+                ", channel='" + channel + '\'' +
+                ", message='" + message + '\'' +
+                ", recipientEmail='" + recipientEmail + '\'' +
+                '}';
     }
 }

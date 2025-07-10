@@ -2,6 +2,7 @@ package com.sicarus.controller;
 
 import com.sicarus.clients.AccountClient;
 import com.sicarus.dto.AccountDTO;
+import com.sicarus.dto.CustomerDto;
 import com.sicarus.dto.NotificationDto;
 import com.sicarus.dto.TransactionRequestDTO;
 import com.sicarus.model.Transaction;
@@ -91,13 +92,19 @@ public class TransactionController {
         }
 
         if(request.getTransactionType().equals(TransactionType.DEPOSIT)){
+
             // Depositar no account e salvar no banco de account
             transactionService.depositBalance(account.getId(), request.getAmount());
+
+            //Implementar chamado ao metodo para geração e envio de e-mail de notificação deposito-----------------------------------------------------------
+            notificationProducer.sendDepositNotification(account, request);
         }
 
         if(request.getTransactionType().equals(TransactionType.WITHDRAWAL)){
             // Sacar de account e salvar novo saldo no banco de account
             transactionService.withdrawBalance(account.getId(), request.getAmount());
+
+            //Implementar chamado ao metodo para geração e envio de e-mail de notificação saque-----------------------------------------------------------
         }
 
         if(request.getTransactionType().equals(TransactionType.TRANSFER)){
@@ -108,6 +115,8 @@ public class TransactionController {
             Long accountToId = accountTo.getId();
             BigDecimal amount = request.getAmount();
             transactionService.transferBalance(accountFromId, accountToId, amount);
+
+            //Implementar chamado ao metodo para geração e envio de e-mail de notificação transferência-----------------------------------------------------------
         }
 
         Transaction transaction = transactionService.createAndSetTransaction(request.getAccountId(),

@@ -3,3 +3,9 @@ INSERT INTO customer (name, document, email, birth_date, street, city, state, zi
 
 INSERT INTO customer (name, document, email, birth_date, street, city, state, zip_code) VALUES
     ('Clark Kent', '123.456.789-00', 'clark.kent@dailyplanet.com', '1978-03-01', 'Apartment 3B', 'Metropolis', 'NY', '10010');
+
+INSERT INTO customer (name, document, email, birth_date, street, city, state, zip_code) VALUES
+    ('Kevin Luiz', '123.456.789-01', 'kevin37614250@hotmail.com', '1978-03-01', 'Apartment 3B', 'Metropolis', 'NY', '10010');
+
+INSERT INTO customer (name, document, email, birth_date, street, city, state, zip_code) VALUES
+    ('Luiz Alberto', '123.456.789-02', 'kevin_luizb@hotmail.com', '1978-03-01', 'Apartment 3B', 'Metropolis', 'NY', '10010');

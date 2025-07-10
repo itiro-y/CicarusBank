@@ -1,4 +1,3 @@
-// Em: src/App.jsx
 import { Routes, Route } from 'react-router-dom';
 import SignInPage from './pages/SignIn.jsx';
 import DashboardPage from './pages/DashboardPage.jsx'; // Importa a nova página de Dashboard

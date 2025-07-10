@@ -5,7 +5,7 @@ import {
 } from '@mui/material';
 import ForgotPassword from './ForgotPassword.jsx';
 
-// 1. O componente agora recebe a prop 'onSwitchToSignUp' para acionar a animação.
+// O componente agora recebe a prop 'onSwitchToSignUp' para acionar a animação.
 export default function SignInCard({ onSwitchToSignUp }) {
     const [open, setOpen] = React.useState(false);
     const navigate = useNavigate();
@@ -32,7 +32,7 @@ export default function SignInCard({ onSwitchToSignUp }) {
             flexDirection: 'column',
             alignSelf: 'center',
             width: '100%',
-            maxWidth: '450px', // Definindo uma largura máxima
+            maxWidth: '600px',
             p: 4,
             gap: 3,
             backgroundColor: 'transparent',
@@ -47,7 +47,6 @@ export default function SignInCard({ onSwitchToSignUp }) {
                 />
             </Box>
 
-            {/* 2. Textos traduzidos para português */}
             <Typography component="h1" variant="h4" sx={{ color: '#fff', fontWeight: 'bold', textAlign: 'center' }}>
                 Acesse sua conta
             </Typography>
@@ -107,7 +106,6 @@ export default function SignInCard({ onSwitchToSignUp }) {
                     sx={{ color: 'grey.300' }}
                 />
 
-                {/* 3. Prop 'onClose' corrigida para o padrão */}
                 <ForgotPassword open={open} onClose={handleForgotPasswordClose} />
 
                 <Button type="submit" fullWidth variant="contained" sx={{ mt: 2, py: 1.5, fontSize: '1rem', fontWeight: 'bold', backgroundColor: '#e46820', '&:hover': { backgroundColor: '#d15e1c' } }}>
@@ -119,9 +117,9 @@ export default function SignInCard({ onSwitchToSignUp }) {
                         Não tem uma conta?{' '}
                         <MuiLink
                             component="button"
-                            type="button" // Adicionado para evitar envio de formulário
+                            type="button"
                             variant="body2"
-                            onClick={onSwitchToSignUp} // Ação para trocar para o card de cadastro
+                            onClick={onSwitchToSignUp}
                             sx={{
                                 color: '#e46820',
                                 fontWeight: 'bold',
@@ -138,7 +136,6 @@ export default function SignInCard({ onSwitchToSignUp }) {
                         </MuiLink>
                     </Typography>
                 </Box>
-                {/* 4. O link duplicado e incorreto foi removido daqui */}
             </Box>
         </Card>
     );

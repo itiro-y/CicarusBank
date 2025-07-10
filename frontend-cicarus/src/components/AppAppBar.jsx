@@ -6,6 +6,7 @@ import Box from '@mui/material/Box';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Button from '@mui/material/Button';
+import { Link } from 'react-router-dom';
 import IconButton from '@mui/material/IconButton';
 import Container from '@mui/material/Container';
 import Divider from '@mui/material/Divider';
@@ -60,7 +61,11 @@ export default function AppAppBar() {
                             alt="CicarusBank logo"
                         />
                         <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-                            <Button variant="text" color="info" size="small">Visão Geral</Button>
+                            <Button component={Link}
+                                    to="/dashboard"
+                                    color="primary"
+                                    variant="text"
+                                    size="small">Visão Geral</Button>
                             <Button variant="text" color="info" size="small">Transferências</Button>
                             <Button variant="text" color="info" size="small">Cartões</Button>
                             <Button variant="text" color="info" size="small">Investimentos</Button>
@@ -73,7 +78,13 @@ export default function AppAppBar() {
                             alignItems: 'center',
                         }}
                     >
-                        <Button color="primary" variant="text" size="small">
+                        <Button
+                            component={Link}
+                            to="/profile"
+                            color="primary"
+                            variant="text"
+                            size="small"
+                        >
                             Perfil
                         </Button>
                         <Button color="primary" variant="contained" size="small">

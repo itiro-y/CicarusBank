@@ -1,10 +1,7 @@
 package com.sicarus.controller;
 
 import com.sicarus.clients.AccountClient;
-import com.sicarus.dto.AccountDTO;
-import com.sicarus.dto.CustomerDto;
-import com.sicarus.dto.NotificationDto;
-import com.sicarus.dto.TransactionRequestDTO;
+import com.sicarus.dto.*;
 import com.sicarus.model.Transaction;
 import com.sicarus.model.TransactionStatus;
 import com.sicarus.model.TransactionType;
@@ -97,7 +94,11 @@ public class TransactionController {
             transactionService.depositBalance(account.getId(), request.getAmount());
 
             //Implementar chamado ao metodo para geração e envio de e-mail de notificação deposito-----------------------------------------------------------
-            notificationProducer.sendDepositNotification(account, request);
+            DepositNotificationDto depositNotificationDto = new DepositNotificationDto();
+            depositNotificationDto.setType("deposit");
+            depositNotificationDto.setAmount(request.getAmount());
+            depositNotificationDto.setCustomerId(account.getUserId());
+            notificationProducer.sendNotification(depositNotificationDto);
         }
 
         if(request.getTransactionType().equals(TransactionType.WITHDRAWAL)){

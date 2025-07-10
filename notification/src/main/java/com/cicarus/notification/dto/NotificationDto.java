@@ -16,6 +16,13 @@ public class NotificationDto {
         this.recipientEmail = recipientEmail;
     }
 
+    public NotificationDto(DepositNotificationDto dto) {
+        this.customerId = dto.getCustomerId();
+        this.channel = dto.getChannel();
+        this.message = dto.getBody();
+        this.recipientEmail = dto.getRecipientEmail();
+    }
+
     public Long getCustomerId() {
         return customerId;
     }

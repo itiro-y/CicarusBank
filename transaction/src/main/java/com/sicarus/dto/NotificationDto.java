@@ -5,17 +5,24 @@ import java.time.Instant;
 public class NotificationDto {
     private Long customerId;
     private String channel;
-    private String message;
+    private String body;
     private String recipientEmail;
 
     public NotificationDto() {
     }
 
-    public NotificationDto(Long customerId, String channel, String message, String recipientEmail) {
+    public NotificationDto(Long customerId, String channel, String body, String recipientEmail) {
         this.customerId = customerId;
         this.channel = channel;
-        this.message = message;
+        this.body = body;
         this.recipientEmail = recipientEmail;
+    }
+
+    public NotificationDto(DepositNotificationDto depositNotificationDto) {
+        this.customerId = depositNotificationDto.getCustomerId();
+        this.channel = depositNotificationDto.getChannel();
+        this.body = depositNotificationDto.getBody();
+        this.recipientEmail = depositNotificationDto.getRecipientEmail();
     }
 
     public Long getCustomerId() {
@@ -30,11 +37,11 @@ public class NotificationDto {
     public void setChannel(String channel) {
         this.channel = channel;
     }
-    public String getMessage() {
-        return message;
+    public String getBody() {
+        return body;
     }
-    public void setMessage(String message) {
-        this.message = message;
+    public void setBody(String body) {
+        this.body = body;
     }
     public String getRecipientEmail() {
         return recipientEmail;

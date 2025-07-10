@@ -1,10 +1,7 @@
 package com.sicarus.service;
 
 import com.sicarus.clients.CustomerClient;
-import com.sicarus.dto.AccountDTO;
-import com.sicarus.dto.CustomerDto;
-import com.sicarus.dto.NotificationDto;
-import com.sicarus.dto.TransactionRequestDTO;
+import com.sicarus.dto.*;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -14,23 +11,11 @@ import java.time.Instant;
 public class NotificationProducer {
     private static final String TOPIC = "transaction-topic";
     private final CustomerClient customerClient;
-    private final KafkaTemplate<String, NotificationDto> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    private String mensagemDeposito = """
-                                    Olá, %s!
-                                    
-                                    Recebemos um depósito em sua conta bancária. A operação foi concluída com sucesso.
-                                    
-                                    📄 Detalhes do depósito:
-                                    • Valor: R$ %.2f
-                                    • Data do depósito: %s
-                                    
-                                    O valor já está disponível para utilização em sua conta.
-                                    
-                                    Caso não tenha realizado esse depósito ou identifique qualquer irregularidade, entre em contato com nossa central de atendimento.
-                                    """;
+    private String mensagemDeposito;
 
-    public NotificationProducer(KafkaTemplate<String, NotificationDto> kafkaTemplate,  CustomerClient customerClient) {
+    public NotificationProducer(KafkaTemplate<String, Object> kafkaTemplate, CustomerClient customerClient) {
         this.kafkaTemplate = kafkaTemplate;
         this.customerClient = customerClient;
     }
@@ -40,23 +25,21 @@ public class NotificationProducer {
         return message;
     }
 
-    public NotificationDto sendDepositNotification(AccountDTO account, TransactionRequestDTO transactionRequestDTO) {
-        CustomerDto customerDto = customerClient.getCustomerById(account.getUserId());
+    public DepositNotificationDto send(DepositNotificationDto message) {
+        kafkaTemplate.send(TOPIC, message);
+        return message;
+    }
 
-        String corpoEmail = String.format(
-                mensagemDeposito,
-                customerDto.getName(),
-                transactionRequestDTO.getAmount(),
-                Instant.now()
-        );
+    //Metodo que incluirá no objeto DepositNotificationDto os dados do customer e chamará o envio para a fila kafka
+    public DepositNotificationDto sendNotification(DepositNotificationDto depositNotificationDto) {
+        CustomerDto customerDto = customerClient.getCustomerById(depositNotificationDto.getCustomerId());
 
-        NotificationDto notificationDto = new NotificationDto();
-        notificationDto.setCustomerId(customerDto.getId());
-        notificationDto.setChannel("EMAIL");
-        notificationDto.setMessage(corpoEmail);
-        notificationDto.setRecipientEmail(customerDto.getEmail());
+        depositNotificationDto.setChannel("EMAIL");
+        depositNotificationDto.setCustomerName(customerDto.getName());
+        depositNotificationDto.setRecipientEmail(customerDto.getEmail());
+        depositNotificationDto.setDateTime(Instant.now());
 
-        return send(notificationDto);
+        return send(depositNotificationDto);
     }
 
 
@@ -69,7 +52,7 @@ public class NotificationProducer {
 
         notificationDto.setCustomerId(1L);
         notificationDto.setChannel("EMAIL");
-        notificationDto.setMessage("Testandooooooooooooooooooooo");
+        notificationDto.setBody("Testandooooooooooooooooooooo");
         notificationDto.setRecipientEmail("kevin37614250@hotmail.com");
 
         return notificationDto;

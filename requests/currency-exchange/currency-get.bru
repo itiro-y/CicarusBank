@@ -1,0 +1,15 @@
+meta {
+  name: currency-get
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:8765/exchange/ping
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIiwicm9sZXMiOiJST0xFX1VTRVIiLCJpYXQiOjE3NTIxNzg1MjUsImV4cCI6MTc1MjI2NDkyNX0.rn2fYhQhLIcXtLXqAY7sfZ-0uLDIErtPBepDeYqxI28
+}

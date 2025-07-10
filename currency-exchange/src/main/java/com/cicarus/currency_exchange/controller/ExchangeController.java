@@ -40,4 +40,9 @@ public class ExchangeController {
     public ConvertResponse convert(@RequestBody ConvertRequest request) {
         return service.convert((request));
     }
+
+    @GetMapping("/ping")
+    public String ping(){
+        return "Pong!";
+    }
 }

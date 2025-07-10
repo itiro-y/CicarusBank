@@ -1,3 +1,5 @@
+   localhost:8300/customers/create
+   body:
 {
     "name": "Exemplo",
     "document":"000.000.000-00",

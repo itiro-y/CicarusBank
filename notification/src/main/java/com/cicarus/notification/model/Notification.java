@@ -22,11 +22,11 @@ public class Notification {
     public Notification() {
     }
 
-    public Notification(Long id, Long customerId, String channel, String message, Instant sentAt) {
-        this.id = id;
+    public Notification(Long customerId, String channel, String message, String recipientEmail, Instant sentAt) {
         this.customerId = customerId;
         this.channel = channel;
         this.message = message;
+        this.recipientEmail = recipientEmail;
         this.sentAt = sentAt;
     }
 

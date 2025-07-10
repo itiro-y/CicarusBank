@@ -17,4 +17,15 @@ public class NotificationProducer {
     public void send(NotificationDto message) {
         kafkaTemplate.send(TOPIC, message);
     }
+
+    public NotificationDto getNotification() {
+        NotificationDto notificationDto = new NotificationDto();
+
+        notificationDto.setCustomerId(1L);
+        notificationDto.setChannel("EMAIL");
+        notificationDto.setMessage("Testandooooooooooooooooooooo");
+        notificationDto.setRecipientEmail("kevin37614250@hotmail.com");
+
+        return notificationDto;
+    }
 }

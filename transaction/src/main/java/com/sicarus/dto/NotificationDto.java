@@ -3,32 +3,21 @@ package com.sicarus.dto;
 import java.time.Instant;
 
 public class NotificationDto {
-    private Long id;
-
     private Long customerId;
     private String channel;
     private String message;
-    private Instant sentAt;
-
-    private String recipientEmail; // <- opcional, útil para histórico
+    private String recipientEmail;
 
     public NotificationDto() {
     }
 
-    public NotificationDto(Long id, Long customerId, String channel, String message, Instant sentAt) {
-        this.id = id;
+    public NotificationDto(Long customerId, String channel, String message, String recipientEmail) {
         this.customerId = customerId;
         this.channel = channel;
         this.message = message;
-        this.sentAt = sentAt;
+        this.recipientEmail = recipientEmail;
     }
 
-    public Long getId() {
-        return id;
-    }
-    public void setId(Long id) {
-        this.id = id;
-    }
     public Long getCustomerId() {
         return customerId;
     }
@@ -46,12 +35,6 @@ public class NotificationDto {
     }
     public void setMessage(String message) {
         this.message = message;
-    }
-    public Instant getSentAt() {
-        return sentAt;
-    }
-    public void setSentAt(Instant sentAt) {
-        this.sentAt = sentAt;
     }
     public String getRecipientEmail() {
         return recipientEmail;

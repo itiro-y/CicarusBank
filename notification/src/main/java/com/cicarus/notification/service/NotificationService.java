@@ -22,7 +22,7 @@ public class NotificationService {
     public void processNotification(NotificationEvent event) {
         Notification notification = new Notification(
                 event.getCustomerId(),
-                Long.parseLong(event.getChannel()),
+                event.getChannel(),
                 event.getMessage(),
                 event.getRecipientEmail(),
                 Instant.now());

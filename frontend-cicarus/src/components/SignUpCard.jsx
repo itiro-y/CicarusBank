@@ -19,7 +19,7 @@ function SignUpCard({ onSwitchToSignIn }) {
 
     const [formData, setFormData] = React.useState({
         name: '', document: '', birthDate: '', email: '', password: '',
-        confirmPassword: '', country: 'Brasil', state: '', street: '', zipCode: ''
+        confirmPassword: '', country: 'Brasil', state: '', street: '', city: '', zipCode: ''
     });
 
     const handleChange = (e) => {
@@ -44,7 +44,7 @@ function SignUpCard({ onSwitchToSignIn }) {
             birthDate: formData.birthDate,
             address: {
                 street: formData.street,
-                city: "Cidade Exemplo",
+                city: formData.city,
                 state: formData.state,
                 zipCode: formData.zipCode,
                 country: formData.country
@@ -115,6 +115,7 @@ function SignUpCard({ onSwitchToSignIn }) {
                                     <Grid item xs={12} sm={6}><FormField id="country" label="País" value={formData.country} onChange={handleChange} InputProps={{ startAdornment: <Public sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
                                     <Grid item xs={12} sm={6}><FormField id="state" label="Estado" value={formData.state} onChange={handleChange} InputProps={{ startAdornment: <Business sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
                                     <Grid item xs={12} sm={6}><FormField id="street" label="Rua" value={formData.street} onChange={handleChange} InputProps={{ startAdornment: <Streetview sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
+                                    <Grid item xs={12} sm={6}><FormField id="city" label="Cidade" value={formData.city} onChange={handleChange} InputProps={{ startAdornment: <Streetview sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
                                     <Grid item xs={12} sm={6}><FormField id="zipCode" label="CEP" value={formData.zipCode} onChange={handleChange} InputProps={{ startAdornment: <LocationCity sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
                                 </Grid>
                             )}

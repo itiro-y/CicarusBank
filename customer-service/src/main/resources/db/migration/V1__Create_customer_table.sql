@@ -3,6 +3,7 @@ CREATE TABLE customer (
                           name VARCHAR(255) NOT NULL,
                           document VARCHAR(255) UNIQUE NOT NULL,
                           email VARCHAR(255),
+                          password VARCHAR(255),
                           birth_date DATE,
                           street VARCHAR(255),
                           city VARCHAR(255),

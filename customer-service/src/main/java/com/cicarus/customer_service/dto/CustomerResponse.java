@@ -9,17 +9,19 @@ public class CustomerResponse {
     private String name;
     private String document;
     private String email;
+    private String password;
     private LocalDate birthDate;
     private Address address;
 
     public CustomerResponse() {
     }
 
-    public CustomerResponse(Long id, String name, String document, String email, LocalDate birthDate, Address address) {
+    public CustomerResponse(Long id, String name, String document, String email, String password, LocalDate birthDate, Address address) {
         this.id = id;
         this.name = name;
         this.document = document;
         this.email = email;
+        this.password = password;
         this.birthDate = birthDate;
         this.address = address;
     }
@@ -70,5 +72,13 @@ public class CustomerResponse {
 
     public void setAddress(Address address) {
         this.address = address;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

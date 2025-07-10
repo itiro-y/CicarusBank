@@ -33,7 +33,7 @@ public class CustomerController {
     }
 
     @Operation(summary = "Lista todos os clientes", description = "Retorna uma lista de todos os clientes registrados no sistema.")
-    @GetMapping
+    @GetMapping("/list")
     public ResponseEntity<List<CustomerResponse>> getAll() {
         return ResponseEntity.ok(service.getAll());
     }

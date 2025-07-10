@@ -1,8 +1,11 @@
+// Em: src/components/SignInCard.jsx
+
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Box, Button, Card, Checkbox, FormControl, FormControlLabel, Link as MuiLink, TextField, Typography
 } from '@mui/material';
+import Swal from 'sweetalert2'; // 1. Importe a biblioteca
 import ForgotPassword from './ForgotPassword.jsx';
 
 export default function SignInCard({ onSwitchToSignUp }) {
@@ -16,9 +19,31 @@ export default function SignInCard({ onSwitchToSignUp }) {
         const password = data.get('password');
 
         if (username === 'admin' && password === 'admin123') {
-            navigate('/dashboard');
+            // 2. Substitua o alerta padrão pelo pop-up de sucesso
+            Swal.fire({
+                title: 'Login Efetuado!',
+                text: 'Seja bem-vindo de volta.',
+                icon: 'success',
+                timer: 2000, // O pop-up fecha sozinho após 2 segundos
+                showConfirmButton: false,
+                background: '#282d34', // Cor de fundo para combinar com o tema
+                color: '#fff',        // Cor do texto
+                timerProgressBar: true,
+                didClose: () => {
+                    navigate('/dashboard'); // Navega para o dashboard depois que o pop-up fecha
+                }
+            });
         } else {
-            alert("Usuário ou senha inválidos.");
+            // 3. (Opcional, mas recomendado) Substitua o alerta de erro também
+            Swal.fire({
+                title: 'Erro!',
+                text: 'Usuário ou senha inválidos.',
+                icon: 'error',
+                confirmButtonText: 'Tentar Novamente',
+                background: '#282d34',
+                color: '#fff',
+                confirmButtonColor: '#e46820'
+            });
         }
     };
 

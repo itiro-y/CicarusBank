@@ -20,11 +20,21 @@ public class ExchangeController {
         this.service = service;
     }
 
+    // localhost:8500/exchange/rate?from={MOEDA_ORIGEM}&to={MOEDA_DESTINO}
     @Operation(summary = "Obtem a taxa de câmbio entre duas moedas")
     @GetMapping("/rate")
     public BigDecimal getRate(@RequestParam String from, @RequestParam String to) {
         return service.getRate(from, to);
     }
+
+    /*localhost:8500/exchange/convert
+    body:
+    {
+    "from": "{MOEDA}",
+    "to": "{MOEDA}",
+    "amount": 200
+    }
+    */
     @Operation(summary = "Converte o valor de uma moeda para a outra")
     @PostMapping("/convert")
     public ConvertResponse convert(@RequestBody ConvertRequest request) {

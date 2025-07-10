@@ -20,24 +20,28 @@ public class CustomerController {
     @Autowired
     private CustomerService service;
 
+    /*localhost:8300/customers/create
+    Body em CustomerPadraoJSON.txt
+     */
     @Operation(summary = "Cria um novo cliente", description = "Cria um novo registro de cliente no sistema.")
     @PostMapping("/create")
     public ResponseEntity<CustomerResponse> create(@RequestBody CustomerRequest request) {
         return ResponseEntity.ok(service.create(request));
     }
 
+// localhost:8300/customers/{id}
     @Operation(summary = "Busca um cliente por ID", description = "Retorna os detalhes de um cliente específico com base no seu ID.")
     @GetMapping("/{id}")
     public ResponseEntity<CustomerResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(service.getById(id));
     }
-
+// localhost:8300/customers/list
     @Operation(summary = "Lista todos os clientes", description = "Retorna uma lista de todos os clientes registrados no sistema.")
     @GetMapping("/list")
     public ResponseEntity<List<CustomerResponse>> getAll() {
         return ResponseEntity.ok(service.getAll());
     }
-
+    // localhost:8300/customers/{id}
     @Operation(summary = "Deleta um cliente por ID", description = "Remove um cliente do sistema com base no seu ID.")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {

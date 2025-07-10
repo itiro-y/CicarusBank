@@ -1,10 +1,7 @@
-// Em: src/theme/AppTheme.jsx
-
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
-// CORREÇÃO: Nomes dos ficheiros e extensões corrigidos
 import { inputsCustomizations } from './customizations/inputs.jsx';
 import { dataDisplayCustomizations } from './customizations/dataDisplay.jsx';
 import { feedbackCustomizations } from './customizations/feedback.jsx';

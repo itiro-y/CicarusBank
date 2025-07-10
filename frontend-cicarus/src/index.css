@@ -1,5 +1,8 @@
 /* Em: src/index.css */
 body {
-  /* Cor de fundo principal: rgb(17,16,16) */
-  background-color: #111010;
+  margin: 0;
+  background-color: #111010; /* A nossa cor de fundo escura */
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }

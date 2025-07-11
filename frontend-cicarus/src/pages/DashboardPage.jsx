@@ -10,6 +10,8 @@ import {
 } from '@mui/icons-material';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import AppAppBar from '../components/AppAppBar.jsx';
+import ChatAssistant from '../components/ChatAssistant.jsx';
+import PromotionalCarousel from '../components/PromotionalCarousel.jsx';
 
 // --- DADOS MOCK (PARA SIMULAÇÃO) ---
 const userData = {
@@ -38,11 +40,6 @@ const balanceHistory = [
     { name: 'Jan', saldo: 12000 }, { name: 'Fev', saldo: 14500 },
     { name: 'Mar', saldo: 13000 }, { name: 'Abr', saldo: 16000 },
     { name: 'Mai', saldo: 15500 }, { name: 'Jun', saldo: 15840 },
-];
-const offers = [
-    { title: "Cashback em Dobro", description: "Use seu cartão Cicarus e ganhe o dobro de cashback este mês.", image: "https://i.postimg.cc/4NZrFh9R/14bcbf74-1ca1-4f50-ac3d-58bf3b90140e.jpg" },
-    { title: "Novo Fundo de Investimento", description: "Conheça o nosso novo fundo de tecnologia com potencial de alta rentabilidade.", image: "https://i.postimg.cc/L5nKvcWQ/7dfab5c1-8a75-4a2f-bfee-49f81bf985c4.jpg" },
-    { title: "Seguro de Vida com 20% OFF", description: "Proteja quem você ama com condições especiais no primeiro ano.", image: "https://i.postimg.cc/3xz1VPc0/31060b73-d7fc-424f-b4f1-7409a41e1ea8.jpg" },
 ];
 
 // --- ESTILO PADRÃO PARA OS CARDS (WIDGETS) ---
@@ -153,7 +150,7 @@ const CreditCardComponent = () => {
     const [isFlipped, setIsFlipped] = React.useState(false);
 
     return (
-        <Paper elevation={0} sx={{ ...widgetStyle, p: 2 }}>
+        <Paper elevation={0} sx={{ ...widgetStyle, p: 2, maxWidth: 400, mx: 'auto' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                 <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Meu Cartão</Typography>
                 <IconButton onClick={() => setIsFlipped(!isFlipped)} size="small" sx={{color: 'text.secondary'}}>
@@ -224,7 +221,7 @@ const CardManagementActions = () => {
         { label: "Cartão Virtual", icon: <AddCard /> },
     ];
     return (
-        <Paper elevation={0} sx={{...widgetStyle, p:2}}>
+        <Paper elevation={0} sx={{...widgetStyle, p:2, maxWidth: 400, mx: 'auto'}}>
             <Stack divider={<Divider flexItem sx={{borderColor: 'rgba(255, 255, 255, 0.05)'}} />}>
                 {actions.map(action => (
                     <Button key={action.label} startIcon={action.icon} sx={{ justifyContent: 'flex-start', p: 1.5, color: 'text.secondary', textTransform: 'none' }}>
@@ -255,8 +252,8 @@ const RecentTransactions = () => (
                             primary={tx.store}
                             secondary={tx.type}
                         />
-                        <Typography variant="body1" sx={{ fontWeight: 'bold', color: tx.amount > 0 ? '#4caf50' : 'text.primary' }}>
-                            {tx.amount > 0 ? '+' : ''}R$ {Math.abs(tx.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        <Typography variant="body1" sx={{ fontWeight: 'bold', color: tx.amount > 0 ? 'success.main' : 'error.main' }}>
+                            {tx.amount > 0 ? '+' : '-'} R$ {Math.abs(tx.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                         </Typography>
                     </ListItem>
                     {index < recentTransactions.length - 1 && <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.05)' }} />}
@@ -288,70 +285,42 @@ const BalanceChart = () => (
     </Paper>
 );
 
-const OffersCarousel = () => {
-    const [activeIndex, setActiveIndex] = React.useState(0);
-    React.useEffect(() => {
-        const interval = setInterval(() => {
-            setActiveIndex((prevIndex) => (prevIndex + 1) % offers.length);
-        }, 5000);
-        return () => clearInterval(interval);
-    }, []);
-
-    return (
-        <Paper elevation={0} sx={{...widgetStyle, p: 0, position: 'relative', height: '200px', overflow: 'hidden' }}>
-            {offers.map((offer, index) => (
-                <motion.div
-                    key={index}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: index === activeIndex ? 1 : 0 }}
-                    transition={{ duration: 1, ease: 'easeInOut' }}
-                    style={{
-                        position: 'absolute',
-                        width: '100%',
-                        height: '100%',
-                        backgroundImage: `linear-gradient(to right, rgba(17,16,16,0.8), rgba(17,16,16,0.2)), url(${offer.image})`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                    }}
-                >
-                    <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%' }}>
-                        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{offer.title}</Typography>
-                        <Typography variant="body2" sx={{ color: 'text.secondary', mt: 1 }}>{offer.description}</Typography>
-                    </Box>
-                </motion.div>
-            ))}
-        </Paper>
-    );
-};
-
-
 // --- PÁGINA PRINCIPAL DO DASHBOARD ---
 
 export default function DashboardPage() {
     return (
         <Box sx={{ width: '100%', minHeight: '100vh' }}>
             <AppAppBar />
-            <Container maxWidth="xl" sx={{ pt: '120px', pb: 4 }}>
+            <Container maxWidth="lg" sx={{ pt: '120px', pb: 4, px: { xs: 2, sm: 3, md: 4 } }}>
                 <Grid container spacing={3}>
+
+                    {/* Linha do Carrossel Promocional */}
+                    <Grid item xs={12}>
+                        <PromotionalCarousel />
+                    </Grid>
+
                     {/* Coluna Esquerda */}
-                    <Grid item xs={12} lg={7}>
+                    <Grid item xs={12} lg={8}>
                         <Stack spacing={3}>
                             <WelcomeHeader />
-                            <BalanceCard />
+                            <Grid container spacing={3}>
+                                <BalanceCard />
+                                <QuickActions />
+                            </Grid>
                             <BalanceChart />
-                            <OffersCarousel />
+                            <RecentTransactions />
                         </Stack>
                     </Grid>
 
                     {/* Coluna Direita */}
-                    <Grid item xs={12} lg={5}>
+                    <Grid item xs={12} lg={4}>
                         <Stack spacing={3}>
                             <CreditCardComponent />
                             <CardManagementActions />
-                            <QuickActions />
-                            <RecentTransactions />
+                            <ChatAssistant />
                         </Stack>
                     </Grid>
+
                 </Grid>
             </Container>
         </Box>

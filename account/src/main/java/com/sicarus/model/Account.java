@@ -4,6 +4,7 @@ import com.sicarus.enums.AccountType;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 //id userId type balance
@@ -22,7 +23,22 @@ public class Account {
     @Column(nullable = false)
     private BigDecimal balance;
 
-    public Account(){
+    @OneToMany(
+            mappedBy = "account",
+            cascade   = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch     = FetchType.LAZY
+    )
+    private List<BalanceHistory> balanceHistory;
+
+    public Account(){}
+
+    public List<BalanceHistory> getBalanceHistory() {
+        return balanceHistory;
+    }
+
+    public void setBalanceHistory(List<BalanceHistory> balanceHistory) {
+        this.balanceHistory = balanceHistory;
     }
 
     public Long getId() {

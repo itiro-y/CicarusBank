@@ -1,6 +1,16 @@
 spring:
   application:
     name: notification
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: notification
+      auto-offset-reset: earliest
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: "*"
   datasource:
     url: jdbc:mysql://localhost:3310/notification_db
     username: root

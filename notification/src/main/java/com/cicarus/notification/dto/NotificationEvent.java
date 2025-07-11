@@ -2,11 +2,13 @@
 
 package com.cicarus.notification.dto;
 
+
 public class NotificationEvent {
     private Long customerId;
     private String channel;
     private String message;
-    private String recipientEmail;
+    private String recipientEmail; // Endereço de email para envio
+
 
     // Construtor sem argumentos
     public NotificationEvent() {
@@ -21,6 +23,7 @@ public class NotificationEvent {
     }
 
     // Getters e Setters
+
     public Long getCustomerId() {
         return customerId;
     }
@@ -37,19 +40,20 @@ public class NotificationEvent {
         this.channel = channel;
     }
 
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
     public String getRecipientEmail() {
         return recipientEmail;
     }
 
     public void setRecipientEmail(String recipientEmail) {
         this.recipientEmail = recipientEmail;
+    }
+
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

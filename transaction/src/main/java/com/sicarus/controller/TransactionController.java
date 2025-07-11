@@ -135,7 +135,7 @@ public class TransactionController {
             depositNotificationDto.setType("deposit");
             depositNotificationDto.setAmount(request.getAmount());
             depositNotificationDto.setCustomerId(account.getUserId());
-            //notificationProducer.sendNotification(depositNotificationDto);
+            notificationProducer.sendNotification(depositNotificationDto);
         }
 
         if(request.getTransactionType().equals(TransactionType.WITHDRAWAL)){
@@ -147,7 +147,7 @@ public class TransactionController {
             wnd.setType("withdrawal");
             wnd.setAmount(request.getAmount());
             wnd.setCustomerId(account.getUserId());
-            //notificationProducer.sendNotification(wnd);
+            notificationProducer.sendNotification(wnd);
         }
 
         if(request.getTransactionType().equals(TransactionType.TRANSFER)){
@@ -167,9 +167,7 @@ public class TransactionController {
 
             tranferenceNotificationDto.setAccountToId(accountTo.getId());
             tranferenceNotificationDto.setCustomerToId(accountTo.getUserId());
-
-
-            //notificationProducer.sendNotification(tranferenceNotificationDto);
+            notificationProducer.sendNotification(tranferenceNotificationDto);
         }
 
         Transaction transaction = transactionService.createAndSetTransaction(request.getAccountId(),

@@ -3,6 +3,9 @@ package com.sicarus.controller;
 import com.sicarus.enums.TransactionType;
 import com.sicarus.model.Account;
 import com.sicarus.model.AccountRepository;
+import com.sicarus.model.BalanceHistory;
+import com.sicarus.model.BalanceHistoryRepository;
+import jakarta.ws.rs.Path;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -14,8 +17,11 @@ import java.util.Optional;
 @RestController
 public class AccountController {
     private final AccountRepository accountRepository;
-    public AccountController(AccountRepository accountRepository){
+    private final BalanceHistoryRepository balanceHistoryRepository;
+
+    public AccountController(AccountRepository accountRepository, BalanceHistoryRepository balanceHistoryRepository){
         this.accountRepository = accountRepository;
+        this.balanceHistoryRepository = balanceHistoryRepository;
     }
 
     @GetMapping("/account")
@@ -76,5 +82,10 @@ public class AccountController {
         }else{
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "account not found");
         }
+    }
+
+    @GetMapping("/balance-history/{accountId}")
+    public List<BalanceHistory> getBalanceHistory(@PathVariable Long accountId) {
+        return balanceHistoryRepository.findByAccountIdOrderByTimestampDesc(accountId);
     }
 }

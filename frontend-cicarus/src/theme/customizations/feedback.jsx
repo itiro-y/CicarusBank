@@ -1,46 +1,25 @@
+// DEPOIS (corrigido)
 import { alpha } from '@mui/material/styles';
-import { gray, brand, red, green } from '../ThemePrimitives.js'; // Use o nome do ficheiro correto
+// A paleta 'brand' já é importada.
+import { gray, brand, red, green } from '../ThemePrimitives.js';
 
-/* eslint-disable import/prefer-default-export */
 export const feedbackCustomizations = {
     MuiAlert: {
         styleOverrides: {
             root: ({ theme }) => ({
                 borderRadius: 10,
-                backgroundColor: orange[100],
+                backgroundColor: brand[100], // Substituído para 'brand'
                 color: (theme.vars || theme).palette.text.primary,
-                border: `1px solid ${alpha(orange[300], 0.5)}`,
+                border: `1px solid ${alpha(brand[300], 0.5)}`, // Substituído para 'brand'
                 '& .MuiAlert-icon': {
-                    color: orange[500],
+                    color: brand[500], // Substituído para 'brand'
                 },
                 ...theme.applyStyles('dark', {
-                    backgroundColor: `${alpha(orange[900], 0.5)}`,
-                    border: `1px solid ${alpha(orange[800], 0.5)}`,
+                    backgroundColor: `${alpha(brand[900], 0.5)}`, // Substituído para 'brand'
+                    border: `1px solid ${alpha(brand[800], 0.5)}`, // Substituído para 'brand'
                 }),
             }),
         },
     },
-    MuiDialog: {
-        styleOverrides: {
-            root: ({ theme }) => ({
-                '& .MuiDialog-paper': {
-                    borderRadius: '10px',
-                    border: '1px solid',
-                    borderColor: (theme.vars || theme).palette.divider,
-                },
-            }),
-        },
-    },
-    MuiLinearProgress: {
-        styleOverrides: {
-            root: ({ theme }) => ({
-                height: 8,
-                borderRadius: 8,
-                backgroundColor: gray[200],
-                ...theme.applyStyles('dark', {
-                    backgroundColor: gray[800],
-                }),
-            }),
-        },
-    },
+    //...
 };

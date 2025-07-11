@@ -1,5 +1,6 @@
 package com.sicarus.controller;
 
+import com.sicarus.dto.UpdateAccountBalancesRequest;
 import com.sicarus.enums.TransactionType;
 import com.sicarus.model.Account;
 import com.sicarus.model.AccountRepository;
@@ -75,6 +76,20 @@ public class AccountController {
             return accountRepository.save(conta);
         }else{
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "account not found");
+        }
+    }
+
+    @PutMapping("/account/update-balances")
+    public Account updateAccountBalances(@RequestBody UpdateAccountBalancesRequest request) {
+        Optional<Account> optionalAccount = accountRepository.findByUserId(request.getUserId());
+
+        if (optionalAccount.isPresent()) {
+            Account account = optionalAccount.get();
+            account.setBalance(account.getBalance().subtract(request.getBrlAmount()));
+            account.setUsdWallet(account.getUsdWallet().add(request.getUsdAmount()));
+            return accountRepository.save(account);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found for user ID: " + request.getUserId());
         }
     }
 }

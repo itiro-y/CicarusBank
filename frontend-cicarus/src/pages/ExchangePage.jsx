@@ -65,21 +65,21 @@ export default function ExchangePage() {
 
                 const formatDate = (date) => date.toISOString().split('T')[0];
 
-                const response = await fetch(`https://api.exchangerate.host/timeseries?start_date=${formatDate(startDate)}&end_date=${formatDate(endDate)}&base=BRL&symbols=USD,EUR`);
+                const response = await fetch(`https://api.frankfurter.app/${formatDate(startDate)}..${formatDate(endDate)}?from=BRL&to=USD,EUR`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const data = await response.json();
 
                 if (!data || !data.rates) {
-                    throw new Error('Invalid API response: rates data missing.');
+                    throw new Error('Invalid API response: rates data missing. Raw data: ' + JSON.stringify(data));
                 }
 
                 const processedData = Object.keys(data.rates).map(date => ({
                     date,
                     usd: data.rates[date].USD ? (1 / data.rates[date].USD) : null,
                     eur: data.rates[date].EUR ? (1 / data.rates[date].EUR) : null,
-                })).filter(item => item.usd !== null && item.eur !== null); // Filter out dates with missing data
+                }));
 
                 setHistoricalData(processedData);
             } catch (e) {

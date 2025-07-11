@@ -1,0 +1,26 @@
+{
+  "name": "cicarusbank",
+  "version": "1.0.0",
+  "description": "Projeto de microsserviços simulando um banco",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/itiro-y/CicarusBank.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/itiro-y/CicarusBank/issues"
+  },
+  "homepage": "https://github.com/itiro-y/CicarusBank#readme",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  }
+}

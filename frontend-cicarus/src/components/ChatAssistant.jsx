@@ -6,14 +6,14 @@ import {
 import SendIcon from '@mui/icons-material/Send';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 
-// --- ANIMAÇÃO DOS PONTINHOS ---
+// --- ANIMAÇÃO DOS PONTINHOS (Sem alterações) ---
 const bounce = keyframes`
-  0%, 80%, 100% {
-    transform: scale(0);
-  }
-  40% {
-    transform: scale(1.0);
-  }
+    0%, 80%, 100% {
+        transform: scale(0);
+    }
+    40% {
+        transform: scale(1.0);
+    }
 `;
 
 const TypingIndicator = () => (
@@ -68,7 +68,7 @@ const TypingIndicator = () => (
 );
 
 
-// --- ESTILOS ---
+// --- ESTILOS (Sem alterações) ---
 const widgetStyle = {
     p: 2,
     borderRadius: '16px',
@@ -79,90 +79,47 @@ const widgetStyle = {
     color: 'white',
     maxWidth: 400,
     mx: 'auto',
-    height: 500, // Altura fixa para o componente
+    height: 500,
 };
 
-// --- CÉREBRO DO BOT: Base de Conhecimento (mantido da versão anterior) ---
-const knowledgeBase = [
-    {
-        keywords: ['cartão', 'cartao', 'meu cartão'],
-        response: (navigate) => {
-            setTimeout(() => navigate('/dashboard'), 2000);
-            return 'Claro! A redirecioná-lo para a secção de cartões...';
-        },
-    },
-    {
-        keywords: ['fatura', 'faturas', 'conta'],
-        response: (navigate) => {
-            setTimeout(() => navigate('/dashboard'), 2000);
-            return 'Entendido. A verificar as suas faturas agora mesmo...';
-        },
-    },
-    {
-        keywords: ['perfil', 'meus dados', 'minha conta', 'endereço'],
-        response: (navigate) => {
-            setTimeout(() => navigate('/profile'), 2000);
-            return 'A levá-lo para a sua página de perfil para que possa ver ou atualizar os seus dados.';
-        },
-    },
-    {
-        keywords: ['problema', 'ajuda', 'dificuldade', 'não consigo', 'erro', 'socorro'],
-        response: (message) => {
-            if (message.includes('cartão') || message.includes('cartao')) {
-                return `Lamento que esteja com problemas no seu cartão. Sugestões:\n- Verifique se o cartão está bloqueado na opção 'Bloquear Cartão'.\n- Confirme se o seu limite de crédito não foi excedido.\nSe o problema persistir, por favor, envie um email detalhado para cicarusbank@gmail.com.`;
-            }
-            if (message.includes('fatura')) {
-                return `Percebo. Se o problema é com a fatura, tente:\n- Aceda à opção 'Ver Fatura' para garantir que os lançamentos estão corretos.\n- Verifique se o pagamento da fatura anterior já foi processado.\nCaso não resolva, contacte-nos através do email cicarusbank@gmail.com.`;
-            }
-            if (message.includes('acesso') || message.includes('entrar') || message.includes('senha')) {
-                return `Se está com problemas de acesso, tente redefinir a sua senha na página de login. Por segurança, nunca partilhe a sua senha. Se suspeita de fraude, contacte imediatamente o nosso suporte em cicarusbank@gmail.com.`;
-            }
-            return `Como posso ajudar? Descreva o seu problema para que eu possa encontrar a melhor solução. Se preferir, pode contactar diretamente o nosso suporte em cicarusbank@gmail.com.`;
-        },
-    },
-    {
-        keywords: ['limite', 'aumentar limite'],
-        response: `Pode consultar e solicitar um ajuste do seu limite na secção 'Meu Cartão', clicando em 'Ajustar Limite'. A análise é feita em poucos minutos.`,
-    },
-    {
-        keywords: ['pix', 'chave pix'],
-        response: `As suas chaves Pix podem ser geridas na secção 'Pix'. Lá pode criar novas chaves ou ver as existentes. Para fazer uma transferência, vá em 'Ações Rápidas' > 'Pix'.`,
-    },
-    {
-        keywords: ['roubado', 'perdi meu cartão', 'furto'],
-        response: `Lamento muito por isso. Bloqueie o seu cartão imediatamente na opção 'Bloquear Cartão'. Em seguida, entre em contacto com o nosso suporte pelo email cicarusbank@gmail.com para emitirmos uma segunda via.`,
-    },
-    {
-        keywords: ['obrigado', 'obg', 'valeu'],
-        response: 'De nada! Se precisar de mais alguma coisa, é só chamar. 😊',
-    },
-    {
-        keywords: ['olá', 'oi', 'bom dia', 'boa tarde', 'boa noite'],
-        response: 'Olá! Como posso ser útil hoje?',
-    },
-];
+// --- CÉREBRO DO BOT: AGORA COM IA ---
+// A "knowledgeBase" e a função getBotResponse antigas foram removidas.
+// Esta nova função assíncrona irá chamar o seu backend.
+const getBotResponse = async (userMessage, chatHistory) => {
+    try {
+        const response = await fetch('http://localhost:3001/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                message: userMessage,
+                history: chatHistory, // Enviamos o histórico para a IA ter contexto
+            }),
+        });
 
-const getBotResponse = (userMessage, navigate) => {
-    const message = userMessage.toLowerCase();
-    for (const intent of knowledgeBase) {
-        const match = intent.keywords.some(keyword => message.includes(keyword));
-        if (match) {
-            if (typeof intent.response === 'function') {
-                return intent.response(navigate, message);
-            }
-            return intent.response;
+        if (!response.ok) {
+            throw new Error(`A resposta da rede não foi OK: ${response.statusText}`);
         }
+
+        const data = await response.json();
+        // Esperamos que o backend retorne um objeto com a propriedade "response"
+        return data.response;
+
+    } catch (error) {
+        console.error("Erro ao buscar resposta da IA:", error);
+        return "Desculpe, estou com problemas para me conectar ao meu cérebro. Tente novamente mais tarde.";
     }
-    return "Desculpe, não entendi muito bem. Pode tentar reformular? Pode perguntar sobre 'faturas', 'problema no cartão' ou 'aumentar limite'.";
 };
 
 
 export default function ChatAssistant() {
     const [messages, setMessages] = React.useState([
-        { from: 'bot', text: 'Olá! Sou a Cica, sua assistente virtual. Em que posso ajudar?' },
+        // A mensagem inicial foi atualizada para refletir a nova capacidade da IA
+        { from: 'bot', text: 'Olá! Sou a Cica, a sua assistente virtual com IA. Como posso ajudar?' },
     ]);
     const [newMessage, setNewMessage] = React.useState('');
-    const [isTyping, setIsTyping] = React.useState(false); // 1. NOVO ESTADO
+    const [isTyping, setIsTyping] = React.useState(false);
     const messagesEndRef = React.useRef(null);
     const navigate = useNavigate();
 
@@ -170,27 +127,40 @@ export default function ChatAssistant() {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
 
-    React.useEffect(scrollToBottom, [messages, isTyping]); // Adicionado isTyping para scrollar quando a animação aparecer
+    React.useEffect(scrollToBottom, [messages, isTyping]);
 
-    const handleSendMessage = (e) => {
+    const handleSendMessage = async (e) => {
         e.preventDefault();
         if (newMessage.trim() === '' || isTyping) return;
 
         const userMsg = { from: 'user', text: newMessage };
-        setMessages(prev => [...prev, userMsg]);
+        // Adiciona a mensagem do utilizador ao estado imediatamente
+        const newMessages = [...messages, userMsg];
+        setMessages(newMessages);
         setNewMessage('');
-        setIsTyping(true); // 2. ATIVAR ANIMAÇÃO
+        setIsTyping(true);
 
-        // Simula o tempo de resposta do bot
-        setTimeout(() => {
-            const botResponseText = getBotResponse(newMessage, navigate);
-            const botMsg = { from: 'bot', text: botResponseText };
+        // Prepara o histórico para enviar à IA (remove a mensagem inicial de boas-vindas)
+        const chatHistory = newMessages.slice(1);
 
-            setIsTyping(false); // 3. DESATIVAR ANIMAÇÃO
-            setMessages(prev => [...prev, botMsg]);
-        }, 2000); // Aumentei o tempo para a animação ser mais visível
+        // Chama a nossa nova função assíncrona para obter a resposta da IA
+        const botResponseText = await getBotResponse(newMessage, chatHistory);
+        const botMsg = { from: 'bot', text: botResponseText };
+
+        setIsTyping(false);
+        setMessages(prev => [...prev, botMsg]);
+
+        // A lógica de navegação pode ser mantida ou adaptada.
+        // O ideal é que a IA retorne uma resposta que inclua uma "intenção" de navegar.
+        if (botResponseText.toLowerCase().includes("redirecionando para a secção de cartões")) {
+            setTimeout(() => navigate('/dashboard'), 1500);
+        }
+        if (botResponseText.toLowerCase().includes("levá-lo para a sua página de perfil")) {
+            setTimeout(() => navigate('/profile'), 1500);
+        }
     };
 
+    // --- RENDERIZAÇÃO DO COMPONENTE (Sem alterações) ---
     return (
         <Paper elevation={0} sx={widgetStyle}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, flexShrink: 0 }}>
@@ -213,7 +183,7 @@ export default function ChatAssistant() {
                             p: 1.5,
                             borderRadius: '12px',
                             bgcolor: msg.from === 'bot' ? 'rgba(255, 255, 255, 0.08)' : '#e46820',
-                            color: msg.from === 'bot' ? 'text.primary' : 'white',
+                            color: 'white', // Corrigido para ser sempre branco para melhor contraste
                             my: 0.5,
                             whiteSpace: 'pre-wrap',
                         }}>
@@ -222,7 +192,6 @@ export default function ChatAssistant() {
                     </ListItem>
                 ))}
 
-                {/* 4. RENDERIZAR ANIMAÇÃO CONDICIONALMENTE */}
                 {isTyping && <TypingIndicator />}
 
                 <div ref={messagesEndRef} />
@@ -246,7 +215,7 @@ export default function ChatAssistant() {
                     InputProps={{
                         endAdornment: (
                             <InputAdornment position="end">
-                                <IconButton type="submit" edge="end" sx={{ color: '#e46820' }} disabled={isTyping}>
+                                <IconButton type="submit" edge="end" sx={{ color: '#e46820' }} disabled={!newMessage.trim() || isTyping}>
                                     <SendIcon />
                                 </IconButton>
                             </InputAdornment>

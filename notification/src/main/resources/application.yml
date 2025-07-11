@@ -40,7 +40,9 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka/
   instance:
-    prefer-ip-address: false     # opcional: se quiser registrar pelo IP em vez de hostname
+    prefer-ip-address: true     # opcional: se quiser registrar pelo IP em vez de hostname
+    instance-id: ${spring.application.name}:${server.port}
+    hostname: localhost
     lease-renewal-interval-in-seconds: 5
     health-check-url-path: /actuator/health
 
@@ -53,3 +55,13 @@ management:
       exposure:
         include: health,info
 
+springdoc:
+  api-docs:
+    path: /notification/v3/api-docs
+  swagger-ui:
+    url: /notification/v3/api-docs
+  override-server-url: true
+
+jwt:
+  secret: hzAS6BikJ_2Ft3fEye-lqwGviIeGbWFRG9mEnNDzQp4=
+  expiration: 86400000 # 24 horas em ms

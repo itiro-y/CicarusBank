@@ -1,15 +1,23 @@
-// src/App.jsx
 import { Routes, Route } from 'react-router-dom';
-import LoginPage from './pages/LoginPage';
-import DashboardPage from './pages/DashboardPage';
+import SignInPage from './pages/SignIn.jsx';
+import DashboardPage from './pages/DashboardPage.jsx';
+import ProfilePage from './pages/ProfilePage.jsx';
+import AppTheme from './theme/AppTheme.jsx';
+import UserTransactionsPage from './pages/UserTransactionsPage.jsx';
+import AdminTransactionsPage from "./pages/AdminTransactionsPage.jsx";
 
 function App() {
     return (
-        <Routes>
-            <Route path="/" element={<LoginPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
-        </Routes>
+        <AppTheme>
+            <Routes>
+                <Route path="/" element={<SignInPage />} />
+                <Route path="/login" element={<SignInPage />} />
+                <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/user-transactions" element={<UserTransactionsPage />} />
+                <Route path="/admin-transactions" element={<AdminTransactionsPage />} />
+                <Route path="/profile" element={<ProfilePage />} /> {/* Nova rota adicionada */}
+            </Routes>
+        </AppTheme>
     );
 }
 

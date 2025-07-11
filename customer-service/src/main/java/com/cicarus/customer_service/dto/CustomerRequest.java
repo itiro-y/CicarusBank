@@ -7,16 +7,18 @@ public class CustomerRequest {
     private String name;
     private String document;
     private String email;
+    private String password;
     private LocalDate birthDate;
     private Address address;
 
     public CustomerRequest() {
     }
 
-    public CustomerRequest(String name, String document, String email, LocalDate birthDate, Address address) {
+    public CustomerRequest(String name, String document, String email, String password, LocalDate birthDate, Address address) {
         this.name = name;
         this.document = document;
         this.email = email;
+        this.password = password;
         this.birthDate = birthDate;
         this.address = address;
     }
@@ -59,5 +61,13 @@ public class CustomerRequest {
 
     public void setAddress(Address address) {
         this.address = address;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

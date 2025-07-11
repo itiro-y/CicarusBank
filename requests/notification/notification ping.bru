@@ -1,0 +1,15 @@
+meta {
+  name: notification ping
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:8765/notification/ping
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIiwicm9sZXMiOiJST0xFX1VTRVIiLCJpYXQiOjE3NTIxODAyNjQsImV4cCI6MTc1MjI2NjY2NH0.-eqdq-dWd1U8u7YGchHwTHSz3TBIxsUaelJsidmqXkg
+}

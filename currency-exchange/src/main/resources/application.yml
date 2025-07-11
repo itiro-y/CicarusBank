@@ -40,3 +40,15 @@ management:
     web:
       exposure:
         include: health,info
+
+springdoc:
+  api-docs:
+    path: /exchange/v3/api-docs # Caminho onde o JSON da documentação será gerado para este microserviço
+  swagger-ui:
+    path: /swagger-ui.html # Caminho padrão para o Swagger UI
+    url: /exchange/v3/api-docs # Aponta o Swagger UI para o JSON da documentação deste microserviço
+  override-server-url: true
+
+jwt:
+  secret: hzAS6BikJ_2Ft3fEye-lqwGviIeGbWFRG9mEnNDzQp4=
+  expiration: 86400000 # 24 horas em ms

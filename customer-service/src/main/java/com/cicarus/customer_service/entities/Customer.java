@@ -15,6 +15,7 @@ public class Customer {
     @Column(unique = true)
     private String document; // CPF ou CNPJ
     private String email;
+    private String password;
 
     @Embedded
     private Address address;
@@ -23,11 +24,12 @@ public class Customer {
     public Customer() {
     }
 
-    public Customer(Long id, String name, String document, String email, Address address, LocalDate birthDate) {
+    public Customer(Long id, String name, String document, String email, String password, Address address, LocalDate birthDate) {
         this.id = id;
         this.name = name;
         this.document = document;
         this.email = email;
+        this.password = password;
         this.address = address;
         this.birthDate = birthDate;
     }
@@ -78,5 +80,13 @@ public class Customer {
 
     public void setBirthDate(LocalDate birthDate) {
         this.birthDate = birthDate;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

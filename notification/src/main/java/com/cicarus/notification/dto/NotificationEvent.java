@@ -1,3 +1,5 @@
+// Em: notification/src/main/java/com/cicarus/notification/dto/NotificationEvent.java
+
 package com.cicarus.notification.dto;
 
 
@@ -5,17 +7,22 @@ public class NotificationEvent {
     private Long customerId;
     private String channel;
     private String message;
-    private String recipientEmail; // <- novo campo
+    private String recipientEmail; // Endereço de email para envio
 
+
+    // Construtor sem argumentos
     public NotificationEvent() {
     }
 
+    // Construtor com todos os argumentos
     public NotificationEvent(Long customerId, String channel, String message, String recipientEmail) {
         this.customerId = customerId;
         this.channel = channel;
         this.message = message;
         this.recipientEmail = recipientEmail;
     }
+
+    // Getters e Setters
 
     public Long getCustomerId() {
         return customerId;
@@ -40,6 +47,7 @@ public class NotificationEvent {
     public void setRecipientEmail(String recipientEmail) {
         this.recipientEmail = recipientEmail;
     }
+
 
     public String getMessage() {
         return message;

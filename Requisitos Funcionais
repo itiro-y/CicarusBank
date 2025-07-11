@@ -9,8 +9,49 @@ Requisitos funcionais
 
 
 `Customer-Service`
+Métodos: 
+1. Cria um novo cliente com os seguintes dados:
+  - ID
+  - Nome
+  - Documento(CPF)
+  - Email
+  - Data de nascimento
+  - Endereço(país, estado, cidade, rua e CEP)
+2. Busca cliente por ID.
+3. Lista todos os clientes.
+4. Deleta cliente por ID.
+
+`Transaction`
 | **ID**  | **Requisito**                                                   | **Prioridade** |
 |--------|------------------------------------------------------------------|----------------|
 | 01     | Manter todos os dados do cliente                                 | Alta           |
 | 02     | Validação dos campos                                             | Alta           |
 | 03     | CRUD                                                             | Alta           |
+
+`Account`
+| **ID**  | **Requisito**                                                   | **Prioridade** |
+|--------|------------------------------------------------------------------|----------------|
+| 01     | Manter todos os dados do cliente                                 | Alta           |
+| 02     | Validação dos campos                                             | Alta           |
+| 03     | CRUD                                                             | Alta           |
+
+`Loan-Service`
+| **ID**  | **Requisito**                                                   | **Prioridade** |
+|--------|------------------------------------------------------------------|----------------|
+| 01     | Manter todos os dados do cliente                                 | Alta           |
+| 02     | Validação dos campos                                             | Alta           |
+| 03     | CRUD                                                             | Alta           |
+
+`Notification`
+| **ID**  | **Requisito**                                                   | **Prioridade** |
+|--------|------------------------------------------------------------------|----------------|
+| 01     | Manter todos os dados do cliente                                 | Alta           |
+| 02     | Validação dos campos                                             | Alta           |
+| 03     | CRUD                                                             | Alta           |
+
+`Currency-Exchange`
+Métodos: 
+1. Obtém taxa de câmbio entre duas moedas. 
+2. O usuário insere um valor, a moeda que ele tem e a moeda a qual ele deseja converter. A saída mostra o valor convertido.
+
+

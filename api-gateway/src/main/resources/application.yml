@@ -16,6 +16,8 @@ spring:
               uri: lb://account
               predicates:
                 - Path=/account/**
+#              filters:
+#                - AuthenticationFilter
 
             - id: auth
               uri: lb://auth
@@ -26,16 +28,36 @@ spring:
               uri: lb://transaction
               predicates:
                 - Path=/transaction/**
+#              filters:
+#                - AuthenticationFilter
 
             - id: loan
               uri: lb://loan
               predicates:
                 - Path=/loan/**
+#              filters:
+#                - AuthenticationFilter
 
             - id: customers
               uri: lb://customers
               predicates:
                 - Path=/customers/**
+#              filters:
+#                - AuthenticationFilter
+
+            - id: exchange
+              uri: lb://exchange
+              predicates:
+                - Path=/exchange/**
+#              filters:
+#                - AuthenticationFilter
+
+            - id: notification
+              uri: lb://notification
+              predicates:
+                - Path=/notification/**
+#              filters:
+#                - AuthenticationFilter
 
 springdoc:
   swagger-ui:
@@ -44,7 +66,16 @@ springdoc:
         url: /transaction/v3/api-docs
       - name: auth
         url: /auth/v3/api-docs
+      - name: notification
+        url: /notification/v3/api-docs
+      - name: customers
+        url: /customers/v3/api-docs
+      - name: exchange
+        url: /exchange/v3/api-docs
+  override-server-url: true
 
-
+#jwt:
+#  secret: hzAS6BikJ_2Ft3fEye-lqwGviIeGbWFRG9mEnNDzQp4=
+#  expiration: 86400000 # 24 horas em ms
 
 

@@ -6,6 +6,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { Person, Email, Lock, AssignmentInd, Cake, Public, Business, Streetview, LocationCity } from '@mui/icons-material';
 
+// Funções de máscara (mantidas como no seu original)
 const maskCPF = (value) => {
     const digitsOnly = value.replace(/\D/g, '');
     const limitedDigits = digitsOnly.substring(0, 11);
@@ -29,6 +30,7 @@ const maskCEP = (value) => {
         .substring(0, 9);
 };
 
+// Componente FormField (do seu código original, com o label em cima)
 const FormField = ({ id, label, value, onChange, ...props }) => (
     <FormControl fullWidth sx={{ mt: 1.5 }}>
         <Typography component="label" htmlFor={id} sx={{ color: 'grey.400', mb: 1 }}>
@@ -74,10 +76,16 @@ function SignUpCard({ onSwitchToSignIn }) {
         setFormData(prevState => ({ ...prevState, [name]: value }));
     };
 
+    // --- CORREÇÃO AQUI: Validação de formato do CPF ---
     const handleNext = () => {
         const { name, document, birthDate, email, password, confirmPassword } = formData;
         if (!name || !document || !birthDate || !email || !password || !confirmPassword) {
             handleOpenDialog("Campos Obrigatórios", "Por favor, preencha todos os campos de dados pessoais para continuar.");
+            return;
+        }
+        // Nova validação para o formato completo do CPF
+        if (document.length !== 14) {
+            handleOpenDialog("CPF Inválido", "Por favor, preencha o CPF completamente no formato correto.");
             return;
         }
         if (password !== confirmPassword) {
@@ -89,12 +97,18 @@ function SignUpCard({ onSwitchToSignIn }) {
 
     const handleBack = () => setStep(1);
 
+    // --- CORREÇÃO AQUI: Validação de formato do CEP ---
     const handleSubmit = async (event) => {
         event.preventDefault();
 
         const { street, city, state, zipCode } = formData;
         if (!street || !city || !state || !zipCode) {
             handleOpenDialog("Campos Obrigatórios", "Por favor, preencha todos os campos de endereço.");
+            return;
+        }
+        // Nova validação para o formato completo do CEP
+        if (zipCode.length !== 9) {
+            handleOpenDialog("CEP Inválido", "Por favor, preencha o CEP completamente no formato correto.");
             return;
         }
 
@@ -126,6 +140,7 @@ function SignUpCard({ onSwitchToSignIn }) {
         }
     };
 
+    // Estrutura e Estilos (mantidos como no seu original)
     const slideVariants = {
         hidden: { x: '100%', opacity: 0 },
         visible: { x: '0%', opacity: 1 },

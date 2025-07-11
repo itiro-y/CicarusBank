@@ -66,8 +66,15 @@ export default function AppAppBar() {
                                     color="primary"
                                     variant="text"
                                     size="small">Visão Geral</Button>
-                            <Button variant="text" color="info" size="small">Transferências</Button>
+
+                            <Button component={Link}
+                                    to="/user-transactions"
+                                    variant="text"
+                                    color="info"
+                                    size="small">Transferências</Button>
+
                             <Button variant="text" color="info" size="small">Cartões</Button>
+
                             <Button variant="text" color="info" size="small">Investimentos</Button>
                         </Box>
                     </Box>

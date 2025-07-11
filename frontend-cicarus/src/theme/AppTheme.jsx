@@ -7,7 +7,7 @@ import { dataDisplayCustomizations } from './customizations/dataDisplay.jsx';
 import { feedbackCustomizations } from './customizations/feedback.jsx';
 import { navigationCustomizations } from './customizations/navigation.jsx';
 import { surfacesCustomizations } from './customizations/surfaces.jsx';
-import { colorSchemes, typography, shadows, shape } from './themePrimitives.js';
+import { colorSchemes, typography, shadows, shape } from './ThemePrimitives.js';
 
 function AppTheme(props) {
     const { children, disableCustomTheme, themeComponents } = props;

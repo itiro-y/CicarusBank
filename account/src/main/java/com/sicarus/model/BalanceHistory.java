@@ -1,8 +1,12 @@
 package com.sicarus.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Objects;
 
 @Entity
@@ -13,18 +17,25 @@ public class BalanceHistory {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id", nullable = false)
+    @JsonBackReference
     private Account account;
 
     @Column(nullable = false)
     private BigDecimal balance;
 
     @Column(nullable = false)
-    private LocalDateTime timestamp;
+    private Date timestamp;
 
     public BalanceHistory() {}
 
-    public BalanceHistory(Long id, Account account, BigDecimal balance, LocalDateTime timestamp) {
+    public BalanceHistory(Long id, Account account, BigDecimal balance, Date timestamp) {
         this.id = id;
+        this.account = account;
+        this.balance = balance;
+        this.timestamp = timestamp;
+    }
+
+    public BalanceHistory(Account account, BigDecimal balance, Date timestamp) {
         this.account = account;
         this.balance = balance;
         this.timestamp = timestamp;
@@ -54,11 +65,11 @@ public class BalanceHistory {
         this.balance = balance;
     }
 
-    public LocalDateTime getTimestamp() {
+    public Date getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(LocalDateTime timestamp) {
+    public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
 

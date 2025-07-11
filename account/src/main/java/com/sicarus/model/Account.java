@@ -1,5 +1,7 @@
 package com.sicarus.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sicarus.enums.AccountType;
 import jakarta.persistence.*;
 
@@ -29,6 +31,7 @@ public class Account {
             orphanRemoval = true,
             fetch     = FetchType.LAZY
     )
+    @JsonManagedReference
     private List<BalanceHistory> balanceHistory;
 
     public Account(){}

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {
-    Box, Button, Card, CardContent, TextField, Typography, Stack, Grid, Link as MuiLink, FormControl
+    Box, Button, Card, CardContent, TextField, Typography, Stack, Grid, Link as MuiLink, FormControl,
+    Dialog, DialogTitle, DialogContent, DialogActions, Snackbar, Alert
 } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Person, Email, Lock, AssignmentInd, Cake, Public, Business, Streetview, LocationCity } from '@mui/icons-material';
@@ -47,6 +48,39 @@ function SignUpCard({ onSwitchToSignIn }) {
         confirmPassword: '', country: 'Brasil', state: '', street: '', city: '', zipCode: ''
     });
 
+    const [showDialog, setShowDialog] = React.useState(false);
+    const [dialogMessage, setDialogMessage] = React.useState('');
+    const [dialogTitle, setDialogTitle] = React.useState('');
+
+    const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+    const [snackbarMessage, setSnackbarMessage] = React.useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = React.useState('error'); // 'success' or 'error'
+
+    const handleOpenDialog = (title, message) => {
+        setDialogTitle(title);
+        setDialogMessage(message);
+        setShowDialog(true);
+    };
+
+    const handleCloseDialog = () => {
+        setShowDialog(false);
+        setDialogTitle('');
+        setDialogMessage('');
+    };
+
+    const handleOpenSnackbar = (message, severity) => {
+        setSnackbarMessage(message);
+        setSnackbarSeverity(severity);
+        setSnackbarOpen(true);
+    };
+
+    const handleCloseSnackbar = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setSnackbarOpen(false);
+    };
+
     const handleChange = (e) => {
         let { name, value } = e.target;
 
@@ -64,11 +98,10 @@ function SignUpCard({ onSwitchToSignIn }) {
         if (step !== 2) return;
 
         if (formData.password !== formData.confirmPassword) {
-            alert("As senhas não coincidem!");
+            handleOpenSnackbar("As senhas não coincidem!", "error");
             return;
         }
 
-        // Remove mask characters before sending to the backend
         const unmaskedDocument = formData.document.replace(/\D/g, '');
         const unmaskedZipCode = formData.zipCode.replace(/\D/g, '');
 
@@ -95,15 +128,15 @@ function SignUpCard({ onSwitchToSignIn }) {
             });
 
             if (response.ok) {
-                alert('Cadastro realizado com sucesso!');
+                handleOpenDialog('Sucesso!', 'Cadastro realizado com sucesso!');
                 onSwitchToSignIn();
             } else {
                 const errorData = await response.json();
-                alert(`Erro ao cadastrar: ${errorData.message || 'Verifique os dados e tente novamente.'}`);
+                handleOpenSnackbar(`Erro ao cadastrar: ${errorData.message || 'Verifique os dados e tente novamente.'}`, "error");
             }
         } catch (error) {
             console.error('Erro de conexão:', error);
-            alert('Não foi possível conectar ao servidor. Verifique se o microserviço está em execução.');
+            handleOpenSnackbar('Não foi possível conectar ao servidor. Verifique se o microserviço está em execução.', "error");
         }
     };
 
@@ -178,6 +211,42 @@ function SignUpCard({ onSwitchToSignIn }) {
                     </Box>
                 </CardContent>
             </Box>
+
+            {/* Custom Dialog/Modal for Success Messages */}
+            <Dialog
+                open={showDialog}
+                onClose={handleCloseDialog}
+                aria-labelledby="dialog-title"
+                aria-describedby="dialog-description"
+                sx={{
+                    '& .MuiPaper-root': {
+                        backgroundColor: 'rgba(40, 45, 52, 0.95)',
+                        color: 'white',
+                        borderRadius: '16px',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        backdropFilter: 'blur(10px)',
+                    }
+                }}
+            >
+                <DialogTitle id="dialog-title" sx={{ color: '#e46820', fontWeight: 'bold' }}>{dialogTitle}</DialogTitle>
+                <DialogContent>
+                    <Typography id="dialog-description" sx={{ color: 'white' }}>
+                        {dialogMessage}
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseDialog} sx={{ color: '#e46820', fontWeight: 'bold' }} autoFocus>
+                        OK
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Snackbar for Error Messages */}
+            <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
         </Card>
     );
 }

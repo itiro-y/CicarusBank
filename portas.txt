@@ -10,6 +10,7 @@ Currency Exchange Service - 8500, 8501 ...
 Netflix Eureka Naming Server - 8671
 API Gateway - 8125
 Zipkin Distributed Tracing Server - 9411
+Kafka - 9092
 
 
 Apresentacao

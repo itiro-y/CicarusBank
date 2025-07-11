@@ -46,4 +46,9 @@ public class LoanController {
         return ResponseEntity.ok(loanService.getCustomerByID(customerId));
     }
 
+    @GetMapping("/ping")
+    public String ping(){
+        return "ping";
+    }
+
 }

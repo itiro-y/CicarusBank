@@ -1,6 +1,16 @@
 spring:
   application:
     name: notification
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: notification
+      auto-offset-reset: earliest
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: "*"
   datasource:
     url: jdbc:mysql://localhost:3310/notification_db
     username: root
@@ -51,3 +61,7 @@ springdoc:
   swagger-ui:
     url: /notification/v3/api-docs
   override-server-url: true
+
+jwt:
+  secret: hzAS6BikJ_2Ft3fEye-lqwGviIeGbWFRG9mEnNDzQp4=
+  expiration: 86400000 # 24 horas em ms

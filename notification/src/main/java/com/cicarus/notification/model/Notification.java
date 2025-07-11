@@ -14,7 +14,10 @@ public class Notification {
 
     private Long customerId;
     private String channel;
+
+    @Column(nullable = false, length = 1000)
     private String message;
+
     private Instant sentAt;
     private String recipientEmail;
 
@@ -30,6 +33,14 @@ public class Notification {
         this.message = message;
         this.sentAt = sentAt;
         this.recipientEmail = recipientEmail;
+    }
+  
+    public Notification(Long customerId, String channel, String message, String recipientEmail, Instant sentAt) {
+        this.customerId = customerId;
+        this.channel = channel;
+        this.message = message;
+        this.recipientEmail = recipientEmail;
+        this.sentAt = sentAt;
     }
 
     // 3. Getters e Setters para todos os campos

@@ -23,6 +23,11 @@ public class AccountController {
         return accountRepository.findAll();
     }
 
+    @GetMapping("/account/ping")
+    public String ping(){
+        return "Pong!";
+    }
+
     @GetMapping("/account/{id}")
     public Optional<Account> getById(@PathVariable Long id){
         return accountRepository.findById(id);

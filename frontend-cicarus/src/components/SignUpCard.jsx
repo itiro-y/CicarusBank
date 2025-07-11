@@ -1,9 +1,35 @@
 import * as React from 'react';
 import {
-    Box, Button, Card, CardContent, TextField, Typography, Stack, Grid, Link as MuiLink, FormControl
+    Box, Button, Card, CardContent, TextField, Typography, Stack, Grid, Link as MuiLink, FormControl,
+    Dialog, DialogTitle, DialogContent, DialogActions, Snackbar, Alert
 } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Person, Email, Lock, AssignmentInd, Cake, Public, Business, Streetview, LocationCity } from '@mui/icons-material';
+
+// --- Helper Functions for Masks ---
+
+const maskCPF = (value) => {
+    const digitsOnly = value.replace(/\D/g, '');
+    const limitedDigits = digitsOnly.substring(0, 11);
+
+    let maskedValue = limitedDigits;
+    if (limitedDigits.length > 9) {
+        maskedValue = limitedDigits.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+    } else if (limitedDigits.length > 6) {
+        maskedValue = limitedDigits.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+    } else if (limitedDigits.length > 3) {
+        maskedValue = limitedDigits.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+    }
+
+    return maskedValue;
+};
+
+const maskCEP = (value) => {
+    return value
+        .replace(/\D/g, '')
+        .replace(/^(\d{5})(\d)/, '$1-$2')
+        .substring(0, 9);
+};
 
 const FormField = ({ id, label, value, onChange, ...props }) => (
     <FormControl fullWidth sx={{ mt: 1.5 }}>
@@ -19,11 +45,51 @@ function SignUpCard({ onSwitchToSignIn }) {
 
     const [formData, setFormData] = React.useState({
         name: '', document: '', birthDate: '', email: '', password: '',
-        confirmPassword: '', country: 'Brasil', state: '', street: '', zipCode: ''
+        confirmPassword: '', country: 'Brasil', state: '', street: '', city: '', zipCode: ''
     });
 
+    const [showDialog, setShowDialog] = React.useState(false);
+    const [dialogMessage, setDialogMessage] = React.useState('');
+    const [dialogTitle, setDialogTitle] = React.useState('');
+
+    const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+    const [snackbarMessage, setSnackbarMessage] = React.useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = React.useState('error'); // 'success' or 'error'
+
+    const handleOpenDialog = (title, message) => {
+        setDialogTitle(title);
+        setDialogMessage(message);
+        setShowDialog(true);
+    };
+
+    const handleCloseDialog = () => {
+        setShowDialog(false);
+        setDialogTitle('');
+        setDialogMessage('');
+    };
+
+    const handleOpenSnackbar = (message, severity) => {
+        setSnackbarMessage(message);
+        setSnackbarSeverity(severity);
+        setSnackbarOpen(true);
+    };
+
+    const handleCloseSnackbar = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setSnackbarOpen(false);
+    };
+
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        let { name, value } = e.target;
+
+        if (name === 'document') {
+            value = maskCPF(value);
+        } else if (name === 'zipCode') {
+            value = maskCEP(value);
+        }
+
         setFormData(prevState => ({ ...prevState, [name]: value }));
     };
 
@@ -32,20 +98,24 @@ function SignUpCard({ onSwitchToSignIn }) {
         if (step !== 2) return;
 
         if (formData.password !== formData.confirmPassword) {
-            alert("As senhas não coincidem!");
+            handleOpenSnackbar("As senhas não coincidem!", "error");
             return;
         }
 
+        const unmaskedDocument = formData.document.replace(/\D/g, '');
+        const unmaskedZipCode = formData.zipCode.replace(/\D/g, '');
+
         const payload = {
             name: formData.name,
-            document: formData.document,
+            document: unmaskedDocument,
             email: formData.email,
+            password: formData.password,
             birthDate: formData.birthDate,
             address: {
                 street: formData.street,
-                city: "Cidade Exemplo",
+                city: formData.city,
                 state: formData.state,
-                zipCode: formData.zipCode,
+                zipCode: unmaskedZipCode,
                 country: formData.country
             }
         };
@@ -58,15 +128,15 @@ function SignUpCard({ onSwitchToSignIn }) {
             });
 
             if (response.ok) {
-                alert('Cadastro realizado com sucesso!');
+                handleOpenDialog('Sucesso!', 'Cadastro realizado com sucesso!');
                 onSwitchToSignIn();
             } else {
                 const errorData = await response.json();
-                alert(`Erro ao cadastrar: ${errorData.message || 'Verifique os dados e tente novamente.'}`);
+                handleOpenSnackbar(`Erro ao cadastrar: ${errorData.message || 'Verifique os dados e tente novamente.'}`, "error");
             }
         } catch (error) {
             console.error('Erro de conexão:', error);
-            alert('Não foi possível conectar ao servidor. Verifique se o microserviço está em execução.');
+            handleOpenSnackbar('Não foi possível conectar ao servidor. Verifique se o microserviço está em execução.', "error");
         }
     };
 
@@ -111,10 +181,11 @@ function SignUpCard({ onSwitchToSignIn }) {
                                 </Grid>
                             ) : (
                                 <Grid container spacing={2}>
-                                    <Grid item xs={12} sm={6}><FormField id="country" label="País" value={formData.country} onChange={handleChange} InputProps={{ startAdornment: <Public sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
-                                    <Grid item xs={12} sm={6}><FormField id="state" label="Estado" value={formData.state} onChange={handleChange} InputProps={{ startAdornment: <Business sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
+                                    <Grid item xs={12}><FormField id="zipCode" label="CEP" value={formData.zipCode} onChange={handleChange} InputProps={{ startAdornment: <LocationCity sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
                                     <Grid item xs={12} sm={6}><FormField id="street" label="Rua" value={formData.street} onChange={handleChange} InputProps={{ startAdornment: <Streetview sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
-                                    <Grid item xs={12} sm={6}><FormField id="zipCode" label="CEP" value={formData.zipCode} onChange={handleChange} InputProps={{ startAdornment: <LocationCity sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
+                                    <Grid item xs={12} sm={6}><FormField id="city" label="Cidade" value={formData.city} onChange={handleChange} InputProps={{ startAdornment: <Business sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
+                                    <Grid item xs={12} sm={6}><FormField id="state" label="Estado" value={formData.state} onChange={handleChange} InputProps={{ startAdornment: <Business sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
+                                    <Grid item xs={12} sm={6}><FormField id="country" label="País" value={formData.country} onChange={handleChange} InputProps={{ startAdornment: <Public sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
                                 </Grid>
                             )}
                         </motion.div>
@@ -127,13 +198,12 @@ function SignUpCard({ onSwitchToSignIn }) {
                             <Button
                                 fullWidth
                                 variant="contained"
-                                type="button" // <- important!
+                                type="button"
                                 onClick={handleSubmit}
                                 sx={{ py: 1.5, backgroundColor: '#e46820', '&:hover': { backgroundColor: '#d15e1c' }, fontWeight: 'bold' }}
                             >
                                 Finalizar Cadastro
                             </Button>
-
                         )}
                     </Stack>
                     <Box sx={{ pt: 2, textAlign: 'center' }}>
@@ -141,6 +211,42 @@ function SignUpCard({ onSwitchToSignIn }) {
                     </Box>
                 </CardContent>
             </Box>
+
+            {/* Custom Dialog/Modal for Success Messages */}
+            <Dialog
+                open={showDialog}
+                onClose={handleCloseDialog}
+                aria-labelledby="dialog-title"
+                aria-describedby="dialog-description"
+                sx={{
+                    '& .MuiPaper-root': {
+                        backgroundColor: 'rgba(40, 45, 52, 0.95)',
+                        color: 'white',
+                        borderRadius: '16px',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        backdropFilter: 'blur(10px)',
+                    }
+                }}
+            >
+                <DialogTitle id="dialog-title" sx={{ color: '#e46820', fontWeight: 'bold' }}>{dialogTitle}</DialogTitle>
+                <DialogContent>
+                    <Typography id="dialog-description" sx={{ color: 'white' }}>
+                        {dialogMessage}
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseDialog} sx={{ color: '#e46820', fontWeight: 'bold' }} autoFocus>
+                        OK
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Snackbar for Error Messages */}
+            <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
         </Card>
     );
 }

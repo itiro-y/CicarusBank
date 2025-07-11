@@ -1,13 +1,12 @@
 import * as React from 'react';
 import {
     Box, Button, Card, CardContent, TextField, Typography, Stack, Grid, Link as MuiLink, FormControl,
-    Dialog, DialogTitle, DialogContent, DialogActions, Snackbar, Alert
+    Dialog, DialogTitle, DialogContent, DialogActions
 } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Person, Email, Lock, AssignmentInd, Cake, Public, Business, Streetview, LocationCity } from '@mui/icons-material';
 
-// --- Helper Functions for Masks ---
-
+// Funções de máscara (mantidas como no seu original)
 const maskCPF = (value) => {
     const digitsOnly = value.replace(/\D/g, '');
     const limitedDigits = digitsOnly.substring(0, 11);
@@ -31,6 +30,7 @@ const maskCEP = (value) => {
         .substring(0, 9);
 };
 
+// Componente FormField (do seu código original, com o label em cima)
 const FormField = ({ id, label, value, onChange, ...props }) => (
     <FormControl fullWidth sx={{ mt: 1.5 }}>
         <Typography component="label" htmlFor={id} sx={{ color: 'grey.400', mb: 1 }}>
@@ -42,7 +42,6 @@ const FormField = ({ id, label, value, onChange, ...props }) => (
 
 function SignUpCard({ onSwitchToSignIn }) {
     const [step, setStep] = React.useState(1);
-
     const [formData, setFormData] = React.useState({
         name: '', document: '', birthDate: '', email: '', password: '',
         confirmPassword: '', country: 'Brasil', state: '', street: '', city: '', zipCode: ''
@@ -52,10 +51,6 @@ function SignUpCard({ onSwitchToSignIn }) {
     const [dialogMessage, setDialogMessage] = React.useState('');
     const [dialogTitle, setDialogTitle] = React.useState('');
 
-    const [snackbarOpen, setSnackbarOpen] = React.useState(false);
-    const [snackbarMessage, setSnackbarMessage] = React.useState('');
-    const [snackbarSeverity, setSnackbarSeverity] = React.useState('error'); // 'success' or 'error'
-
     const handleOpenDialog = (title, message) => {
         setDialogTitle(title);
         setDialogMessage(message);
@@ -64,21 +59,9 @@ function SignUpCard({ onSwitchToSignIn }) {
 
     const handleCloseDialog = () => {
         setShowDialog(false);
-        setDialogTitle('');
-        setDialogMessage('');
-    };
-
-    const handleOpenSnackbar = (message, severity) => {
-        setSnackbarMessage(message);
-        setSnackbarSeverity(severity);
-        setSnackbarOpen(true);
-    };
-
-    const handleCloseSnackbar = (event, reason) => {
-        if (reason === 'clickaway') {
-            return;
+        if (dialogTitle === 'Sucesso!') {
+            onSwitchToSignIn();
         }
-        setSnackbarOpen(false);
     };
 
     const handleChange = (e) => {
@@ -93,12 +76,39 @@ function SignUpCard({ onSwitchToSignIn }) {
         setFormData(prevState => ({ ...prevState, [name]: value }));
     };
 
+    // --- CORREÇÃO AQUI: Validação de formato do CPF ---
+    const handleNext = () => {
+        const { name, document, birthDate, email, password, confirmPassword } = formData;
+        if (!name || !document || !birthDate || !email || !password || !confirmPassword) {
+            handleOpenDialog("Campos Obrigatórios", "Por favor, preencha todos os campos de dados pessoais para continuar.");
+            return;
+        }
+        // Nova validação para o formato completo do CPF
+        if (document.length !== 14) {
+            handleOpenDialog("CPF Inválido", "Por favor, preencha o CPF completamente no formato correto.");
+            return;
+        }
+        if (password !== confirmPassword) {
+            handleOpenDialog("Erro de Senha", "As senhas não coincidem!");
+            return;
+        }
+        setStep(2);
+    };
+
+    const handleBack = () => setStep(1);
+
+    // --- CORREÇÃO AQUI: Validação de formato do CEP ---
     const handleSubmit = async (event) => {
         event.preventDefault();
-        if (step !== 2) return;
 
-        if (formData.password !== formData.confirmPassword) {
-            handleOpenSnackbar("As senhas não coincidem!", "error");
+        const { street, city, state, zipCode } = formData;
+        if (!street || !city || !state || !zipCode) {
+            handleOpenDialog("Campos Obrigatórios", "Por favor, preencha todos os campos de endereço.");
+            return;
+        }
+        // Nova validação para o formato completo do CEP
+        if (zipCode.length !== 9) {
+            handleOpenDialog("CEP Inválido", "Por favor, preencha o CEP completamente no formato correto.");
             return;
         }
 
@@ -106,18 +116,9 @@ function SignUpCard({ onSwitchToSignIn }) {
         const unmaskedZipCode = formData.zipCode.replace(/\D/g, '');
 
         const payload = {
-            name: formData.name,
-            document: unmaskedDocument,
-            email: formData.email,
-            password: formData.password,
+            name: formData.name, document: unmaskedDocument, email: formData.email, password: formData.password,
             birthDate: formData.birthDate,
-            address: {
-                street: formData.street,
-                city: formData.city,
-                state: formData.state,
-                zipCode: unmaskedZipCode,
-                country: formData.country
-            }
+            address: { street, city, state, zipCode: unmaskedZipCode, country: formData.country }
         };
 
         try {
@@ -129,20 +130,17 @@ function SignUpCard({ onSwitchToSignIn }) {
 
             if (response.ok) {
                 handleOpenDialog('Sucesso!', 'Cadastro realizado com sucesso!');
-                onSwitchToSignIn();
             } else {
-                const errorData = await response.json();
-                handleOpenSnackbar(`Erro ao cadastrar: ${errorData.message || 'Verifique os dados e tente novamente.'}`, "error");
+                const userFriendlyMessage = 'Não foi possível realizar o cadastro. Verifique se os dados estão corretos (ex: CPF ou e-mail já utilizado).';
+                handleOpenDialog("Erro no Cadastro", userFriendlyMessage);
             }
         } catch (error) {
             console.error('Erro de conexão:', error);
-            handleOpenSnackbar('Não foi possível conectar ao servidor. Verifique se o microserviço está em execução.', "error");
+            handleOpenDialog('Erro de Conexão', 'Não foi possível conectar ao servidor.');
         }
     };
 
-    const handleNext = () => setStep(2);
-    const handleBack = () => setStep(1);
-
+    // Estrutura e Estilos (mantidos como no seu original)
     const slideVariants = {
         hidden: { x: '100%', opacity: 0 },
         visible: { x: '0%', opacity: 1 },
@@ -195,13 +193,7 @@ function SignUpCard({ onSwitchToSignIn }) {
                         {step === 1 ? (
                             <Button fullWidth variant="contained" type="button" onClick={handleNext} sx={{ py: 1.5, backgroundColor: '#e46820', '&:hover': { backgroundColor: '#d15e1c' }, fontWeight: 'bold' }}>Próximo</Button>
                         ) : (
-                            <Button
-                                fullWidth
-                                variant="contained"
-                                type="button"
-                                onClick={handleSubmit}
-                                sx={{ py: 1.5, backgroundColor: '#e46820', '&:hover': { backgroundColor: '#d15e1c' }, fontWeight: 'bold' }}
-                            >
+                            <Button fullWidth variant="contained" type="button" onClick={handleSubmit} sx={{ py: 1.5, backgroundColor: '#e46820', '&:hover': { backgroundColor: '#d15e1c' }, fontWeight: 'bold' }} >
                                 Finalizar Cadastro
                             </Button>
                         )}
@@ -212,14 +204,11 @@ function SignUpCard({ onSwitchToSignIn }) {
                 </CardContent>
             </Box>
 
-            {/* Custom Dialog/Modal for Success Messages */}
             <Dialog
                 open={showDialog}
                 onClose={handleCloseDialog}
-                aria-labelledby="dialog-title"
-                aria-describedby="dialog-description"
-                sx={{
-                    '& .MuiPaper-root': {
+                PaperProps={{
+                    style: {
                         backgroundColor: 'rgba(40, 45, 52, 0.95)',
                         color: 'white',
                         borderRadius: '16px',
@@ -228,9 +217,9 @@ function SignUpCard({ onSwitchToSignIn }) {
                     }
                 }}
             >
-                <DialogTitle id="dialog-title" sx={{ color: '#e46820', fontWeight: 'bold' }}>{dialogTitle}</DialogTitle>
+                <DialogTitle sx={{ color: '#e46820', fontWeight: 'bold' }}>{dialogTitle}</DialogTitle>
                 <DialogContent>
-                    <Typography id="dialog-description" sx={{ color: 'white' }}>
+                    <Typography sx={{ color: 'white' }}>
                         {dialogMessage}
                     </Typography>
                 </DialogContent>
@@ -240,13 +229,6 @@ function SignUpCard({ onSwitchToSignIn }) {
                     </Button>
                 </DialogActions>
             </Dialog>
-
-            {/* Snackbar for Error Messages */}
-            <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
-                    {snackbarMessage}
-                </Alert>
-            </Snackbar>
         </Card>
     );
 }

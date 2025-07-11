@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: currency-exchange
+    name: exchange
   datasource:
     url: jdbc:mysql://localhost:3313/exchange_db
     username: root

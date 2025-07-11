@@ -171,7 +171,7 @@ const CreditCardComponent = () => {
                         boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
                     }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <img src="https://i.postimg.cc/jjZF98Pp/download-1.png" alt="logo" style={{ height: '25px', opacity: 0.8 }} />
+                            <img src="https://i.postimg.cc/jjZF98Pp/download-1.png" alt="logo" style={{ height: '80px', opacity: 0.8 }} />
                             <Typography variant="caption">{cardData.status}</Typography>
                         </Box>
                         <Box>

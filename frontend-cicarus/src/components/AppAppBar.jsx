@@ -1,12 +1,10 @@
-// Em: src/components/AppAppBar.jsx
-
 import * as React from 'react';
-import { styled, alpha } from '@mui/material/styles';
+import { styled, alpha, useTheme } from '@mui/material/styles'; // Importação do useTheme
 import Box from '@mui/material/Box';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Button from '@mui/material/Button';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // Importação do useNavigate
 import IconButton from '@mui/material/IconButton';
 import Container from '@mui/material/Container';
 import Divider from '@mui/material/Divider';
@@ -15,7 +13,7 @@ import Drawer from '@mui/material/Drawer';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import ColorModeIconDropdown from '../theme/ColorModeIconDropdown.jsx';
-// A importação do SitemarkIcon foi removida
+import Swal from 'sweetalert2'; // Importação do SweetAlert2
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
     display: 'flex',
@@ -35,9 +33,57 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
 
 export default function AppAppBar() {
     const [open, setOpen] = React.useState(false);
+    const navigate = useNavigate(); // Hook para navegação
+    const theme = useTheme(); // Hook para acessar o tema atual
 
     const toggleDrawer = (newOpen) => () => {
         setOpen(newOpen);
+    };
+
+    // --- NOVA FUNÇÃO DE LOGOUT ---
+    const handleLogout = () => {
+        // Fecha o menu drawer se estiver aberto (mobile)
+        if (open) {
+            setOpen(false);
+        }
+
+        Swal.fire({
+            title: 'Você tem certeza?',
+            text: "Sua sessão atual será encerrada.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sim, sair!',
+            cancelButtonText: 'Cancelar',
+            reverseButtons: true,
+            // Estilos para o popup se adaptar ao tema
+            background: theme.palette.background.paper,
+            color: theme.palette.text.primary,
+            confirmButtonColor: theme.palette.error.main,
+            cancelButtonColor: theme.palette.grey[500],
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Se o usuário confirmar, mostra o popup de "deslogando"
+                let timerInterval;
+                Swal.fire({
+                    title: 'Deslogando...',
+                    html: 'Você será redirecionado em breve.',
+                    timer: 1500, // 1.5 segundos
+                    timerProgressBar: true,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    },
+                    willClose: () => {
+                        clearInterval(timerInterval);
+                    },
+                    // Estilos para o popup de loading
+                    background: theme.palette.background.paper,
+                    color: theme.palette.text.primary,
+                }).then(() => {
+                    // Após o timer, redireciona para a página de login
+                    navigate('/');
+                });
+            }
+        });
     };
 
     return (
@@ -54,27 +100,16 @@ export default function AppAppBar() {
             <Container maxWidth="lg">
                 <StyledToolbar variant="dense" disableGutters>
                     <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', px: 0 }}>
-                        {/* SUBSTITUIÇÃO FEITA AQUI */}
                         <img
                             src="https://i.postimg.cc/7PTgDFMq/b75972db-ce38-4634-a3f1-18f023cc50c7-removebg-preview.png"
-                            style={{ height: '80px', marginRight: '16px' }}
+                            style={{ height: '80px', marginRight: '16px', cursor: 'pointer' }}
                             alt="CicarusBank logo"
+                            onClick={() => navigate('/dashboard')}
                         />
                         <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-                            <Button component={Link}
-                                    to="/dashboard"
-                                    color="primary"
-                                    variant="text"
-                                    size="small">Visão Geral</Button>
-
-                            <Button component={Link}
-                                    to="/user-transactions"
-                                    variant="text"
-                                    color="info"
-                                    size="small">Transferências</Button>
-
+                            <Button component={Link} to="/dashboard" color="primary" variant="text" size="small">Visão Geral</Button>
+                            <Button component={Link} to="/user-transactions" variant="text" color="info" size="small">Transferências</Button>
                             <Button variant="text" color="info" size="small">Cartões</Button>
-
                             <Button variant="text" color="info" size="small">Investimentos</Button>
                         </Box>
                     </Box>
@@ -85,16 +120,11 @@ export default function AppAppBar() {
                             alignItems: 'center',
                         }}
                     >
-                        <Button
-                            component={Link}
-                            to="/profile"
-                            color="primary"
-                            variant="text"
-                            size="small"
-                        >
+                        <Button component={Link} to="/profile" color="primary" variant="text" size="small">
                             Perfil
                         </Button>
-                        <Button color="primary" variant="contained" size="small">
+                        {/* Botão de Logout Desktop com a nova função */}
+                        <Button color="primary" variant="contained" size="small" onClick={handleLogout}>
                             Logout
                         </Button>
                         <ColorModeIconDropdown />
@@ -111,18 +141,19 @@ export default function AppAppBar() {
                                         <CloseRoundedIcon />
                                     </IconButton>
                                 </Box>
-                                <MenuItem>Visão Geral</MenuItem>
-                                <MenuItem>Transferências</MenuItem>
+                                <MenuItem onClick={() => { navigate('/dashboard'); toggleDrawer(false)(); }}>Visão Geral</MenuItem>
+                                <MenuItem onClick={() => { navigate('/user-transactions'); toggleDrawer(false)(); }}>Transferências</MenuItem>
                                 <MenuItem>Cartões</MenuItem>
                                 <MenuItem>Investimentos</MenuItem>
                                 <Divider sx={{ my: 3 }} />
                                 <MenuItem>
-                                    <Button color="primary" variant="outlined" fullWidth>
+                                    <Button color="primary" variant="outlined" fullWidth onClick={() => { navigate('/profile'); toggleDrawer(false)(); }}>
                                         Perfil
                                     </Button>
                                 </MenuItem>
                                 <MenuItem>
-                                    <Button color="primary" variant="contained" fullWidth>
+                                    {/* Botão de Logout Mobile com a nova função */}
+                                    <Button color="primary" variant="contained" fullWidth onClick={handleLogout}>
                                         Logout
                                     </Button>
                                 </MenuItem>

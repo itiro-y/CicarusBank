@@ -135,7 +135,7 @@ public class TransactionController {
             depositNotificationDto.setType("deposit");
             depositNotificationDto.setAmount(request.getAmount());
             depositNotificationDto.setCustomerId(account.getUserId());
-            //notificationProducer.sendNotification(depositNotificationDto);
+            notificationProducer.sendNotification(depositNotificationDto);
         }
 
         if(request.getTransactionType().equals(TransactionType.WITHDRAWAL)){

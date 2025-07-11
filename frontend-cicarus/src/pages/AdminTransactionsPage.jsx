@@ -43,18 +43,19 @@ export default function AdminTransactionsPage() {
         return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
     };
 
-    // buscar transações com filtros aplicados
     const fetchTransactions = async () => {
         setLoading(true);
         try {
-            const params = new URLSearchParams();
-            if (accountFilter) params.append('accountId', accountFilter);
-            if (statusFilter) params.append('transactionStatus', statusFilter);
+            const res = await fetch(`${API_URL}/transaction`, { headers: authHeader() });
 
-            const res = await fetch(
-                `${API_URL}/transaction`,
-                { headers: authHeader() }
-            );
+            // clone permite duas leituras independentes
+            const clone = res.clone();
+
+            // leitura para log/erro
+            const rawText = await clone.text();
+            console.log('Resposta bruta:', rawText);
+
+            // leitura para parse JSON
             const data = await res.json();
             setTransactions(data);
         } catch (error) {
@@ -67,14 +68,19 @@ export default function AdminTransactionsPage() {
     const fetchTransactionsById = async () => {
         setLoading(true);
         try {
-            const params = new URLSearchParams();
-            if (accountFilter) params.append('id', accountFilter);
-            if (statusFilter) params.append('transactionStatus', statusFilter);
-
-            const res = await fetch(
-                `${API_URL}/transaction/${params}`,
-                { headers: authHeader() }
-            );
+            let url = `${API_URL}/transaction`;
+            if (accountFilter && !statusFilter) {
+                url = `${API_URL}/transaction/accounts/${accountFilter}`;
+            } else if (!accountFilter && statusFilter) {
+                url = `${API_URL}/transaction/status/${statusFilter}`;
+            } else if (accountFilter && statusFilter) {
+                url = `${API_URL}/transaction/accounts-status/${accountFilter}/${statusFilter}`;
+            }
+            const res = await fetch(url, { headers: authHeader() });
+            if (!res.ok) {
+                const err = await res.text();
+                throw new Error(`Erro ${res.status}: ${err}`);
+            }
             const data = await res.json();
             setTransactions(data);
         } catch (error) {
@@ -82,14 +88,18 @@ export default function AdminTransactionsPage() {
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     const reverseTransaction = async (transactionID) => {
         setLoading(true);
         try {
             const res = await fetch(
                 `${API_URL}/transaction/reversal/${transactionID}`,
-                { headers: authHeader() }
+                {
+                        method: 'PUT',
+                        headers: authHeader(),
+                        body: null
+                    }
             );
             const data = await res.json();
             setTransactions(data);
@@ -99,19 +109,6 @@ export default function AdminTransactionsPage() {
             setLoading(false);
         }
     }
-
-    // ação sobre transação: cancel, refund, approve
-    const handleAction = async (id, action) => {
-        try {
-            await fetch(
-                `${API_URL}/transactions/${id}/${action}`,
-                { method: 'POST', headers: authHeader() }
-            );
-            fetchTransactions();
-        } catch (error) {
-            console.error(`Erro ao executar ${action} na transação ${id}:`, error);
-        }
-    };
 
     // efeito inicial
     useEffect(() => {
@@ -146,7 +143,6 @@ export default function AdminTransactionsPage() {
                     </Stack>
                 </Paper>
 
-                {/* Tabela */}
                 {loading ? (<CircularProgress />) : (
                     <TableContainer component={Paper}>
                         <Table>
@@ -192,7 +188,7 @@ export default function AdminTransactionsPage() {
                                                     </>
                                                 )}
                                                 {tx.transactionStatus === 'COMPLETED' && (
-                                                    <Button size="small" onClick={() => handleAction(tx.id, reverseTransaction(tx.id))}>
+                                                    <Button size="small" onClick={() =>  reverseTransaction(tx.id)}>
                                                         Reembolsar
                                                     </Button>
                                                 )}

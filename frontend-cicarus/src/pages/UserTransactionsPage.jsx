@@ -9,11 +9,12 @@ import {
     LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts';
 import AppAppBar from '../components/AppAppBar.jsx';
+import {number} from "framer-motion";
 
 // Base URL da sua API, definida em .env
 const API_URL = import.meta.env.VITE_API_URL || '';
 // Flag para usar mocks durante o desenvolvimento
-const useMocks = true;
+const useMocks = false;
 
 // Mock data
 const mockBalance = 12345.67;
@@ -109,7 +110,7 @@ function TransactionsTable({ transactions, loading }) {
                         <TableRow key={tx.id}>
                             <TableCell>{tx.id}</TableCell>
                             <TableCell>{tx.accountId}</TableCell>
-                            <TableCell>{tx.accountType}</TableCell>
+                            <TableCell>{tx.transactionType}</TableCell>
                             <TableCell>
                                 {tx.amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                             </TableCell>
@@ -127,7 +128,6 @@ function TransactionsTable({ transactions, loading }) {
 function TransactionDialogs({ openWithdraw, onCloseWithdraw, onConfirmWithdraw,
                                 openDeposit, onCloseDeposit, onConfirmDeposit,
                                 openTransfer, onCloseTransfer, onConfirmTransfer }) {
-
     const [amount, setAmount] = useState('');
     const [transferAccount, setTransferAccount] = useState('');
     const [transferAmount, setTransferAmount] = useState('');
@@ -210,7 +210,7 @@ export default function UserTransactionsPage() {
     useEffect(() => {
         if (!useMocks) {
             fetchBalance();
-            fetchHistory();
+            // fetchHistory();
             fetchTransactions();
         }
     }, []);
@@ -224,47 +224,79 @@ export default function UserTransactionsPage() {
         } catch {} finally { setLoadingBalance(false); }
     }
 
-    async function fetchHistory() {
-        setLoadingHistory(true);
-        try {
-            const res = await fetch(`${API_URL}/accounts/${accountId}/balance/history`, { headers: authHeader() });
-            setHistory(await res.json());
-        } catch {} finally { setLoadingHistory(false); }
-    }
+    // async function fetchHistory() {
+    //     setLoadingHistory(true);
+    //     try {
+    //         const res = await fetch(`${API_URL}/transaction/accounts/${accountId}`, { headers: authHeader() });
+    //         setHistory(await res.json());
+    //     } catch {} finally { setLoadingHistory(false); }
+    // }
 
     async function fetchTransactions() {
         setLoadingTransactions(true);
         try {
-            const res = await fetch(`${API_URL}/transactions/${accountId}`, { headers: authHeader() });
+            const res = await fetch(`${API_URL}/transaction/accounts/${accountId}`, { headers: authHeader() });
             setTransactions(await res.json());
         } catch {} finally { setLoadingTransactions(false); }
     }
 
     async function handleWithdraw(amount) {
-        await fetch(`${API_URL}/transactions`, {
-            method: 'POST', headers: authHeader(),
-            body: JSON.stringify({ accountId, accountToId:'', transactionType: 'WITHDRAW', amount })
+        await fetch(`${API_URL}/transaction`, {
+            method: 'POST',
+            headers: authHeader(),
+            body: JSON.stringify({ accountId,
+                                         accountToId: null,
+                                         transactionType: 'WITHDRAWAL',
+                                         amount})
         });
         setOpenWithdraw(false);
         if (!useMocks) { await fetchBalance(); await fetchTransactions(); }
     }
 
     async function handleDeposit(amount) {
-        await fetch(`${API_URL}/transactions/deposit`, {
-            method: 'POST', headers: authHeader(),
-            body: JSON.stringify({ accountId,  accountToId:'', transactionType: 'DEPOSIT', amount })
+        await fetch(`${API_URL}/transaction`, {
+            method: 'POST',
+            headers: authHeader(),
+            body: JSON.stringify({ accountId,
+                                         accountToId: null,
+                                         transactionType: 'DEPOSIT',
+                                         amount })
         });
         setOpenDeposit(false);
         if (!useMocks) { await fetchBalance(); await fetchTransactions(); }
     }
 
+// receba o mesmo nome do diálogo
     async function handleTransfer({ toAccountId, amount }) {
-        await fetch(`${API_URL}/transactions/transfer`, {
-            method: 'POST', headers: authHeader(),
-            body: JSON.stringify({ accountId, accountToId, transactionType: 'TRANSFER', amount })
-        });
-        setOpenTransfer(false);
-        if (!useMocks) { await fetchBalance(); await fetchTransactions(); }
+        try {
+            const res = await fetch(
+                // volte pro endpoint de transferência
+                `${API_URL}/transaction`,
+                {
+                    method: 'POST',
+                    headers: authHeader(),
+                    body: JSON.stringify({
+                        accountId,          // sua conta de origem
+                        accountToId: toAccountId,  // nome que o backend espera
+                        transactionType: 'TRANSFER',
+                        amount
+                    })
+                }
+            );
+
+            if (!res.ok) {
+                const errorText = await res.text();
+                throw new Error(`Erro ${res.status}: ${errorText}`);
+            }
+
+            setOpenTransfer(false);
+            if (!useMocks) {
+                await fetchBalance();
+                await fetchTransactions();
+            }
+        } catch (error) {
+            console.error('Erro ao realizar transferência:', error);
+        }
     }
 
     return (
@@ -285,9 +317,17 @@ export default function UserTransactionsPage() {
                 <Typography variant="h5" gutterBottom>Histórico de Transações</Typography>
                 <TransactionsTable transactions={transactions} loading={loadingTransactions} />
                 <TransactionDialogs
-                    openWithdraw= {openWithdraw} onCloseWithdraw = {() => setOpenWithdraw(false)} onConfirmWithdraw={handleWithdraw}
-                    openDeposit= {openDeposit}   onCloseDeposit = {() => setOpenDeposit(false)} onConfirmDeposit={handleDeposit}
-                    openTransfer= {openTransfer} onCloseTransfer = {() => setOpenTransfer(false)} onConfirmTransfer={handleTransfer}
+                    openWithdraw={openWithdraw}
+                    onCloseWithdraw={() => setOpenWithdraw(false)}
+                    onConfirmWithdraw={handleWithdraw}
+
+                    openDeposit={openDeposit}
+                    onCloseDeposit={() => setOpenDeposit(false)}
+                    onConfirmDeposit={handleDeposit}  // <- CORRIGIDO AQUI
+
+                    openTransfer={openTransfer}
+                    onCloseTransfer={() => setOpenTransfer(false)}
+                    onConfirmTransfer={handleTransfer}
                 />
             </Container>
         </Box>

@@ -49,6 +49,6 @@ springdoc:
     url: /exchange/v3/api-docs # Aponta o Swagger UI para o JSON da documentação deste microserviço
   override-server-url: true
 
-jwt:
-  secret: hzAS6BikJ_2Ft3fEye-lqwGviIeGbWFRG9mEnNDzQp4=
-  expiration: 86400000 # 24 horas em ms
+#jwt:
+#  secret: hzAS6BikJ_2Ft3fEye-lqwGviIeGbWFRG9mEnNDzQp4=
+#  expiration: 86400000 # 24 horas em ms

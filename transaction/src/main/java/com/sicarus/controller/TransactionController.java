@@ -17,10 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Tag(name = "Transaction Endpoint")
 @RestController
@@ -48,6 +45,20 @@ public class TransactionController {
     @GetMapping("/{id}")
     public Optional<Transaction> getTransactionById(@PathVariable Long id){
         return transactionRepository.findById(id);
+    }
+
+    // Get transaction by AccountID
+    @Operation(summary = "Get a list of transactions by accountId")
+    @GetMapping("/accounts/{accountId}")
+    public List<Transaction> getTransactionByAccountId(@PathVariable Long accountId){
+        List<Transaction> transactionList =  transactionRepository.findAll();
+        List<Transaction> transactions = new ArrayList<>();
+        for(Transaction t : transactionList){
+            if(t.getAccountId().equals(accountId)){
+                transactions.add(t);
+            }
+        }
+        return transactions;
     }
 
     // Post new transaction passing a JSON request body

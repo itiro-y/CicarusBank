@@ -4,27 +4,27 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsConfigurationSource;
+import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
-// Deixando o Requests feitas pelo Swagger-UI forem aceitas como Cors
 @Configuration
 public class CorsConfig {
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-
-        CorsConfiguration corsConfig = new CorsConfiguration();
-        corsConfig.setAllowedOriginPatterns(Arrays.asList("*"));
-        corsConfig.setAllowedMethods(Arrays.asList("*"));
-        corsConfig.setAllowCredentials(true);
-        corsConfig.setMaxAge(3600L);
-        corsConfig.addAllowedHeader("*");
+    public CorsWebFilter corsWebFilter() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+        // aceita localhost:5173 e qualquer outra origem se quiser usar "*"
+        config.setAllowedOriginPatterns(List.of("http://localhost:5173"));
+        // ou: List.of("*") para todas
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowedMethods(List.of("*"));   // GET, POST, PUT, DELETE, OPTIONS…
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", corsConfig);
-
-        return source;
+        source.registerCorsConfiguration("/**", config);
+        return new CorsWebFilter(source);
     }
 }

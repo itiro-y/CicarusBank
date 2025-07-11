@@ -5,6 +5,31 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { Person, Email, Lock, AssignmentInd, Cake, Public, Business, Streetview, LocationCity } from '@mui/icons-material';
 
+// --- Helper Functions for Masks ---
+
+const maskCPF = (value) => {
+    const digitsOnly = value.replace(/\D/g, '');
+    const limitedDigits = digitsOnly.substring(0, 11);
+
+    let maskedValue = limitedDigits;
+    if (limitedDigits.length > 9) {
+        maskedValue = limitedDigits.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+    } else if (limitedDigits.length > 6) {
+        maskedValue = limitedDigits.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+    } else if (limitedDigits.length > 3) {
+        maskedValue = limitedDigits.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+    }
+
+    return maskedValue;
+};
+
+const maskCEP = (value) => {
+    return value
+        .replace(/\D/g, '')
+        .replace(/^(\d{5})(\d)/, '$1-$2')
+        .substring(0, 9);
+};
+
 const FormField = ({ id, label, value, onChange, ...props }) => (
     <FormControl fullWidth sx={{ mt: 1.5 }}>
         <Typography component="label" htmlFor={id} sx={{ color: 'grey.400', mb: 1 }}>
@@ -23,7 +48,14 @@ function SignUpCard({ onSwitchToSignIn }) {
     });
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        let { name, value } = e.target;
+
+        if (name === 'document') {
+            value = maskCPF(value);
+        } else if (name === 'zipCode') {
+            value = maskCEP(value);
+        }
+
         setFormData(prevState => ({ ...prevState, [name]: value }));
     };
 
@@ -36,9 +68,13 @@ function SignUpCard({ onSwitchToSignIn }) {
             return;
         }
 
+        // Remove mask characters before sending to the backend
+        const unmaskedDocument = formData.document.replace(/\D/g, '');
+        const unmaskedZipCode = formData.zipCode.replace(/\D/g, '');
+
         const payload = {
             name: formData.name,
-            document: formData.document,
+            document: unmaskedDocument,
             email: formData.email,
             password: formData.password,
             birthDate: formData.birthDate,
@@ -46,7 +82,7 @@ function SignUpCard({ onSwitchToSignIn }) {
                 street: formData.street,
                 city: formData.city,
                 state: formData.state,
-                zipCode: formData.zipCode,
+                zipCode: unmaskedZipCode,
                 country: formData.country
             }
         };
@@ -112,11 +148,11 @@ function SignUpCard({ onSwitchToSignIn }) {
                                 </Grid>
                             ) : (
                                 <Grid container spacing={2}>
-                                    <Grid item xs={12} sm={6}><FormField id="country" label="País" value={formData.country} onChange={handleChange} InputProps={{ startAdornment: <Public sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
-                                    <Grid item xs={12} sm={6}><FormField id="state" label="Estado" value={formData.state} onChange={handleChange} InputProps={{ startAdornment: <Business sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
+                                    <Grid item xs={12}><FormField id="zipCode" label="CEP" value={formData.zipCode} onChange={handleChange} InputProps={{ startAdornment: <LocationCity sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
                                     <Grid item xs={12} sm={6}><FormField id="street" label="Rua" value={formData.street} onChange={handleChange} InputProps={{ startAdornment: <Streetview sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
-                                    <Grid item xs={12} sm={6}><FormField id="city" label="Cidade" value={formData.city} onChange={handleChange} InputProps={{ startAdornment: <Streetview sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
-                                    <Grid item xs={12} sm={6}><FormField id="zipCode" label="CEP" value={formData.zipCode} onChange={handleChange} InputProps={{ startAdornment: <LocationCity sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
+                                    <Grid item xs={12} sm={6}><FormField id="city" label="Cidade" value={formData.city} onChange={handleChange} InputProps={{ startAdornment: <Business sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
+                                    <Grid item xs={12} sm={6}><FormField id="state" label="Estado" value={formData.state} onChange={handleChange} InputProps={{ startAdornment: <Business sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
+                                    <Grid item xs={12} sm={6}><FormField id="country" label="País" value={formData.country} onChange={handleChange} InputProps={{ startAdornment: <Public sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
                                 </Grid>
                             )}
                         </motion.div>
@@ -129,13 +165,12 @@ function SignUpCard({ onSwitchToSignIn }) {
                             <Button
                                 fullWidth
                                 variant="contained"
-                                type="button" // <- important!
+                                type="button"
                                 onClick={handleSubmit}
                                 sx={{ py: 1.5, backgroundColor: '#e46820', '&:hover': { backgroundColor: '#d15e1c' }, fontWeight: 'bold' }}
                             >
                                 Finalizar Cadastro
                             </Button>
-
                         )}
                     </Stack>
                     <Box sx={{ pt: 2, textAlign: 'center' }}>

@@ -28,6 +28,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/**").permitAll() // Allow health checks
+                        .requestMatchers("/v3/api-docs").permitAll() // Allow swagger
                         .anyRequest().authenticated() // Secure all other endpoints
                 )
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class); // Add our custom filter

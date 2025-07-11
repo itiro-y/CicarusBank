@@ -167,8 +167,6 @@ public class TransactionController {
 
             tranferenceNotificationDto.setAccountToId(accountTo.getId());
             tranferenceNotificationDto.setCustomerToId(accountTo.getUserId());
-
-
             notificationProducer.sendNotification(tranferenceNotificationDto);
         }
 

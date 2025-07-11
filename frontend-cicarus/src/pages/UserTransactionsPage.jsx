@@ -9,11 +9,8 @@ import {
     LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts';
 import AppAppBar from '../components/AppAppBar.jsx';
-import {number} from "framer-motion";
 
-// Base URL da sua API, definida em .env
 const API_URL = import.meta.env.VITE_API_URL || '';
-// Flag para usar mocks durante o desenvolvimento
 const useMocks = false;
 
 // Mock data
@@ -31,7 +28,6 @@ const mockTransactions = [
     { id: 3, accountId: 1, accountType: 'TRANSFER', amount: 750, timestamp: Date.now(), transactionStatus: 'PENDING' }
 ];
 
-/** 1) Card de Saldo */
 function BalanceCard({ balance, loading }) {
     return (
         <Paper sx={{ flex: 1, p: 3, minHeight: 120 }}>
@@ -49,7 +45,6 @@ function BalanceCard({ balance, loading }) {
     );
 }
 
-/** 2) Gráfico de Histórico de Saldo */
 function BalanceChart({ data, loading }) {
     return (
         <Paper sx={{ flex: 2, p: 3, minHeight: 200 }}>
@@ -73,7 +68,6 @@ function BalanceChart({ data, loading }) {
     );
 }
 
-/** 3) Painel de Ações */
 function ActionPanel({ onWithdraw, onDeposit, onTransfer }) {
     return (
         <Paper sx={{ flex: 1, p: 3 }}>
@@ -89,7 +83,6 @@ function ActionPanel({ onWithdraw, onDeposit, onTransfer }) {
     );
 }
 
-/** 4) Tabela de Histórico de Transações */
 function TransactionsTable({ transactions, loading }) {
     if (loading) return <CircularProgress />;
     return (
@@ -124,7 +117,6 @@ function TransactionsTable({ transactions, loading }) {
     );
 }
 
-/** 5) Diálogos de Transação */
 function TransactionDialogs({ openWithdraw, onCloseWithdraw, onConfirmWithdraw,
                                 openDeposit, onCloseDeposit, onConfirmDeposit,
                                 openTransfer, onCloseTransfer, onConfirmTransfer }) {
@@ -210,7 +202,7 @@ export default function UserTransactionsPage() {
     useEffect(() => {
         if (!useMocks) {
             fetchBalance();
-            // fetchHistory();
+            fetchHistory();
             fetchTransactions();
         }
     }, []);
@@ -224,13 +216,34 @@ export default function UserTransactionsPage() {
         } catch {} finally { setLoadingBalance(false); }
     }
 
-    // async function fetchHistory() {
-    //     setLoadingHistory(true);
-    //     try {
-    //         const res = await fetch(`${API_URL}/transaction/accounts/${accountId}`, { headers: authHeader() });
-    //         setHistory(await res.json());
-    //     } catch {} finally { setLoadingHistory(false); }
-    // }
+    async function fetchHistory() {
+        setLoadingHistory(true);
+        try {
+            const res = await fetch(
+                `${API_URL}/account/balance-history/${accountId}`,
+                { headers: authHeader() }
+            );
+            if (!res.ok) throw new Error(`Erro ${res.status}`);
+            const raw = await res.json();
+
+            // Mapeia para { name, balance }
+            const formatted = raw.map(item => ({
+                name: new Date(item.timestamp)
+                    .toLocaleDateString('pt-BR', {
+                        day:   '2-digit',
+                        month: '2-digit',
+                        year:  'numeric'
+                    }),
+                balance: item.balance
+            }));
+
+            setHistory(formatted);
+        } catch (e) {
+            console.error('Erro ao buscar histórico:', e);
+        } finally {
+            setLoadingHistory(false);
+        }
+    }
 
     async function fetchTransactions() {
         setLoadingTransactions(true);
@@ -250,7 +263,11 @@ export default function UserTransactionsPage() {
                                          amount})
         });
         setOpenWithdraw(false);
-        if (!useMocks) { await fetchBalance(); await fetchTransactions(); }
+        if (!useMocks) {
+            await fetchBalance();
+            await fetchTransactions();
+            await fetchHistory()
+        }
     }
 
     async function handleDeposit(amount) {
@@ -263,21 +280,23 @@ export default function UserTransactionsPage() {
                                          amount })
         });
         setOpenDeposit(false);
-        if (!useMocks) { await fetchBalance(); await fetchTransactions(); }
+        if (!useMocks) {
+            await fetchBalance();
+            await fetchTransactions();
+            await fetchHistory();}
     }
 
-// receba o mesmo nome do diálogo
+
     async function handleTransfer({ toAccountId, amount }) {
         try {
             const res = await fetch(
-                // volte pro endpoint de transferência
                 `${API_URL}/transaction`,
                 {
                     method: 'POST',
                     headers: authHeader(),
                     body: JSON.stringify({
-                        accountId,          // sua conta de origem
-                        accountToId: toAccountId,  // nome que o backend espera
+                        accountId,
+                        accountToId: toAccountId,
                         transactionType: 'TRANSFER',
                         amount
                     })
@@ -293,6 +312,7 @@ export default function UserTransactionsPage() {
             if (!useMocks) {
                 await fetchBalance();
                 await fetchTransactions();
+                await fetchHistory();
             }
         } catch (error) {
             console.error('Erro ao realizar transferência:', error);
@@ -323,7 +343,7 @@ export default function UserTransactionsPage() {
 
                     openDeposit={openDeposit}
                     onCloseDeposit={() => setOpenDeposit(false)}
-                    onConfirmDeposit={handleDeposit}  // <- CORRIGIDO AQUI
+                    onConfirmDeposit={handleDeposit}
 
                     openTransfer={openTransfer}
                     onCloseTransfer={() => setOpenTransfer(false)}

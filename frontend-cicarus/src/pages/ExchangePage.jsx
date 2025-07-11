@@ -119,7 +119,7 @@ export default function ExchangePage() {
                     </Grid>
                 )}
 
-                <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>Historical Exchange Rates (Last 30 Days)</Typography>
+                <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>Histórico de câmbio (3 meses)</Typography>
                 {loadingHistorical && (
                     <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
                         <CircularProgress />
@@ -147,8 +147,8 @@ export default function ExchangePage() {
                                 <YAxis stroke="white" />
                                 <Tooltip formatter={(value) => `R$ ${value.toFixed(2)}`} />
                                 <Legend />
-                                <Line type="monotone" dataKey="usd" stroke="#8884d8" activeDot={{ r: 8 }} name="USD to BRL" />
-                                <Line type="monotone" dataKey="eur" stroke="#82ca9d" name="EUR to BRL" />
+                                <Line type="monotone" dataKey="usd" stroke="#8884d8" activeDot={{ r: 8 }} name="USD para BRL" />
+                                <Line type="monotone" dataKey="eur" stroke="#82ca9d" name="EUR para BRL" />
                             </LineChart>
                         </ResponsiveContainer>
                     </Paper>

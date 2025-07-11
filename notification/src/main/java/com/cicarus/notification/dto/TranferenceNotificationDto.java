@@ -1,25 +1,31 @@
-package com.sicarus.dto;
+package com.cicarus.notification.dto;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
-public class DepositNotificationDto {
-    private String type="deposit";
+public class TranferenceNotificationDto {
+    private String tipo;
     private Long customerId;
     private String customerName;
+    private Long customerToId;
+    private String customerToName;
+    private Long accountToId;
     private String recipientEmail;
     private String channel;
     private BigDecimal amount;
     private Instant dateTime;
     private String body;
 
-    public DepositNotificationDto() {
+    public TranferenceNotificationDto() {
     }
 
-    public DepositNotificationDto(String type, Long customerId, String customerName, String recipientEmail, String channel, BigDecimal amount, Instant dateTime,  String body) {
-        this.type = type;
+    public TranferenceNotificationDto(String tipo, Long customerId, String customerName, Long customerToId, String customerToName, Long accountToId, String recipientEmail, String channel, BigDecimal amount, Instant dateTime, String body) {
+        this.tipo = tipo;
         this.customerId = customerId;
         this.customerName = customerName;
+        this.customerToId = customerToId;
+        this.customerToName = customerToName;
+        this.accountToId = accountToId;
         this.recipientEmail = recipientEmail;
         this.channel = channel;
         this.amount = amount;
@@ -27,12 +33,12 @@ public class DepositNotificationDto {
         this.body = body;
     }
 
-    public String getType() {
-        return type;
+    public String getTipo() {
+        return tipo;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
     }
 
     public Long getCustomerId() {
@@ -49,6 +55,30 @@ public class DepositNotificationDto {
 
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
+    }
+
+    public Long getCustomerToId() {
+        return customerToId;
+    }
+
+    public void setCustomerToId(Long customerToId) {
+        this.customerToId = customerToId;
+    }
+
+    public String getCustomerToName() {
+        return customerToName;
+    }
+
+    public void setCustomerToName(String customerToName) {
+        this.customerToName = customerToName;
+    }
+
+    public Long getAccountToId() {
+        return accountToId;
+    }
+
+    public void setAccountToId(Long accountToId) {
+        this.accountToId = accountToId;
     }
 
     public String getRecipientEmail() {
@@ -89,19 +119,5 @@ public class DepositNotificationDto {
 
     public void setBody(String body) {
         this.body = body;
-    }
-
-    @Override
-    public String toString() {
-        return "DepositNotificationDto{" +
-                "type='" + type + '\'' +
-                ", customerId=" + customerId +
-                ", customerName='" + customerName + '\'' +
-                ", recipientEmail='" + recipientEmail + '\'' +
-                ", channel='" + channel + '\'' +
-                ", amount=" + amount +
-                ", dateTime=" + dateTime +
-                ", body='" + body + '\'' +
-                '}';
     }
 }

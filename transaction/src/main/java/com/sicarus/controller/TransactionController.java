@@ -117,6 +117,11 @@ public class TransactionController {
             transactionService.withdrawBalance(account.getId(), request.getAmount());
 
             //Implementar chamado ao metodo para geração e envio de e-mail de notificação saque-----------------------------------------------------------
+            WithdrawalNotificationDto wnd = new WithdrawalNotificationDto();
+            wnd.setType("withdrawal");
+            wnd.setAmount(request.getAmount());
+            wnd.setCustomerId(account.getUserId());
+            notificationProducer.sendNotification(wnd);
         }
 
         if(request.getTransactionType().equals(TransactionType.TRANSFER)){
@@ -129,6 +134,16 @@ public class TransactionController {
             transactionService.transferBalance(accountFromId, accountToId, amount);
 
             //Implementar chamado ao metodo para geração e envio de e-mail de notificação transferência-----------------------------------------------------------
+            TranferenceNotificationDto tranferenceNotificationDto = new TranferenceNotificationDto();
+            tranferenceNotificationDto.setType("tranference");
+            tranferenceNotificationDto.setAmount(request.getAmount());
+            tranferenceNotificationDto.setCustomerId(account.getUserId());
+
+            tranferenceNotificationDto.setAccountToId(accountTo.getId());
+            tranferenceNotificationDto.setCustomerToId(accountTo.getUserId());
+
+
+            notificationProducer.sendNotification(tranferenceNotificationDto);
         }
 
         Transaction transaction = transactionService.createAndSetTransaction(request.getAccountId(),

@@ -1,10 +1,10 @@
-package com.sicarus.dto;
+package com.cicarus.notification.dto;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
-public class DepositNotificationDto {
-    private String type="deposit";
+public class WithdrawalNotificationDto {
+    private String type="withdrawal";
     private Long customerId;
     private String customerName;
     private String recipientEmail;
@@ -13,10 +13,10 @@ public class DepositNotificationDto {
     private Instant dateTime;
     private String body;
 
-    public DepositNotificationDto() {
+    public WithdrawalNotificationDto() {
     }
 
-    public DepositNotificationDto(String type, Long customerId, String customerName, String recipientEmail, String channel, BigDecimal amount, Instant dateTime,  String body) {
+    public WithdrawalNotificationDto(String type, Long customerId, String customerName, String recipientEmail, String channel, BigDecimal amount, Instant dateTime, String body) {
         this.type = type;
         this.customerId = customerId;
         this.customerName = customerName;

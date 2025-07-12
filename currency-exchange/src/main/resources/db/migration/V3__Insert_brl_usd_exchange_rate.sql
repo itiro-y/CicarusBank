@@ -1,0 +1,1 @@
+INSERT INTO exchange_rate (from_currency, to_currency, rate, updated_at) VALUES ('BRL', 'USD', 0.20, NOW());

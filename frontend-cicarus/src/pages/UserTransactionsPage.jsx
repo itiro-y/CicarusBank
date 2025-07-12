@@ -3,11 +3,16 @@ import {
     Box, Container, Typography, Paper, Stack, Button,
     TableContainer, Table, TableHead, TableBody, TableRow, TableCell,
     Toolbar, Dialog, DialogTitle, DialogContent, DialogActions,
-    TextField, CircularProgress
+    TextField, CircularProgress, Slide
 } from '@mui/material';
+
+import { NumericFormat } from 'react-number-format';
+
 import {
     LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts';
+
+import { ArrowDownward, ArrowUpward, SwapHoriz } from '@mui/icons-material';
 import AppAppBar from '../components/AppAppBar.jsx';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
@@ -117,57 +122,152 @@ function TransactionsTable({ transactions, loading }) {
     );
 }
 
-function TransactionDialogs({ openWithdraw, onCloseWithdraw, onConfirmWithdraw,
-                                openDeposit, onCloseDeposit, onConfirmDeposit,
-                                openTransfer, onCloseTransfer, onConfirmTransfer }) {
+const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
+
+// Custom input for currency mask
+function NumberFormatCustom(props) {
+    const { inputRef, onChange, name, ...other } = props;
+    return (
+        <NumericFormat {...other}
+                       getInputRef={inputRef}
+                       onValueChange={(values) => {
+                           onChange({
+                               target: {
+                                   name,
+                                   value: values.value,
+                               },
+                           });
+                       }}
+                       thousandSeparator='.'
+                       decimalSeparator=','
+                       prefix='R$ '
+                       isnumericstring="true"/>
+    );
+}
+
+export function TransactionDialogs({ openWithdraw,
+                                     onCloseWithdraw,
+                                     onConfirmWithdraw,
+                                     openDeposit,
+                                     onCloseDeposit,
+                                     onConfirmDeposit,
+                                     openTransfer,
+                                     onCloseTransfer,
+                                     onConfirmTransfer}) {
+
     const [amount, setAmount] = useState('');
     const [transferAccount, setTransferAccount] = useState('');
     const [transferAmount, setTransferAmount] = useState('');
 
     return (
         <>
-            <Dialog open={openWithdraw} onClose={onCloseWithdraw}>
-                <DialogTitle>Sacar</DialogTitle>
+            <Dialog open={openWithdraw}
+                    TransitionComponent={Transition}
+                    keepMounted
+                    onClose={onCloseWithdraw}
+                    fullWidth
+                    maxWidth="xs">
+                <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <ArrowDownward color="error" />
+                    <Box component="span" sx={{ fontSize: '1.25rem', fontWeight: 500 }}>Sacar</Box>
+                </DialogTitle>
                 <DialogContent>
-                    <TextField label="Valor" type="number" fullWidth value={amount}
-                               onChange={e => setAmount(e.target.value)} />
+                    <TextField autoFocus
+                               margin="dense"
+                               placeholder="Valor"
+                               name="amount"
+                               fullWidth
+                               variant="outlined"
+                               value={amount}
+                               onChange={(e) => setAmount(e.target.value)}
+                               InputProps={{ inputComponent: NumberFormatCustom }} />
                 </DialogContent>
-                <DialogActions>
+                <DialogActions sx={{ px: 3, pb: 2 }}>
                     <Button onClick={onCloseWithdraw}>Cancelar</Button>
-                    <Button onClick={() => { onConfirmWithdraw(Number(amount)); setAmount(''); }}>
+                    <Button variant="contained"
+                            onClick={() => {
+                                onConfirmWithdraw(Number(amount));
+                                setAmount('');
+                            }}>
                         Confirmar
                     </Button>
                 </DialogActions>
             </Dialog>
 
-            <Dialog open={openDeposit} onClose={onCloseDeposit}>
-                <DialogTitle>Depositar</DialogTitle>
+            {/* Deposit Dialog */}
+            <Dialog open={openDeposit}
+                    TransitionComponent={Transition}
+                    keepMounted
+                    onClose={onCloseDeposit}
+                    fullWidth
+                    maxWidth="xs">
+                <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <ArrowUpward color="success" />
+                    <Box component="span" sx={{ fontSize: '1.25rem', fontWeight: 500 }}>Depositar</Box>
+                </DialogTitle>
                 <DialogContent>
-                    <TextField label="Valor" type="number" fullWidth value={amount}
-                               onChange={e => setAmount(e.target.value)} />
+                    <TextField autoFocus
+                            margin="dense"
+                            placeholder="Valor"
+                            name="amount"
+                            fullWidth
+                            variant="outlined"
+                            value={amount}
+                            onChange={(e) => setAmount(e.target.value)}
+                            InputProps={{ inputComponent: NumberFormatCustom }} />
                 </DialogContent>
-                <DialogActions>
+                <DialogActions sx={{ px: 3, pb: 2 }}>
                     <Button onClick={onCloseDeposit}>Cancelar</Button>
-                    <Button onClick={() => { onConfirmDeposit(Number(amount)); setAmount(''); }}>
+                    <Button variant="contained"
+                            onClick={() => {
+                                onConfirmDeposit(Number(amount));
+                                setAmount('');
+                            }}>
                         Confirmar
                     </Button>
                 </DialogActions>
             </Dialog>
 
-            <Dialog open={openTransfer} onClose={onCloseTransfer}>
-                <DialogTitle>Transferir</DialogTitle>
+            <Dialog open={openTransfer}
+                    TransitionComponent={Transition}
+                    keepMounted
+                    onClose={onCloseTransfer}
+                    fullWidth
+                    maxWidth="xs">
+                <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <SwapHoriz color="primary" />
+                    <Box component="span" sx={{ fontSize: '1.25rem', fontWeight: 500 }}>Transferir</Box>
+                </DialogTitle>
                 <DialogContent>
-                    <TextField label="Conta Destino" fullWidth value={transferAccount}
-                               onChange={e => setTransferAccount(e.target.value)} />
-                    <TextField label="Valor" type="number" fullWidth value={transferAmount}
-                               onChange={e => setTransferAmount(e.target.value)} />
+                    <Box sx={{ mb: 2 }}>
+                        <TextField autoFocus
+                                   margin="dense"
+                                   placeholder="Numero da Conta Destino"
+                                   type="text"
+                                   fullWidth
+                                   variant="outlined"
+                                   value={transferAccount}
+                                   onChange={e => setTransferAccount(e.target.value)}/>
+                    </Box>
+                    <TextField margin="dense"
+                               placeholder="Valor"
+                               name="transferAmount"
+                               fullWidth
+                               variant="outlined"
+                               value={transferAmount}
+                               onChange={e => setTransferAmount(e.target.value)}
+                               InputProps={{inputComponent: NumberFormatCustom}}/>
                 </DialogContent>
-                <DialogActions>
+                <DialogActions sx={{ px: 3, pb: 2 }}>
                     <Button onClick={onCloseTransfer}>Cancelar</Button>
-                    <Button onClick={() => {
-                        onConfirmTransfer({ toAccountId: transferAccount, amount: Number(transferAmount) });
-                        setTransferAccount(''); setTransferAmount('');
-                    }}>
+                    <Button variant="contained"
+                            onClick={() => {
+                                onConfirmTransfer({ toAccountId: transferAccount, amount: Number(transferAmount) });
+                                setTransferAccount('');
+                                setTransferAmount('');
+                            }}>
                         Confirmar
                     </Button>
                 </DialogActions>

@@ -2,7 +2,7 @@ package com.cicarus.currency_exchange.dto;
 
 import java.math.BigDecimal;
 
-public class ConvertBrlToUsdRequest {
+public class ConvertBrlToEurRequest {
     private Long accountId;
     private BigDecimal amount;
 

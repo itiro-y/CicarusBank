@@ -3,16 +3,19 @@ package com.sicarus.dto;
 import java.math.BigDecimal;
 
 public class UpdateAccountBalancesRequest {
-    private Long userId;
+    public UpdateAccountBalancesRequest() {
+    }
+
+    private Long accountId;
     private BigDecimal brlAmount;
     private BigDecimal usdAmount;
 
-    public Long getUserId() {
-        return userId;
+    public Long getAccountId() {
+        return accountId;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setAccountId(Long accountId) {
+        this.accountId = accountId;
     }
 
     public BigDecimal getBrlAmount() {

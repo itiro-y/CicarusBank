@@ -28,8 +28,12 @@ public class Account {
     @Column(nullable = false)
     private BigDecimal usdWallet;
 
+    @Column(nullable = false)
+    private BigDecimal eurWallet;
+
     public Account(){
         this.usdWallet = BigDecimal.ZERO;
+        this.eurWallet = BigDecimal.ZERO;
     }
   
     @OneToMany(
@@ -87,5 +91,13 @@ public class Account {
 
     public void setUsdWallet(BigDecimal usdWallet) {
         this.usdWallet = usdWallet;
+    }
+
+    public BigDecimal getEurWallet() {
+        return eurWallet;
+    }
+
+    public void setEurWallet(BigDecimal eurWallet) {
+        this.eurWallet = eurWallet;
     }
 }

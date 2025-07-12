@@ -1,6 +1,7 @@
 package com.sicarus.controller;
 
 import com.sicarus.dto.UpdateAccountBalancesRequest;
+import com.sicarus.dto.UpdateBrlToEurRequest;
 import com.sicarus.enums.TransactionType;
 import com.sicarus.model.Account;
 import com.sicarus.model.AccountRepository;
@@ -76,6 +77,20 @@ public class AccountController {
         accountRepository.deleteById(id);
     }
 
+    @PutMapping("/account/exchange-brl-to-eur")
+    public Account exchangeBrlToEur(@RequestBody UpdateBrlToEurRequest request) {
+        Optional<Account> optionalAccount = accountRepository.findById(request.getAccountId());
+
+        if (optionalAccount.isPresent()) {
+            Account account = optionalAccount.get();
+            account.setBalance(account.getBalance().subtract(request.getBrlAmount()));
+            account.setEurWallet(account.getEurWallet().add(request.getEurAmount()));
+            return accountRepository.save(account);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found for account ID: " + request.getAccountId());
+        }
+    }
+
     @PutMapping("/account/{id}")
     public Account updateAccount(@PathVariable Long id, @RequestBody Account updatedAccount){
         return accountRepository.findById(id)
@@ -148,7 +163,7 @@ public class AccountController {
 
     @PutMapping("/account/update-balances")
     public Account updateAccountBalances(@RequestBody UpdateAccountBalancesRequest request) {
-        Optional<Account> optionalAccount = accountRepository.findByUserId(request.getUserId());
+        Optional<Account> optionalAccount = accountRepository.findById(request.getAccountId());
 
         if (optionalAccount.isPresent()) {
             Account account = optionalAccount.get();
@@ -156,7 +171,7 @@ public class AccountController {
             account.setUsdWallet(account.getUsdWallet().add(request.getUsdAmount()));
             return accountRepository.save(account);
         } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found for user ID: " + request.getUserId());
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found for account ID: " + request.getAccountId());
         }
     }
 }

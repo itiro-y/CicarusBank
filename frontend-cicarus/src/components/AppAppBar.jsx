@@ -111,6 +111,7 @@ export default function AppAppBar() {
                             <Button component={Link} to="/user-transactions" variant="text" color="info" size="small">Transferências</Button>
                             <Button variant="text" color="info" size="small">Cartões</Button>
                             <Button variant="text" color="info" size="small">Investimentos</Button>
+                            <Button component={Link} to="/exchange" variant="text" color="info" size="small">Câmbio</Button>
                         </Box>
                     </Box>
                     <Box
@@ -145,6 +146,7 @@ export default function AppAppBar() {
                                 <MenuItem onClick={() => { navigate('/user-transactions'); toggleDrawer(false)(); }}>Transferências</MenuItem>
                                 <MenuItem>Cartões</MenuItem>
                                 <MenuItem>Investimentos</MenuItem>
+                                <MenuItem onClick={() => { navigate('/exchange'); toggleDrawer(false)(); }}>Câmbio</MenuItem>
                                 <Divider sx={{ my: 3 }} />
                                 <MenuItem>
                                     <Button color="primary" variant="outlined" fullWidth onClick={() => { navigate('/profile'); toggleDrawer(false)(); }}>

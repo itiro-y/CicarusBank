@@ -2,11 +2,7 @@ package com.cicarus.currency_exchange.service;
 
 import com.cicarus.currency_exchange.client.AccountServiceClient;
 import com.cicarus.currency_exchange.domain.ExchangeRate;
-import com.cicarus.currency_exchange.dto.ConvertBrlToUsdRequest;
-import com.cicarus.currency_exchange.dto.ConvertBrlToUsdResponse;
-import com.cicarus.currency_exchange.dto.ConvertRequest;
-import com.cicarus.currency_exchange.dto.ConvertResponse;
-import com.cicarus.currency_exchange.dto.UpdateAccountBalancesRequest;
+import com.cicarus.currency_exchange.dto.*;
 import com.cicarus.currency_exchange.exception.CurrencyNotSupportedException;
 import com.cicarus.currency_exchange.repository.ExchangeRateRepository;
 import org.springframework.stereotype.Service;
@@ -39,13 +35,27 @@ public class ExchangeService {
         BigDecimal convertedUsdAmount = request.getAmount().multiply(brlToUsdRate);
 
         UpdateAccountBalancesRequest updateRequest = new UpdateAccountBalancesRequest();
-        updateRequest.setUserId(request.getUserId());
+        updateRequest.setAccountId(request.getAccountId());
         updateRequest.setBrlAmount(request.getAmount());
         updateRequest.setUsdAmount(convertedUsdAmount);
 
         accountServiceClient.updateAccountBalances(updateRequest);
 
         return new ConvertBrlToUsdResponse(request.getAmount(), convertedUsdAmount, brlToUsdRate);
+    }
+
+    public ConvertBrlToEurResponse convertBrlToEur(ConvertBrlToEurRequest request) {
+        BigDecimal brlToEurRate = getRate("BRL", "EUR");
+        BigDecimal convertedEurAmount = request.getAmount().multiply(brlToEurRate);
+
+        UpdateAccountBrlToEurRequest updateRequest = new UpdateAccountBrlToEurRequest();
+        updateRequest.setAccountId(request.getAccountId());
+        updateRequest.setBrlAmount(request.getAmount());
+        updateRequest.setEurAmount(convertedEurAmount);
+
+        accountServiceClient.updateAccountBrlToEur(updateRequest);
+
+        return new ConvertBrlToEurResponse(request.getAmount(), convertedEurAmount, brlToEurRate);
     }
 }
 

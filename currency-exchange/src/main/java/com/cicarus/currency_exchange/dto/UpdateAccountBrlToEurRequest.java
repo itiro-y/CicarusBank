@@ -2,10 +2,10 @@ package com.cicarus.currency_exchange.dto;
 
 import java.math.BigDecimal;
 
-public class UpdateAccountBalancesRequest {
+public class UpdateAccountBrlToEurRequest {
     private Long accountId;
     private BigDecimal brlAmount;
-    private BigDecimal usdAmount;
+    private BigDecimal eurAmount;
 
     public Long getAccountId() {
         return accountId;
@@ -23,11 +23,11 @@ public class UpdateAccountBalancesRequest {
         this.brlAmount = brlAmount;
     }
 
-    public BigDecimal getUsdAmount() {
-        return usdAmount;
+    public BigDecimal getEurAmount() {
+        return eurAmount;
     }
 
-    public void setUsdAmount(BigDecimal usdAmount) {
-        this.usdAmount = usdAmount;
+    public void setEurAmount(BigDecimal eurAmount) {
+        this.eurAmount = eurAmount;
     }
 }

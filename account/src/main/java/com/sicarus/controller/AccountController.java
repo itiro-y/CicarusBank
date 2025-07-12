@@ -1,6 +1,7 @@
 package com.sicarus.controller;
 
 import com.sicarus.dto.UpdateAccountBalancesRequest;
+import com.sicarus.dto.UpdateBrlToEurRequest;
 import com.sicarus.enums.TransactionType;
 import com.sicarus.model.Account;
 import com.sicarus.model.AccountRepository;
@@ -56,6 +57,8 @@ public class AccountController {
                                         acc.getUserId(),
                                         acc.getType().name(),
                                         acc.getBalance(),
+                                        acc.getUsdWallet(),
+                                        acc.getEurWallet(),
                                         historyDto);
         return ResponseEntity.ok(dto);
     }
@@ -74,6 +77,20 @@ public class AccountController {
     @DeleteMapping("/account/{id}")
     public void deleteAccount(@PathVariable Long id){
         accountRepository.deleteById(id);
+    }
+
+    @PutMapping("/account/exchange-brl-to-eur")
+    public Account exchangeBrlToEur(@RequestBody UpdateBrlToEurRequest request) {
+        Optional<Account> optionalAccount = accountRepository.findById(request.getAccountId());
+
+        if (optionalAccount.isPresent()) {
+            Account account = optionalAccount.get();
+            account.setBalance(account.getBalance().subtract(request.getBrlAmount()));
+            account.setEurWallet(account.getEurWallet().add(request.getEurAmount()));
+            return accountRepository.save(account);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found for account ID: " + request.getAccountId());
+        }
     }
 
     @PutMapping("/account/{id}")
@@ -131,6 +148,8 @@ public class AccountController {
                 acc.getUserId(),
                 acc.getType().name(),
                 acc.getBalance(),
+                acc.getUsdWallet(),
+                acc.getEurWallet(),
                 historyDto
         );
     }
@@ -148,7 +167,7 @@ public class AccountController {
 
     @PutMapping("/account/update-balances")
     public Account updateAccountBalances(@RequestBody UpdateAccountBalancesRequest request) {
-        Optional<Account> optionalAccount = accountRepository.findByUserId(request.getUserId());
+        Optional<Account> optionalAccount = accountRepository.findById(request.getAccountId());
 
         if (optionalAccount.isPresent()) {
             Account account = optionalAccount.get();
@@ -156,7 +175,7 @@ public class AccountController {
             account.setUsdWallet(account.getUsdWallet().add(request.getUsdAmount()));
             return accountRepository.save(account);
         } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found for user ID: " + request.getUserId());
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found for account ID: " + request.getAccountId());
         }
     }
 }

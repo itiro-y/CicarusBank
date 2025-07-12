@@ -1,12 +1,14 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-
 import {
-    Box, Container, Typography, Grid, Paper, CircularProgress, Alert
+    Box, Container, Typography, Grid, Paper, CircularProgress, Alert, TextField, Button, InputAdornment
 } from '@mui/material';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import AppAppBar from '../components/AppAppBar.jsx';
+import Swal from 'sweetalert2';
+
+const API_URL = import.meta.env.VITE_API_URL || ''; // Assuming API_URL is defined in .env
 
 const widgetStyle = {
     p: 5,
@@ -40,6 +42,33 @@ export default function ExchangePage() {
     const [historicalData, setHistoricalData] = useState([]);
     const [loadingHistorical, setLoadingHistorical] = useState(true);
     const [errorHistorical, setErrorHistorical] = useState(null);
+
+    const [brlAmount, setBrlAmount] = useState('');
+    const [convertedUsd, setConvertedUsd] = useState(0);
+    const [convertedEur, setConvertedEur] = useState(0);
+    const [accountData, setAccountData] = useState(null);
+    const [loadingExchange, setLoadingExchange] = useState(false);
+
+    const accountId = 1; // TODO: Get dynamically from user context
+
+    const authHeader = () => {
+        const token = localStorage.getItem('token') || ''; // Replace with actual token retrieval
+        return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+    };
+
+    const fetchAccountData = async () => {
+        try {
+            const response = await fetch(`${API_URL}/account/${accountId}`, { headers: authHeader() });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            setAccountData(data);
+        } catch (e) {
+            console.error("Error fetching account data:", e);
+            Swal.fire('Erro', 'Não foi possível carregar os dados da conta.', 'error');
+        }
+    };
 
     useEffect(() => {
         const fetchExchangeRates = async () => {
@@ -91,7 +120,89 @@ export default function ExchangePage() {
 
         fetchExchangeRates();
         fetchHistoricalRates();
+        fetchAccountData(); // Fetch account data on component mount
     }, []);
+
+    useEffect(() => {
+        if (brlAmount && exchangeRates) {
+            const amount = parseFloat(brlAmount);
+            if (!isNaN(amount)) {
+                setConvertedUsd((amount * exchangeRates.USD).toFixed(2));
+                setConvertedEur((amount * exchangeRates.EUR).toFixed(2));
+            } else {
+                setConvertedUsd(0);
+                setConvertedEur(0);
+            }
+        }
+    }, [brlAmount, exchangeRates]);
+
+    const handleBrlAmountChange = (event) => {
+        setBrlAmount(event.target.value);
+    };
+
+    const handleExchange = async (currency) => {
+        const amount = parseFloat(brlAmount);
+
+        if (isNaN(amount) || amount <= 0) {
+            Swal.fire('Erro', 'Por favor, insira um valor válido para a troca.', 'error');
+            return;
+        }
+
+        if (!accountData || amount > accountData.balance) {
+            Swal.fire('Erro', 'Saldo insuficiente para realizar a troca.', 'error');
+            return;
+        }
+
+        if (!exchangeRates) {
+            Swal.fire('Erro', 'Taxas de câmbio não carregadas. Tente novamente mais tarde.', 'error');
+            return;
+        }
+
+        const convertedAmount = currency === 'USD' ? convertedUsd : convertedEur;
+        const endpoint = currency === 'USD' ? '/exchange/convert-brl-to-usd' : '/exchange/convert-brl-to-eur';
+        const requestBody = {
+            accountId: accountId,
+            amount: amount,
+            ...(currency === 'USD' ? { usdAmount: parseFloat(convertedUsd) } : { eurAmount: parseFloat(convertedEur) })
+        };
+
+        Swal.fire({
+            title: 'Confirmar Troca?',
+            html: `Você deseja trocar <b>R$ ${amount.toFixed(2).replace('.', ',')}</b> por <b>${currency} ${convertedAmount.replace('.', ',')}</b>?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sim, trocar!',
+            cancelButtonText: 'Cancelar',
+            reverseButtons: true,
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                setLoadingExchange(true);
+                try {
+                    const response = await fetch(`${API_URL}${endpoint}`, {
+                        method: 'POST',
+                        headers: authHeader(),
+                        body: JSON.stringify(requestBody),
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+                    }
+
+                    Swal.fire('Sucesso!', `Troca de BRL para ${currency} realizada com sucesso!`, 'success');
+                    setBrlAmount('');
+                    setConvertedUsd(0);
+                    setConvertedEur(0);
+                    fetchAccountData(); // Refresh account data
+                } catch (e) {
+                    console.error("Error during exchange:", e);
+                    Swal.fire('Erro', `Não foi possível realizar a troca: ${e.message}`, 'error');
+                } finally {
+                    setLoadingExchange(false);
+                }
+            }
+        });
+    };
 
     return (
         <Box sx={{ width: '100%', minHeight: '100vh' }}>
@@ -115,6 +226,70 @@ export default function ExchangePage() {
                         </Grid>
                         <Grid item xs={12} md={6}>
                             <CurrencyCard currency="EUR" value={exchangeRates.EUR ? (1 / exchangeRates.EUR).toFixed(2).replace('.', ',') : 'N/A'} flagUrl="https://flagcdn.com/eu.svg" />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <Paper elevation={0} sx={widgetStyle}>
+                                <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+                                    Meus Saldos
+                                </Typography>
+                                <Box sx={{ mb: 2 }}>
+                                    <Typography variant="body1" sx={{ mb: 1 }}>
+                                        Saldo em BRL: <b>R$ {accountData?.balance?.toFixed(2).replace('.', ',') || '0,00'}</b>
+                                    </Typography>
+                                    <Typography variant="body1" sx={{ mb: 1 }}>
+                                        Carteira USD: <b>USD {accountData?.usdWallet?.toFixed(2).replace('.', ',') || '0,00'}</b>
+                                    </Typography>
+                                    <Typography variant="body1" sx={{ mb: 0 }}>
+                                        Carteira EUR: <b>EUR {accountData?.eurWallet?.toFixed(2).replace('.', ',') || '0,00'}</b>
+                                    </Typography>
+                                </Box>
+                            </Paper>
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <Paper elevation={0} sx={widgetStyle}>
+                                <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+                                    Realizar Câmbio
+                                </Typography>
+
+                                <TextField
+                                    label="Valor em BRL para Câmbio"
+                                    type="number"
+                                    fullWidth
+                                    value={brlAmount}
+                                    onChange={handleBrlAmountChange}
+                                    sx={{ mb: 3 }}
+                                    InputProps={{
+                                        startAdornment: <InputAdornment position="start">R$</InputAdornment>,
+                                    }}
+                                />
+                                <Box sx={{ display: 'flex', justifyContent: 'space-around', gap: 2 }}>
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        sx={{ flexGrow: 1, py: 1.5 }}
+                                        onClick={() => handleExchange('USD')}
+                                        disabled={loadingExchange || !brlAmount || parseFloat(brlAmount) <= 0 || !accountData || parseFloat(brlAmount) > accountData.balance}
+                                    >
+                                        Trocar por USD ({convertedUsd})
+                                    </Button>
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        sx={{ flexGrow: 1, py: 1.5 }}
+                                        onClick={() => handleExchange('EUR')}
+                                        disabled={loadingExchange || !brlAmount || parseFloat(brlAmount) <= 0 || !accountData || parseFloat(brlAmount) > accountData.balance}
+                                    >
+                                        Trocar por EUR ({convertedEur})
+                                    </Button>
+                                </Box>
+                                {loadingExchange && (
+                                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                                        <CircularProgress />
+                                    </Box>
+                                )}
+                            </Paper>
                         </Grid>
                     </Grid>
                 )}

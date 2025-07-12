@@ -9,5 +9,7 @@ public record AccountDTO(
         Long   userId,
         String type,
         BigDecimal balance,
+        BigDecimal usdWallet,
+        BigDecimal eurWallet,
         List<BalanceHistoryDTO> history
 ) {}

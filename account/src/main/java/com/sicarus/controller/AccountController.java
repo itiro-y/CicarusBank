@@ -57,6 +57,8 @@ public class AccountController {
                                         acc.getUserId(),
                                         acc.getType().name(),
                                         acc.getBalance(),
+                                        acc.getUsdWallet(),
+                                        acc.getEurWallet(),
                                         historyDto);
         return ResponseEntity.ok(dto);
     }
@@ -146,6 +148,8 @@ public class AccountController {
                 acc.getUserId(),
                 acc.getType().name(),
                 acc.getBalance(),
+                acc.getUsdWallet(),
+                acc.getEurWallet(),
                 historyDto
         );
     }

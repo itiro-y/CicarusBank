@@ -250,21 +250,11 @@ export default function ExchangePage() {
                         <Grid item xs={12}>
                             <Paper elevation={0} sx={widgetStyle}>
                                 <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
-                                    Realizar Troca
+                                    Realizar Câmbio
                                 </Typography>
-                                <Box sx={{ mb: 2 }}>
-                                    <Typography variant="body1" sx={{ mb: 1 }}>
-                                        Saldo em BRL: <b>R$ {accountData?.balance?.toFixed(2).replace('.', ',') || '0,00'}</b>
-                                    </Typography>
-                                    <Typography variant="body1" sx={{ mb: 1 }}>
-                                        Carteira USD: <b>USD {accountData?.usdWallet?.toFixed(2).replace('.', ',') || '0,00'}</b>
-                                    </Typography>
-                                    <Typography variant="body1" sx={{ mb: 0 }}>
-                                        Carteira EUR: <b>EUR {accountData?.eurWallet?.toFixed(2).replace('.', ',') || '0,00'}</b>
-                                    </Typography>
-                                </Box>
+
                                 <TextField
-                                    label="Valor em BRL para Troca"
+                                    label="Valor em BRL para Câmbio"
                                     type="number"
                                     fullWidth
                                     value={brlAmount}

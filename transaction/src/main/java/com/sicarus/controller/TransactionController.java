@@ -11,6 +11,7 @@ import com.sicarus.service.TransactionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.ws.rs.Path;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -60,6 +61,31 @@ public class TransactionController {
             }
         }
         return transactions;
+    }
+
+    @Operation(summary = "Get a list of transaction by TransactionStatus")
+    @GetMapping("/status/{transactionStatus}")
+    public List<Transaction> getTransactionByStatus(@PathVariable TransactionStatus transactionStatus){
+        List<Transaction> transactionList = new ArrayList<>();
+        for(Transaction t : transactionRepository.findAll()){
+            if(t.getTransactionStatus().equals(transactionStatus)){
+                transactionList.add(t);
+            }
+        }
+        return transactionList;
+    }
+
+    @Operation(summary = "Get a list of transaction by AccountId and TransactionStatus")
+    @GetMapping("/accounts-status/{accountId}/{transactionStatus}")
+    public List<Transaction> getTransactionByAccountIdAndStatus(@PathVariable Long accountId,
+                                                                @PathVariable TransactionStatus transactionStatus){
+        List<Transaction> transactionList = new ArrayList<>();
+        for(Transaction t : transactionRepository.findAll()){
+            if(t.getTransactionStatus().equals(transactionStatus) && t.getAccountId().equals(accountId)){
+                transactionList.add(t);
+            }
+        }
+        return transactionList;
     }
 
     // Post new transaction passing a JSON request body
@@ -117,6 +143,11 @@ public class TransactionController {
             transactionService.withdrawBalance(account.getId(), request.getAmount());
 
             //Implementar chamado ao metodo para geração e envio de e-mail de notificação saque-----------------------------------------------------------
+            WithdrawalNotificationDto wnd = new WithdrawalNotificationDto();
+            wnd.setType("withdrawal");
+            wnd.setAmount(request.getAmount());
+            wnd.setCustomerId(account.getUserId());
+            notificationProducer.sendNotification(wnd);
         }
 
         if(request.getTransactionType().equals(TransactionType.TRANSFER)){
@@ -129,6 +160,14 @@ public class TransactionController {
             transactionService.transferBalance(accountFromId, accountToId, amount);
 
             //Implementar chamado ao metodo para geração e envio de e-mail de notificação transferência-----------------------------------------------------------
+            TranferenceNotificationDto tranferenceNotificationDto = new TranferenceNotificationDto();
+            tranferenceNotificationDto.setType("tranference");
+            tranferenceNotificationDto.setAmount(request.getAmount());
+            tranferenceNotificationDto.setCustomerId(account.getUserId());
+
+            tranferenceNotificationDto.setAccountToId(accountTo.getId());
+            tranferenceNotificationDto.setCustomerToId(accountTo.getUserId());
+            notificationProducer.sendNotification(tranferenceNotificationDto);
         }
 
         Transaction transaction = transactionService.createAndSetTransaction(request.getAccountId(),
@@ -158,11 +197,27 @@ public class TransactionController {
     @Operation(summary = "Put that reversals a transaction based on a given id")
     @PutMapping("/reversal/{id}")
     public ResponseEntity<String> reversalTransaction(@PathVariable Long id){
+
         if(transactionRepository.findById(id).isPresent()){
             Transaction transaction = transactionRepository.findById(id).get();
+            AccountDTO account = transactionService.getAccount(transaction.getAccountId());
+
+            if(transaction.getTransactionType().equals(TransactionType.DEPOSIT)){
+                transactionService.withdrawBalance(account.getId(), transaction.getAmount());
+            }
+
+            if(transaction.getTransactionType().equals(TransactionType.WITHDRAWAL)){
+                transactionService.depositBalance(account.getId(), transaction.getAmount());
+            }
+
+            if(transaction.getTransactionType().equals(TransactionType.TRANSFER)){
+                System.out.println("Estorno da Transação será feita em alguns dias");
+            }
+
             transaction.setTransactionStatus(TransactionStatus.REVERSED);
             transactionRepository.save(transaction);
             return ResponseEntity.ok().body("Transação estornada com sucesso!");
+
         }else{
             return ResponseEntity.badRequest().body("Transação não encontrada.");
         }

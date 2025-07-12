@@ -1,9 +1,12 @@
 package com.sicarus.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sicarus.enums.AccountType;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 //id userId type balance
@@ -27,6 +30,25 @@ public class Account {
 
     public Account(){
         this.usdWallet = BigDecimal.ZERO;
+    }
+  
+    @OneToMany(
+            mappedBy = "account",
+            cascade   = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch     = FetchType.LAZY
+    )
+    @JsonManagedReference
+    private List<BalanceHistory> balanceHistory;
+
+    public Account(){}
+
+    public List<BalanceHistory> getBalanceHistory() {
+        return balanceHistory;
+    }
+
+    public void setBalanceHistory(List<BalanceHistory> balanceHistory) {
+        this.balanceHistory = balanceHistory;
     }
 
     public Long getId() {

@@ -2,6 +2,8 @@ package com.cicarus.notification.consumer;
 
 import com.cicarus.notification.dto.DepositNotificationDto;
 import com.cicarus.notification.dto.NotificationDto;
+import com.cicarus.notification.dto.TranferenceNotificationDto;
+import com.cicarus.notification.dto.WithdrawalNotificationDto;
 import com.cicarus.notification.service.EmailBodyService;
 import com.cicarus.notification.service.NotificationService;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -43,6 +45,22 @@ public class NotificationConsumer {
                     NotificationDto notificationDto = new NotificationDto(dto);
 
                     notificationService.processNotification(notificationDto);
+                    break;
+                case "tranference":
+                    TranferenceNotificationDto dto2 = objectMapper.treeToValue(root, TranferenceNotificationDto.class);
+                    dto2.setBody(emailBodyService.generateTranferenceBody(dto2));
+
+                    NotificationDto notificationDto2 = new NotificationDto(dto2);
+
+                    notificationService.processNotification(notificationDto2);
+                    break;
+                case "withdrawal":
+                    WithdrawalNotificationDto dto3 = objectMapper.treeToValue(root, WithdrawalNotificationDto.class);
+                    dto3.setBody(emailBodyService.generateWithdrawalBody(dto3));
+
+                    NotificationDto notificationDto3 = new NotificationDto(dto3);
+
+                    notificationService.processNotification(notificationDto3);
                     break;
                 default:
                     System.out.println("ERRO: Tipo invalido");

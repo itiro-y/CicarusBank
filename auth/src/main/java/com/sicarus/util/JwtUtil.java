@@ -39,47 +39,4 @@
 //    }
 //}
 //
-package com.sicarus.util;
-
-import com.sicarus.model.UserRoles;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import javax.crypto.SecretKey;
-import java.util.Base64;
-import java.util.Date;
-
-@Component
-public class JwtUtil {
-
-    @Value("${jwt.secret}")
-    private String secret;
-
-    @Value("${jwt.expiration}")
-    private long expiration;
-
-    private SecretKey getKey() {
-        // Use the URL-safe decoder, which handles '_' and '-' characters
-        return Keys.hmacShaKeyFor(Base64.getUrlDecoder().decode(secret));
-    }
-
-    public String generateToken(String username, UserRoles roles) {
-        return Jwts.builder()
-                .setSubject(username)
-                .claim("roles", roles)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(getKey()) // Use the shared secret key
-                .compact();
-    }
-
-    public Claims extractClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getKey()) // Use the shared secret key
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-    }
-}
+;

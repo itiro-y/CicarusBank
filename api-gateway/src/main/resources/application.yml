@@ -61,6 +61,13 @@ spring:
 #              filters:
 #                - AuthenticationFilter
 
+            - id: card
+              uri: lb://card
+              predicates:
+                - Path=/card/**
+#              filters:
+#                - AuthenticationFilter
+
 springdoc:
   swagger-ui:
     urls:
@@ -74,6 +81,8 @@ springdoc:
         url: /customers/v3/api-docs
       - name: exchange
         url: /exchange/v3/api-docs
+      - name: card
+        url: /card/v3/api-docs
   override-server-url: true
 
 #jwt:

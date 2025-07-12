@@ -1,0 +1,19 @@
+meta {
+  name: convert brl-usd
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:8765/exchange/convert-brl-to-usd
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+   "userId": 1,
+              "amount": 10.00
+            }
+  
+}

@@ -25,6 +25,13 @@ public class Account {
     @Column(nullable = false)
     private BigDecimal balance;
 
+    @Column(nullable = false)
+    private BigDecimal usdWallet;
+
+    public Account(){
+        this.usdWallet = BigDecimal.ZERO;
+    }
+  
     @OneToMany(
             mappedBy = "account",
             cascade   = CascadeType.ALL,
@@ -74,5 +81,13 @@ public class Account {
 
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
+    }
+
+    public BigDecimal getUsdWallet() {
+        return usdWallet;
+    }
+
+    public void setUsdWallet(BigDecimal usdWallet) {
+        this.usdWallet = usdWallet;
     }
 }

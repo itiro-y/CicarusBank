@@ -41,8 +41,6 @@ public class Account {
     @JsonManagedReference
     private List<BalanceHistory> balanceHistory;
 
-    public Account(){}
-
     public List<BalanceHistory> getBalanceHistory() {
         return balanceHistory;
     }

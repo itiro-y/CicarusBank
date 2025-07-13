@@ -21,4 +21,14 @@ Projeto de microsserviços simulando um banco
 - voltar para a raiz do projeto com ``cd ..``
 - rodar ``docker-compose up --build -d``
 - verificar usando ``docker compose ps``
-  
+
+## Simple Test Diagram
+
+```mermaid
+graph TD
+    A[Start] --> B{Is it working?};
+    B -- Yes --> C[Success!];
+    B -- No --> D[Try again];
+    C --> E[End];
+    D --> A;
+```

@@ -23,6 +23,7 @@ import {
     CircularProgress
 } from '@mui/material';
 import AppAppBar from '../components/AppAppBar.jsx';
+import {Link} from "react-router-dom";
 
 // Base URL da sua API, definida em .env
 const API_URL = import.meta.env.VITE_API_URL || '';
@@ -120,11 +121,20 @@ export default function AdminTransactionsPage() {
             <AppAppBar title="Admin - Transações" />
             <Toolbar />
             <Container maxWidth="lg" sx={{ py: 4, mt: 5 }}>
-                <Typography variant="h4" gutterBottom>
-                    Histórico de Transações (Admin)
-                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, mb: 2 }}>
+                    <Typography variant="h4" gutterBottom>
+                        Histórico de Transações (Admin)
+                    </Typography>
+                    <Button
+                        variant="outlined"
+                        sx={{ mb: 2 }}
+                        component={Link}
+                        to="/user-transactions"
+                    >
+                        Ir para User
+                    </Button>
+                </Box>
 
-                {/* Filtros */}
                 <Paper sx={{ p: 2, mb: 3 }}>
                     <Stack direction="row" spacing={2} alignItems="center">
                         <TextField

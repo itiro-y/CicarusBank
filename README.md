@@ -68,7 +68,7 @@ C4Container
 
     Rel(currency_exchange_service, external_exchange_api, "Fetches rates from", "HTTPS")
 
-    Rel(account_service, transaction_service)
+    Rel(account_service, transaction_service, "")
     Rel(transaction_service, notification_service, "Sends transaction alerts to")
     Rel(loan_service, account_service, "Updates account balances")
     Rel(card_service, account_service, "Manages card-related account operations")

@@ -39,6 +39,7 @@ graph TD
         notification_service[Notification]
         card_service[Card]
         naming_server[Naming Server]
+        statement_service[Statement]
     end
 
     user --> frontend
@@ -53,5 +54,5 @@ graph TD
     naming_server --> currency_exchange_service
     naming_server --> notification_service
     naming_server --> card_service
-    
+    naming_server --> statement_service
 ```

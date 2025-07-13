@@ -68,6 +68,13 @@ spring:
 #              filters:
 #                - AuthenticationFilter
 
+            - id: statement-service
+              uri: lb://statement-service
+              predicates:
+                - Path=/statement-service/**
+#              filters:
+#                - AuthenticationFilter
+
 springdoc:
   swagger-ui:
     urls:

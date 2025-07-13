@@ -25,12 +25,12 @@ export default function LoanSimulationPage() {
     const [value, setValue] = useState('');
     const [installments, setInstallments] = useState('');
     const [interestRate, setInterestRate] = useState('');
-    const [simulation, setSimulation] = useState([]);
+    const [simulation, setSimulation] = useState(null);
     const [loading, setLoading] = useState(false);
 
     const handleSimulate = async () => {
         setLoading(true);
-        setSimulation([]);
+        setSimulation(null);
         try {
             const res = await fetch(`${API_URL}/loan/simulate`, {
                 method: 'POST',
@@ -45,9 +45,7 @@ export default function LoanSimulationPage() {
                 })
             });
 
-            if (!res.ok) {
-                throw new Error(await res.text());
-            }
+            if (!res.ok) throw new Error(await res.text());
 
             const data = await res.json();
             setSimulation(data);
@@ -103,11 +101,12 @@ export default function LoanSimulationPage() {
 
                 {loading && <CircularProgress />}
 
-                {simulation.length > 0 && (
+                {simulation && simulation.installments?.length > 0 && (
                     <>
                         <Typography variant="h6" gutterBottom>
                             Simulação de Parcelas
                         </Typography>
+
                         <TableContainer component={Paper} sx={{ mb: 2 }}>
                             <Table>
                                 <TableHead>
@@ -120,26 +119,36 @@ export default function LoanSimulationPage() {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {simulation.map((item, index) => (
+                                    {simulation.installments.map((item, index) => (
                                         <TableRow key={index}>
                                             <TableCell>{item.installmentNumber}</TableCell>
-                                            <TableCell>
-                                                {Number(item.amount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                                            </TableCell>
-                                            <TableCell>
-                                                {Number(item.interest).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                                            </TableCell>
-                                            <TableCell>
-                                                {Number(item.amortization).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                                            </TableCell>
-                                            <TableCell>
-                                                {Number(item.remainingPrincipal).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                                            </TableCell>
+                                            <TableCell>{Number(item.amount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
+                                            <TableCell>{Number(item.interest).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
+                                            <TableCell>{Number(item.amortization).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
+                                            <TableCell>{Number(item.remainingPrincipal).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
                             </Table>
                         </TableContainer>
+
+                        {/* Resumo da operação */}
+                        <Paper sx={{ p: 3, mb: 2 }}>
+                            <Typography variant="h6" gutterBottom>
+                                Resumo da Operação
+                            </Typography>
+                            <Stack spacing={1}>
+                                <Typography>
+                                    Valor do Empréstimo: <strong>{Number(simulation.principal).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong>
+                                </Typography>
+                                <Typography>
+                                    Total de Juros: <strong>{Number(simulation.totalInterest).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong>
+                                </Typography>
+                                <Typography>
+                                    Total a Pagar: <strong>{Number(simulation.totalAmount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong>
+                                </Typography>
+                            </Stack>
+                        </Paper>
 
                         <Button variant="contained" color="success" onClick={handleRequestLoan}>
                             Solicitar Aprovação de Empréstimo

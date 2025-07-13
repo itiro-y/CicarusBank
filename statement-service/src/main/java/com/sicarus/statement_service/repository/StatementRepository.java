@@ -1,7 +1,7 @@
-package com.cicarus.statement_service.repository;
+package com.sicarus.statement_service.repository;
 
-import com.cicarus.statement_service.dtos.StatementDto;
-import com.cicarus.statement_service.model.Statement;
+import com.sicarus.statement_service.dtos.StatementDto;
+import com.sicarus.statement_service.model.Statement;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

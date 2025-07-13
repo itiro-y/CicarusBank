@@ -1,9 +1,7 @@
-package com.cicarus.statement_service.dtos;
+package com.sicarus.statement_service.dtos;
 
-import com.cicarus.statement_service.model.StatementFormat;
-import com.cicarus.statement_service.model.StatementStatus;
-import jakarta.persistence.*;
-import org.antlr.v4.runtime.misc.NotNull;
+import com.sicarus.statement_service.model.StatementFormat;
+import com.sicarus.statement_service.model.StatementStatus;
 
 import java.util.Date;
 

@@ -1,13 +1,11 @@
 package com.cicarus.statement_service.controller;
 
 import com.cicarus.statement_service.dtos.StatementDto;
+import com.cicarus.statement_service.dtos.StatementRequestDto;
 import com.cicarus.statement_service.service.StatementService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -40,5 +38,10 @@ public class StatementController {
         return statementService.findAllByCustomerId(customerId);
     }
 
+    @Operation(summary = "Post that inserts a new statement based on a StatementRequestDto JSON")
+    @PostMapping()
+    public StatementDto postStatement(@RequestBody StatementRequestDto statementRequestDto){
+        return statementService.create(statementRequestDto);
+    }
 
 }

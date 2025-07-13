@@ -1,8 +1,10 @@
 package com.cicarus.statement_service.service;
 
 import com.cicarus.statement_service.dtos.StatementDto;
+import com.cicarus.statement_service.dtos.StatementRequestDto;
 import com.cicarus.statement_service.model.Statement;
 import com.cicarus.statement_service.repository.StatementRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,6 +30,12 @@ public class StatementService {
         return statementRepository.findAllByAccountId(accountId);
     }
 
+    public StatementDto create(StatementRequestDto statementRequestDto){
+        Statement statement = toEntity(statementRequestDto);
+        Statement saved = statementRepository.save(statement);
+        return toDto(saved);
+    }
+
     public StatementDto toDto(Statement statement){
         StatementDto dto = new StatementDto(
                 statement.getId(),
@@ -41,7 +49,7 @@ public class StatementService {
         return dto;
     }
 
-    public Statement toEntity(StatementDto dto) {
+    public Statement toEntity(StatementRequestDto dto) {
         Statement statement = new Statement();
         statement.setAccountId(dto.accountId());
         statement.setCreatedAt(dto.createdAt());

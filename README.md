@@ -21,4 +21,37 @@ Projeto de microsserviços simulando um banco
 - voltar para a raiz do projeto com ``cd ..``
 - rodar ``docker-compose up --build -d``
 - verificar usando ``docker compose ps``
-  
+
+## System Architecture Diagram
+
+```mermaid
+graph TD
+    subgraph "CicarusBank System"
+        user[Bank Customer]
+        frontend[Frontend]
+        api_gateway[API Gateway]
+        auth_service[Auth]
+        account_service[Account]
+        customer_service[Customer]
+        loan_service[Loan]
+        transaction_service[Transaction]
+        currency_exchange_service[Currency Exchange]
+        notification_service[Notification]
+        card_service[Card]
+        naming_server[Naming Server]
+    end
+
+    user --> frontend
+    frontend --> api_gateway
+    api_gateway --> naming_server
+
+    naming_server --> auth_service
+    naming_server --> account_service
+    naming_server --> customer_service
+    naming_server --> loan_service
+    naming_server --> transaction_service
+    naming_server --> currency_exchange_service
+    naming_server --> notification_service
+    naming_server --> card_service
+    
+```

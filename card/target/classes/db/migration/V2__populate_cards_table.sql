@@ -1,0 +1,24 @@
+-- V2__populate_cards_table.sql
+INSERT INTO cards (
+    customer_id,
+    card_number,
+    expiry,
+    credit_limit,
+    status,
+    cardholder_name,
+    network,
+    card_type,
+    cvv_hash,
+    last_4_digits
+) VALUES
+-- Cliente 1
+(1, '4111111111111111', '2027-05-01', 10000.00, 'ACTIVE', 'Cliente 1', 'VISA',      'CREDIT',  'c4ca4238a0b923820dcc509a6f75849b', '1111'),
+(1, '5500000000000004', '2026-04-01',   500.00, 'ACTIVE', 'Cliente 1', 'MASTERCARD','DEBIT',   'c81e728d9d4c2f636f067f89cc14862c', '0004'),
+
+-- Cliente 2
+(2, '340000000000009',  '2028-12-01', 20000.00, 'ACTIVE', 'Cliente 2', 'AMEX',      'CREDIT',  'eccbc87e4b5ce2fe28308fd9f2a7baf3', '0009'),
+(2, '6011000990139424', '2027-07-01',     0.00, 'BLOCKED','Cliente 2', 'DISCOVER',  'DEBIT',   'a87ff679a2f3e71d9181a67b7542122c', '9424'),
+
+-- Cliente 3
+(3, '3530111333300000', '2029-09-01', 15000.00, 'ACTIVE', 'Cliente 3', 'JCB',       'CREDIT',  'e4da3b7fbbce2345d7772b0674a318d5', '0000'),
+(3, '6759649826438453', '2026-10-01',  3000.00, 'ACTIVE', 'Cliente 3', 'MAESTRO',   'DEBIT',   '1679091c5a880faf6fb5e6087eb1b2dc', '8453');

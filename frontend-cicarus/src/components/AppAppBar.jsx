@@ -110,7 +110,7 @@ export default function AppAppBar() {
                             <Button component={Link} to="/dashboard" color="primary" variant="text" size="small">Visão Geral</Button>
                             <Button component={Link} to="/user-transactions" variant="text" color="info" size="small">Transferências</Button>
                             <Button component={Link} to="/user-card" variant="text" color="info" size="small">Cartões</Button>
-                            <Button variant="text" color="info" size="small">Investimentos</Button>
+                            <Button component={Link} to="/loan" variant="text" color="info" size="small">Empréstimos</Button>
                             <Button component={Link} to="/exchange" variant="text" color="info" size="small">Câmbio</Button>
                         </Box>
                     </Box>

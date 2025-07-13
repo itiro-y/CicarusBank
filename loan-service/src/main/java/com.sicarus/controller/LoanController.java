@@ -19,9 +19,9 @@ public class LoanController {
     }
 
     @PostMapping("/simulate")
-    public ResponseEntity<List<InstallmentDTO>> simulateLoan(@RequestBody SimulateLoanRequest request) {
-        List<InstallmentDTO> schedule = loanService.simulateLoanSchedule(request);
-        return ResponseEntity.ok(schedule);
+    public ResponseEntity<LoanSimulationResponse> simulateLoan(@RequestBody SimulateLoanRequest request) {
+        LoanSimulationResponse response = loanService.simulateLoan(request);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping

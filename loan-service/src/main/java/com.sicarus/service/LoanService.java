@@ -27,6 +27,29 @@ public class LoanService {
         this.loanCustomer = loanCustomer;
     }
 
+    public LoanSimulationResponse simulateLoan(SimulateLoanRequest request) {
+        LoanSimulationResponse loanSimulationResponse = new LoanSimulationResponse();
+
+        //setar lista detalhada com os valores das parcelas
+        loanSimulationResponse.setInstallments(simulateLoanSchedule(request));
+
+        //setar o valor principal do emprestimo
+        loanSimulationResponse.setPrincipal(request.getPrincipal());
+
+        //setar o valor total de juros
+        BigDecimal totalInterest = BigDecimal.valueOf(0);
+        for (InstallmentDTO i : loanSimulationResponse.getInstallments() ){
+            totalInterest = totalInterest.add(i.getInterest());
+        }
+        loanSimulationResponse.setTotalInterest(totalInterest);
+
+        //setar o valor total a ser pago pelo cliente
+        totalInterest = totalInterest.add(request.getPrincipal());
+        loanSimulationResponse.setTotalAmount(totalInterest);
+
+        return loanSimulationResponse;
+    }
+
     public List<InstallmentDTO> simulateLoanSchedule(SimulateLoanRequest request) {
         BigDecimal principal = request.getPrincipal();
         int n = request.getTermMonths();

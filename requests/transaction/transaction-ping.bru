@@ -1,0 +1,15 @@
+meta {
+  name: transaction-ping
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:8765/transaction/ping
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIiwicm9sZXMiOiJST0xFX1VTRVIiLCJpYXQiOjE3NTIxODA4NTEsImV4cCI6MTc1MjI2NzI1MX0.INhS35OVIy49vV-xEKhLbH5cQcmZP6CL4w2NGI9Ksq4
+}

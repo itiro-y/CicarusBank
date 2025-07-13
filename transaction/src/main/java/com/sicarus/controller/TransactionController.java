@@ -152,4 +152,8 @@ public class TransactionController {
         return ResponseEntity.ok(account);
     }
 
+    @GetMapping("/ping")
+    public String ping(){
+        return "pong";
+    }
 }

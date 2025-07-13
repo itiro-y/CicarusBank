@@ -1,0 +1,15 @@
+meta {
+  name: customer-service ping
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:8765/customers/ping
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIiwicm9sZXMiOiJST0xFX1VTRVIiLCJpYXQiOjE3NTIxNzgzNDUsImV4cCI6MTc1MjI2NDc0NX0.zR2jMVin1XlAJ8Gqv5JteotdoE2Bm95yXArFlClM4F0
+}

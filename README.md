@@ -1,29 +1,52 @@
 # CicarusBank
-Projeto de microsserviços simulando um banco
 
-# To do
-  - Eureka Server
-    - Client (em cada micro e fazer apontar pro server)
-    - Server (subir no docker)
-  - Comunicacao entre os micros por HTTP
-    - Fazer o Filtro pro JWT em cada micro e determinar qual funcao vai ser USER/ADMIN
-  - API Gateway
-    - Fazer o tratamento dos endpoints de cada Client pelo Servidor
-  - Adicionar mais micros
-  - Front-end (BOMBA)
+## About CicarusBank
+CicarusBank is a collaborative project that implements a comprehensive banking system. It is designed and developed 
+using a  microservices architecture.
 
-# Para roda bancos + eureka no docker
-- navegar para CicarusBank/naming-server
-- rodar ``./mvnw clean package``
-- voltar para a raiz do projeto com ``cd ..`` 
-- navegar para CicarusBank/api-gateway
-- rodar ``./mvnw clean package``
-- voltar para a raiz do projeto com ``cd ..``
-- rodar ``docker-compose up --build -d``
-- verificar usando ``docker compose ps``
+## Tech Stack
+This project utilizes the following key technologies:
+
+*   **Frontend:** React
+*   **Backend:** Spring Boot
+*   **Containerization:** Docker
+*   **Database:** MySQL
+
+
+## How to Run
+
+To run the CicarusBank application, follow these steps:
+
+### Prerequisites
+Before you begin, ensure you have the following installed:
+*   **Docker** and **Docker Compose**: For containerizing and orchestrating the microservices.
+*   **Maven**: For building the Spring Boot microservices.
+
+### Running the Application
+
+1.  **Navigate to the project root:**
+    ```bash
+    cd .../CicarusBank
+    ```
+
+2.  **Execute the `runapp.sh` script:**
+    This script automates the process of building the microservices and starting the Docker containers.
+    ```bash
+    ./runapp.sh
+    ```
+
+    The script performs the following actions:
+    *   Shuts down any currently running Docker containers for the project.
+    *   Runs `mvnw clean package` to clean and package all Maven-based microservices.
+    *   Builds and starts all services using `docker compose up --build -d` in detached mode.
+
+3.  **Verify containers (Optional):**
+    You can check the status of your running containers using:
+    ```bash
+    docker compose ps
+    ```
 
 ## System Architecture Diagram
-
 ```mermaid
 graph TD
     subgraph "CicarusBank System"

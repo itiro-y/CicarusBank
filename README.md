@@ -57,5 +57,4 @@ C4Container
     Rel(account_service, transaction_service)
     Rel(transaction_service, notification_service)
     Rel(loan_service, account_service)
-    Rel(card_service, account_service)
 ```

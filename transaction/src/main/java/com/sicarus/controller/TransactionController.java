@@ -1,12 +1,12 @@
 package com.sicarus.controller;
 
 import com.sicarus.clients.AccountClient;
-import com.sicarus.dto.AccountDTO;
-import com.sicarus.dto.TransactionRequestDTO;
+import com.sicarus.dto.*;
 import com.sicarus.model.Transaction;
 import com.sicarus.model.TransactionStatus;
 import com.sicarus.model.TransactionType;
 import com.sicarus.repository.TransactionRepository;
+import com.sicarus.service.NotificationProducer;
 import com.sicarus.service.TransactionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,10 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Tag(name = "Transaction Endpoint")
 @RestController
@@ -29,11 +26,12 @@ public class TransactionController {
 
     @Autowired
     private TransactionRepository transactionRepository;
-
     private TransactionService transactionService;
+    private NotificationProducer notificationProducer;
 
-    public TransactionController(TransactionService transactionService) {
+    public TransactionController(TransactionService transactionService, NotificationProducer notificationProducer) {
         this.transactionService = transactionService;
+        this.notificationProducer = notificationProducer;
     }
 
     // Get all transactions
@@ -48,6 +46,20 @@ public class TransactionController {
     @GetMapping("/{id}")
     public Optional<Transaction> getTransactionById(@PathVariable Long id){
         return transactionRepository.findById(id);
+    }
+
+    // Get transaction by AccountID
+    @Operation(summary = "Get a list of transactions by accountId")
+    @GetMapping("/accounts/{accountId}")
+    public List<Transaction> getTransactionByAccountId(@PathVariable Long accountId){
+        List<Transaction> transactionList =  transactionRepository.findAll();
+        List<Transaction> transactions = new ArrayList<>();
+        for(Transaction t : transactionList){
+            if(t.getAccountId().equals(accountId)){
+                transactions.add(t);
+            }
+        }
+        return transactions;
     }
 
     // Post new transaction passing a JSON request body
@@ -88,13 +100,23 @@ public class TransactionController {
         }
 
         if(request.getTransactionType().equals(TransactionType.DEPOSIT)){
+
             // Depositar no account e salvar no banco de account
             transactionService.depositBalance(account.getId(), request.getAmount());
+
+            //Implementar chamado ao metodo para geração e envio de e-mail de notificação deposito-----------------------------------------------------------
+            DepositNotificationDto depositNotificationDto = new DepositNotificationDto();
+            depositNotificationDto.setType("deposit");
+            depositNotificationDto.setAmount(request.getAmount());
+            depositNotificationDto.setCustomerId(account.getUserId());
+            notificationProducer.sendNotification(depositNotificationDto);
         }
 
         if(request.getTransactionType().equals(TransactionType.WITHDRAWAL)){
             // Sacar de account e salvar novo saldo no banco de account
             transactionService.withdrawBalance(account.getId(), request.getAmount());
+
+            //Implementar chamado ao metodo para geração e envio de e-mail de notificação saque-----------------------------------------------------------
         }
 
         if(request.getTransactionType().equals(TransactionType.TRANSFER)){
@@ -105,6 +127,8 @@ public class TransactionController {
             Long accountToId = accountTo.getId();
             BigDecimal amount = request.getAmount();
             transactionService.transferBalance(accountFromId, accountToId, amount);
+
+            //Implementar chamado ao metodo para geração e envio de e-mail de notificação transferência-----------------------------------------------------------
         }
 
         Transaction transaction = transactionService.createAndSetTransaction(request.getAccountId(),
@@ -152,8 +176,17 @@ public class TransactionController {
         return ResponseEntity.ok(account);
     }
 
+    //Metod for tests in Kafka
+    @GetMapping("/kafkaTest")
+    public ResponseEntity<NotificationDto> kafkaTest(){
+        NotificationDto n = notificationProducer.getNotification();
+        notificationProducer.send(n);
+        return ResponseEntity.ok(n);
+    }
+
     @GetMapping("/ping")
     public String ping(){
         return "pong";
     }
+  
 }

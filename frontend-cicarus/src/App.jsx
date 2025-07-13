@@ -3,7 +3,9 @@ import SignInPage from './pages/SignIn.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
 import AppTheme from './theme/AppTheme.jsx';
-import TransactionsPage from './pages/TransactionsPage.jsx';
+import UserTransactionsPage from './pages/UserTransactionsPage.jsx';
+import AdminTransactionsPage from "./pages/AdminTransactionsPage.jsx";
+import ExchangePage from './pages/ExchangePage.jsx';
 
 function App() {
     return (
@@ -12,8 +14,10 @@ function App() {
                 <Route path="/" element={<SignInPage />} />
                 <Route path="/login" element={<SignInPage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/transactions" element={<TransactionsPage />} />
+                <Route path="/user-transactions" element={<UserTransactionsPage />} />
+                <Route path="/admin-transactions" element={<AdminTransactionsPage />} />
                 <Route path="/profile" element={<ProfilePage />} /> {/* Nova rota adicionada */}
+                <Route path="/exchange" element={<ExchangePage />} />
             </Routes>
         </AppTheme>
     );

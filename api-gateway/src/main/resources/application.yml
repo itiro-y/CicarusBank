@@ -51,6 +51,8 @@ spring:
                 - Path=/exchange/**
 #              filters:
 #                - AuthenticationFilter
+#              filters:
+#                - StripPrefix=1
 
             - id: notification
               uri: lb://notification

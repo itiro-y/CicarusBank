@@ -1,5 +1,6 @@
 package com.cicarus.notification.service;
 
+import com.cicarus.notification.dto.NotificationDto;
 import com.cicarus.notification.model.Notification;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -12,10 +13,13 @@ import org.springframework.stereotype.Service;
 public class EmailSender {
 
     private final JavaMailSender mailSender;
+    private final EmailBodyService emailBodyService;
 
-    public EmailSender(JavaMailSender mailSender) {
+    public EmailSender(JavaMailSender mailSender, EmailBodyService emailBodyService) {
         this.mailSender = mailSender;
+        this.emailBodyService = emailBodyService;
     }
+
 
     public void sendEmail(Notification notification) {
         try {
@@ -26,21 +30,18 @@ public class EmailSender {
             helper.setTo(notification.getRecipientEmail());
             helper.setSubject("Notificação do Cicarus Bank");
 
-            // Corpo do e-mail com assinatura visual
-            String body = """
-                <div style="font-family:Arial,sans-serif;">
-                  <p>%s</p>
-                  <br>
-                  <hr>
-                  <p style="font-size: 12px; color: gray;">
-                    Atenciosamente,<br>
-                    Equipe Cicarus Bank<br>
-                    <a href="mailto:suporte@cicarusbank.com">suporte@cicarusbank.com</a>
-                  </p>
-                  <img src='cid:cicarus-signature' style="max-width: 300px; margin-top: 10px;" />
-                </div>
-            """.formatted(notification.getMessage());
+            String corpoEmailComBr = notification.getMessage().replace("\n", "<br>");
 
+            // Corpo do e-mail com assinatura visual
+            String body = String.format("""
+                                        <html>
+                                            <body>
+                                                %s
+                                                <br><br>
+                                                <img src="cid:cicarus-signature" alt="Assinatura Cicarus" style="width: 300px; height: auto;"/>
+                                            </body>
+                                        </html>
+                                        """, corpoEmailComBr);
             helper.setText(body, true); // true = HTML
 
             // Inclui a imagem da assinatura (deve estar em src/main/resources/static/images/)

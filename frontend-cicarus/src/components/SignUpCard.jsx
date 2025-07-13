@@ -1,10 +1,36 @@
 import * as React from 'react';
 import {
-    Box, Button, Card, CardContent, TextField, Typography, Stack, Grid, Link as MuiLink, FormControl
+    Box, Button, Card, CardContent, TextField, Typography, Stack, Grid, Link as MuiLink, FormControl,
+    Dialog, DialogTitle, DialogContent, DialogActions
 } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Person, Email, Lock, AssignmentInd, Cake, Public, Business, Streetview, LocationCity } from '@mui/icons-material';
 
+// Funções de máscara (mantidas como no seu original)
+const maskCPF = (value) => {
+    const digitsOnly = value.replace(/\D/g, '');
+    const limitedDigits = digitsOnly.substring(0, 11);
+
+    let maskedValue = limitedDigits;
+    if (limitedDigits.length > 9) {
+        maskedValue = limitedDigits.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+    } else if (limitedDigits.length > 6) {
+        maskedValue = limitedDigits.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+    } else if (limitedDigits.length > 3) {
+        maskedValue = limitedDigits.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+    }
+
+    return maskedValue;
+};
+
+const maskCEP = (value) => {
+    return value
+        .replace(/\D/g, '')
+        .replace(/^(\d{5})(\d)/, '$1-$2')
+        .substring(0, 9);
+};
+
+// Componente FormField (do seu código original, com o label em cima)
 const FormField = ({ id, label, value, onChange, ...props }) => (
     <FormControl fullWidth sx={{ mt: 1.5 }}>
         <Typography component="label" htmlFor={id} sx={{ color: 'grey.400', mb: 1 }}>
@@ -16,39 +42,83 @@ const FormField = ({ id, label, value, onChange, ...props }) => (
 
 function SignUpCard({ onSwitchToSignIn }) {
     const [step, setStep] = React.useState(1);
-
     const [formData, setFormData] = React.useState({
         name: '', document: '', birthDate: '', email: '', password: '',
         confirmPassword: '', country: 'Brasil', state: '', street: '', city: '', zipCode: ''
     });
 
+    const [showDialog, setShowDialog] = React.useState(false);
+    const [dialogMessage, setDialogMessage] = React.useState('');
+    const [dialogTitle, setDialogTitle] = React.useState('');
+
+    const handleOpenDialog = (title, message) => {
+        setDialogTitle(title);
+        setDialogMessage(message);
+        setShowDialog(true);
+    };
+
+    const handleCloseDialog = () => {
+        setShowDialog(false);
+        if (dialogTitle === 'Sucesso!') {
+            onSwitchToSignIn();
+        }
+    };
+
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        let { name, value } = e.target;
+
+        if (name === 'document') {
+            value = maskCPF(value);
+        } else if (name === 'zipCode') {
+            value = maskCEP(value);
+        }
+
         setFormData(prevState => ({ ...prevState, [name]: value }));
     };
 
+    // --- CORREÇÃO AQUI: Validação de formato do CPF ---
+    const handleNext = () => {
+        const { name, document, birthDate, email, password, confirmPassword } = formData;
+        if (!name || !document || !birthDate || !email || !password || !confirmPassword) {
+            handleOpenDialog("Campos Obrigatórios", "Por favor, preencha todos os campos de dados pessoais para continuar.");
+            return;
+        }
+        // Nova validação para o formato completo do CPF
+        if (document.length !== 14) {
+            handleOpenDialog("CPF Inválido", "Por favor, preencha o CPF completamente no formato correto.");
+            return;
+        }
+        if (password !== confirmPassword) {
+            handleOpenDialog("Erro de Senha", "As senhas não coincidem!");
+            return;
+        }
+        setStep(2);
+    };
+
+    const handleBack = () => setStep(1);
+
+    // --- CORREÇÃO AQUI: Validação de formato do CEP ---
     const handleSubmit = async (event) => {
         event.preventDefault();
-        if (step !== 2) return;
 
-        if (formData.password !== formData.confirmPassword) {
-            alert("As senhas não coincidem!");
+        const { street, city, state, zipCode } = formData;
+        if (!street || !city || !state || !zipCode) {
+            handleOpenDialog("Campos Obrigatórios", "Por favor, preencha todos os campos de endereço.");
+            return;
+        }
+        // Nova validação para o formato completo do CEP
+        if (zipCode.length !== 9) {
+            handleOpenDialog("CEP Inválido", "Por favor, preencha o CEP completamente no formato correto.");
             return;
         }
 
+        const unmaskedDocument = formData.document.replace(/\D/g, '');
+        const unmaskedZipCode = formData.zipCode.replace(/\D/g, '');
+
         const payload = {
-            name: formData.name,
-            document: formData.document,
-            email: formData.email,
-            password: formData.password,
+            name: formData.name, document: unmaskedDocument, email: formData.email, password: formData.password,
             birthDate: formData.birthDate,
-            address: {
-                street: formData.street,
-                city: formData.city,
-                state: formData.state,
-                zipCode: formData.zipCode,
-                country: formData.country
-            }
+            address: { street, city, state, zipCode: unmaskedZipCode, country: formData.country }
         };
 
         try {
@@ -59,21 +129,18 @@ function SignUpCard({ onSwitchToSignIn }) {
             });
 
             if (response.ok) {
-                alert('Cadastro realizado com sucesso!');
-                onSwitchToSignIn();
+                handleOpenDialog('Sucesso!', 'Cadastro realizado com sucesso!');
             } else {
-                const errorData = await response.json();
-                alert(`Erro ao cadastrar: ${errorData.message || 'Verifique os dados e tente novamente.'}`);
+                const userFriendlyMessage = 'Não foi possível realizar o cadastro. Verifique se os dados estão corretos (ex: CPF ou e-mail já utilizado).';
+                handleOpenDialog("Erro no Cadastro", userFriendlyMessage);
             }
         } catch (error) {
             console.error('Erro de conexão:', error);
-            alert('Não foi possível conectar ao servidor. Verifique se o microserviço está em execução.');
+            handleOpenDialog('Erro de Conexão', 'Não foi possível conectar ao servidor.');
         }
     };
 
-    const handleNext = () => setStep(2);
-    const handleBack = () => setStep(1);
-
+    // Estrutura e Estilos (mantidos como no seu original)
     const slideVariants = {
         hidden: { x: '100%', opacity: 0 },
         visible: { x: '0%', opacity: 1 },
@@ -112,11 +179,11 @@ function SignUpCard({ onSwitchToSignIn }) {
                                 </Grid>
                             ) : (
                                 <Grid container spacing={2}>
-                                    <Grid item xs={12} sm={6}><FormField id="country" label="País" value={formData.country} onChange={handleChange} InputProps={{ startAdornment: <Public sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
-                                    <Grid item xs={12} sm={6}><FormField id="state" label="Estado" value={formData.state} onChange={handleChange} InputProps={{ startAdornment: <Business sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
+                                    <Grid item xs={12}><FormField id="zipCode" label="CEP" value={formData.zipCode} onChange={handleChange} InputProps={{ startAdornment: <LocationCity sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
                                     <Grid item xs={12} sm={6}><FormField id="street" label="Rua" value={formData.street} onChange={handleChange} InputProps={{ startAdornment: <Streetview sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
-                                    <Grid item xs={12} sm={6}><FormField id="city" label="Cidade" value={formData.city} onChange={handleChange} InputProps={{ startAdornment: <Streetview sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
-                                    <Grid item xs={12} sm={6}><FormField id="zipCode" label="CEP" value={formData.zipCode} onChange={handleChange} InputProps={{ startAdornment: <LocationCity sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
+                                    <Grid item xs={12} sm={6}><FormField id="city" label="Cidade" value={formData.city} onChange={handleChange} InputProps={{ startAdornment: <Business sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
+                                    <Grid item xs={12} sm={6}><FormField id="state" label="Estado" value={formData.state} onChange={handleChange} InputProps={{ startAdornment: <Business sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
+                                    <Grid item xs={12} sm={6}><FormField id="country" label="País" value={formData.country} onChange={handleChange} InputProps={{ startAdornment: <Public sx={{ mr: 1, color: 'text.secondary' }} /> }} {...commonTextFieldProps} /></Grid>
                                 </Grid>
                             )}
                         </motion.div>
@@ -126,16 +193,9 @@ function SignUpCard({ onSwitchToSignIn }) {
                         {step === 1 ? (
                             <Button fullWidth variant="contained" type="button" onClick={handleNext} sx={{ py: 1.5, backgroundColor: '#e46820', '&:hover': { backgroundColor: '#d15e1c' }, fontWeight: 'bold' }}>Próximo</Button>
                         ) : (
-                            <Button
-                                fullWidth
-                                variant="contained"
-                                type="button" // <- important!
-                                onClick={handleSubmit}
-                                sx={{ py: 1.5, backgroundColor: '#e46820', '&:hover': { backgroundColor: '#d15e1c' }, fontWeight: 'bold' }}
-                            >
+                            <Button fullWidth variant="contained" type="button" onClick={handleSubmit} sx={{ py: 1.5, backgroundColor: '#e46820', '&:hover': { backgroundColor: '#d15e1c' }, fontWeight: 'bold' }} >
                                 Finalizar Cadastro
                             </Button>
-
                         )}
                     </Stack>
                     <Box sx={{ pt: 2, textAlign: 'center' }}>
@@ -143,6 +203,32 @@ function SignUpCard({ onSwitchToSignIn }) {
                     </Box>
                 </CardContent>
             </Box>
+
+            <Dialog
+                open={showDialog}
+                onClose={handleCloseDialog}
+                PaperProps={{
+                    style: {
+                        backgroundColor: 'rgba(40, 45, 52, 0.95)',
+                        color: 'white',
+                        borderRadius: '16px',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        backdropFilter: 'blur(10px)',
+                    }
+                }}
+            >
+                <DialogTitle sx={{ color: '#e46820', fontWeight: 'bold' }}>{dialogTitle}</DialogTitle>
+                <DialogContent>
+                    <Typography sx={{ color: 'white' }}>
+                        {dialogMessage}
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseDialog} sx={{ color: '#e46820', fontWeight: 'bold' }} autoFocus>
+                        OK
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Card>
     );
 }

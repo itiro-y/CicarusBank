@@ -16,6 +16,11 @@ spring:
       hibernate:
     show-sql: false
     open-in-view: false
+  flyway:
+      enabled: true
+      locations: classpath:db/migration
+      baseline-on-migrate: true
+      validate-on-migrate: true
 
 eureka:
   client:
@@ -26,9 +31,9 @@ eureka:
     lease-renewal-interval-in-seconds: 5
     health-check-url-path: /actuator/health
 
-jwt:
-  secret: hzAS6BikJ_2Ft3fEye-lqwGviIeGbWFRG9mEnNDzQp4=
-  expiration: 86400000 # 24 horas em ms
+#jwt:
+#  secret: hzAS6BikJ_2Ft3fEye-lqwGviIeGbWFRG9mEnNDzQp4=
+#  expiration: 86400000 # 24 horas em ms
 
 management:
   endpoints:

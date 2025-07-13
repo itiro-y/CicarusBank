@@ -25,30 +25,43 @@ Projeto de microsserviços simulando um banco
 ## System Architecture Diagram
 
 ```mermaid
-C4Container
-    Component(frontend, "Frontend")
-    Component(api_gateway, "API Gateway")
-    Component(auth_service, "Auth")
-    Component(account_service, "Account")
-    Component(customer_service, "Customer")
-    Component(loan_service, "Loan")
-    Component(transaction_service, "Transaction")
-    Component(currency_exchange_service, "Currency Exchange")
-    Component(notification_service, "Notification")
-    Component(card_service, "Card")
-    Component(naming_server, "Naming Server")
-    Component(external_exchange_api, "External Exchange API")
+graph TD
+    subgraph "External"
+        user[Bank Customer]
+        external_exchange_api[External Exchange API]
+    end
 
-    Rel(frontend, api_gateway, "")
-    Rel(api_gateway, naming_server, "")
-    Rel(naming_server, account_service, "")
-    Rel(naming_server, customer_service, "")
-    Rel(naming_server, loan_service, "")
-    Rel(naming_server, transaction_service, "")
-    Rel(naming_server, currency_exchange_service, "")
-    Rel(naming_server, notification_service, "")
-    Rel(naming_server, card_service, "")
-    Rel(naming_server, naming_server, "")
-    Rel(naming_server, auth_service, "")
+    subgraph "CicarusBank System"
+        frontend[Frontend]
+        api_gateway[API Gateway]
+        auth_service[Auth]
+        account_service[Account]
+        customer_service[Customer]
+        loan_service[Loan]
+        transaction_service[Transaction]
+        currency_exchange_service[Currency Exchange]
+        notification_service[Notification]
+        card_service[Card]
+        naming_server[Naming Server]
+    end
 
+    user --> frontend
+    frontend --> api_gateway
+
+    api_gateway --> auth_service
+    api_gateway --> account_service
+    api_gateway --> customer_service
+    api_gateway --> loan_service
+    api_gateway --> transaction_service
+    api_gateway --> currency_exchange_service
+    api_gateway --> notification_service
+    api_gateway --> card_service
+    api_gateway --> naming_server
+
+    currency_exchange_service --> external_exchange_api
+
+    account_service --> transaction_service
+    transaction_service --> notification_service
+    loan_service --> account_service
+    card_service --> account_service
 ```

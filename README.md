@@ -49,5 +49,6 @@ C4Container
     Rel(naming_server, notification_service, "")
     Rel(naming_server, card_service, "")
     Rel(naming_server, naming_server, "")
+    Rel(naming_server, auth_service, "")
 
 ```

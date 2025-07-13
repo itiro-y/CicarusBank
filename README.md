@@ -54,8 +54,4 @@ graph TD
     naming_server --> notification_service
     naming_server --> card_service
     
-    account_service --> transaction_service
-    transaction_service --> notification_service
-    loan_service --> account_service
-    card_service --> account_service
 ```

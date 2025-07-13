@@ -90,6 +90,8 @@ springdoc:
         url: /exchange/v3/api-docs
       - name: card
         url: /card/v3/api-docs
+      - name: statement-service
+        url: /statement-service/v3/api-docs
   override-server-url: true
 
 #jwt:

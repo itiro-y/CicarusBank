@@ -1,4 +1,4 @@
-CREATE TABLE statement (
+CREATE TABLE statements (
                            id          BIGINT        NOT NULL AUTO_INCREMENT,
                            account_id  BIGINT        NOT NULL,
                            created_at  DATE          NOT NULL,

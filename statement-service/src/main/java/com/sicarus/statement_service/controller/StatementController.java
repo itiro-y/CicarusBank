@@ -79,7 +79,7 @@ public class StatementController {
     }
 
     @GetMapping("/export/pdf")
-    public ResponseEntity<byte[]> exportUserPdf() throws IOException {
+    public ResponseEntity<byte[]> exportAllPdf() throws IOException {
         byte[] pdf = statementExportService.generatePdfForAll();
         // (Opcional) persistir metadata do Statement aqui antes de retornar
 
@@ -99,5 +99,29 @@ public class StatementController {
                         "attachment; filename=statement_forAllUsers" + ".pdf")
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(pdf);
+    }
+
+    @GetMapping("/export/xlsx/{accountId}")
+    public ResponseEntity<byte[]> exportUserXlsx(@PathVariable Long accountId) throws IOException {
+        byte[] xlsx = statementExportService.generateExcelForUser(accountId);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=statement_" + accountId + ".xlsx")
+                .contentType(
+                        MediaType.parseMediaType(
+                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(xlsx);
+    }
+
+    @GetMapping("/export/xlsx")
+    public ResponseEntity<byte[]> exportAllXlsx() throws IOException {
+        byte[] xlsx = statementExportService.generateExcelForAllUsers();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=statement_forAllUsers" + ".xlsx")
+                .contentType(
+                        MediaType.parseMediaType(
+                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(xlsx);
     }
 }

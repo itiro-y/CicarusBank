@@ -13,7 +13,10 @@ import com.sicarus.statement_service.dtos.TransactionDto;
 
 import com.sicarus.statement_service.repository.StatementRepository;
 import org.antlr.v4.runtime.misc.LogManager;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
+
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -125,11 +128,102 @@ public class StatementExportService {
     public StatementRepository getStatementRepository() {
         return statementRepository;
     }
-}
 
-//Long id,
-//Long accountId,
-//TransactionType transactionType,
-//BigDecimal amount,
-//Date timestamp,
-//TransactionStatus transactionStatus
+    public byte[] generateExcelForUser(Long accountId) throws IOException {
+        // 1) buscar transações via Feign
+        List<TransactionDto> txs = transactionClient.getAllTransactionsByAccountId(accountId);
+
+        try (Workbook wb = new XSSFWorkbook();
+             ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+
+            Sheet sheet = wb.createSheet("Extrato");
+            // 2) cabeçalhos
+            String[] cols = {"ID", "Conta", "Tipo", "Valor", "Data / Hora", "Status"};
+            Row header = sheet.createRow(0);
+            for (int i = 0; i < cols.length; i++) {
+                header.createCell(i).setCellValue(cols[i]);
+            }
+
+            // 3) estilo de data/hora
+            CreationHelper createHelper = wb.getCreationHelper();
+            CellStyle dateCellStyle = wb.createCellStyle();
+            dateCellStyle.setDataFormat(
+                    createHelper.createDataFormat().getFormat("yyyy-mm-dd hh:mm:ss")
+            );
+
+            // 4) linhas de dados
+            int rowIdx = 1;
+            for (TransactionDto tx : txs) {
+                Row row = sheet.createRow(rowIdx++);
+                row.createCell(0).setCellValue(tx.id());
+                row.createCell(1).setCellValue(tx.accountId());
+                row.createCell(2).setCellValue(tx.transactionType().name());
+                row.createCell(3).setCellValue(tx.amount().doubleValue());
+
+                org.apache.poi.ss.usermodel.Cell dateCell = row.createCell(4);
+                dateCell.setCellValue(tx.timestamp());
+                dateCell.setCellStyle(dateCellStyle);
+
+                row.createCell(5).setCellValue(tx.transactionStatus().name());
+            }
+
+            // 5) auto‐ajustar colunas
+            for (int i = 0; i < cols.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            // 6) gravar e retornar
+            wb.write(baos);
+            return baos.toByteArray();
+        }
+    }
+
+    public byte[] generateExcelForAllUsers() throws IOException {
+        // 1) buscar transações via Feign
+        List<TransactionDto> txs = transactionClient.getAllTransactions();
+
+        try (Workbook wb = new XSSFWorkbook();
+             ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+
+            Sheet sheet = wb.createSheet("Extrato");
+            // 2) cabeçalhos
+            String[] cols = {"ID", "Conta", "Tipo", "Valor", "Data / Hora", "Status"};
+            Row header = sheet.createRow(0);
+            for (int i = 0; i < cols.length; i++) {
+                header.createCell(i).setCellValue(cols[i]);
+            }
+
+            // 3) estilo de data/hora
+            CreationHelper createHelper = wb.getCreationHelper();
+            CellStyle dateCellStyle = wb.createCellStyle();
+            dateCellStyle.setDataFormat(
+                    createHelper.createDataFormat().getFormat("yyyy-mm-dd hh:mm:ss")
+            );
+
+            // 4) linhas de dados
+            int rowIdx = 1;
+            for (TransactionDto tx : txs) {
+                Row row = sheet.createRow(rowIdx++);
+                row.createCell(0).setCellValue(tx.id());
+                row.createCell(1).setCellValue(tx.accountId());
+                row.createCell(2).setCellValue(tx.transactionType().name());
+                row.createCell(3).setCellValue(tx.amount().doubleValue());
+
+                org.apache.poi.ss.usermodel.Cell dateCell = row.createCell(4);
+                dateCell.setCellValue(tx.timestamp());
+                dateCell.setCellStyle(dateCellStyle);
+
+                row.createCell(5).setCellValue(tx.transactionStatus().name());
+            }
+
+            // 5) auto‐ajustar colunas
+            for (int i = 0; i < cols.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            // 6) gravar e retornar
+            wb.write(baos);
+            return baos.toByteArray();
+        }
+    }
+}

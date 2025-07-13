@@ -36,8 +36,8 @@ const mockTransactions = [
 
 function BalanceCard({ balance, loading }) {
     return (
-        <Paper sx={{ flex: 1, p: 3, minHeight: 120 }}>
-            <Typography variant="subtitle2" color="text.secondary">
+        <Paper sx={{ flex: 1, p: 3, minHeight: 120, textAlign: "center"}}>
+            <Typography variant="subtitle1" color="text.secondary" sx={{mt: 8}}>
                 Saldo Atual
             </Typography>
             {loading ? (

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Box,
     Container,
@@ -14,9 +14,19 @@ import {
     TableHead,
     TableRow,
     Toolbar,
-    CircularProgress
+    CircularProgress,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    InputLabel,
+    Select,
+    MenuItem,
+    FormControl
 } from '@mui/material';
 import AppAppBar from '../components/AppAppBar';
+import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
 
 
 const API_URL = import.meta.env.VITE_API_URL || '';
@@ -27,6 +37,34 @@ export default function LoanSimulationPage() {
     const [interestRate, setInterestRate] = useState('');
     const [simulation, setSimulation] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [openModal, setOpenModal] = useState(false);
+    const [selectedDay, setSelectedDay] = useState('');
+    const [hasLoans, setHasLoans] = useState(false);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        checkLoans();
+    }, []);
+
+    const checkLoans = async () => {
+        try {
+            const res = await fetch(`${API_URL}/loan/anyLoan/1`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+
+            if (res.ok) {
+                const data = await res.json(); // retorna true ou false
+                setHasLoans(data === true);
+            } else {
+                setHasLoans(false);
+            }
+        } catch (error) {
+            console.error('Erro ao verificar empréstimos:', error);
+            setHasLoans(false);
+        }
+    };
 
     const handleSimulate = async () => {
         setLoading(true);
@@ -56,9 +94,63 @@ export default function LoanSimulationPage() {
         }
     };
 
-    const handleRequestLoan = () => {
-        // implementar requisição POST /loan/request se desejar
-        alert('Requisição de empréstimo enviada!');
+    const handleRequestLoan = async () => {
+        const dueDate = getNextMonthDueDate(selectedDay);
+
+        try {
+            const res = await fetch(`${API_URL}/loan`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({
+                    customerId: 1,
+                    amount: parseFloat(value),
+                    termMonths: parseInt(installments),
+                    interestRate: parseFloat(interestRate)/100,
+                    dueDate: dueDate
+                })
+            });
+
+            if (!res.ok) {
+                const error = await res.text();
+                throw new Error(error);
+            }
+
+            setOpenModal(false);
+            setTimeout(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Simulação enviada!',
+                    text: 'Você receberá um e-mail com a resposta em até 3 dias úteis.'
+                });
+                setValue('');
+                setInstallments('');
+                setInterestRate('');
+                setSimulation(null);
+                setSelectedDay('');
+
+                checkLoans();
+            }, 300);
+
+        } catch (err) {
+            console.error('Erro ao solicitar empréstimo:', err);
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro!',
+                text: 'Não foi possível solicitar o empréstimo.'
+            });
+        }
+    };
+
+    const getNextMonthDueDate = (day) => {
+        const today = new Date();
+        const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+        const year = nextMonth.getFullYear();
+        const month = String(nextMonth.getMonth() + 1).padStart(2, '0');
+        const date = String(day).padStart(2, '0');
+        return `${year}-${month}-${date}`;
     };
 
     return (
@@ -66,6 +158,16 @@ export default function LoanSimulationPage() {
             <AppAppBar title="Simulação de Empréstimo" />
             <Toolbar />
             <Container maxWidth="md" sx={{ py: 4, pt: 12}}>
+                {hasLoans && (
+                    <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => navigate('/loan-tracking')}
+                        sx={{ mb: 2 }}
+                    >
+                        Acompanhar seus empréstimos
+                    </Button>
+                )}
                 <Typography variant="h4" gutterBottom>
                     Simular Empréstimo
                 </Typography>
@@ -150,11 +252,47 @@ export default function LoanSimulationPage() {
                             </Stack>
                         </Paper>
 
-                        <Button variant="contained" color="success" onClick={handleRequestLoan}>
+                        <Button
+                            variant="contained"
+                            color="success"
+                            onClick={() => setOpenModal(true)}
+                        >
                             Solicitar Aprovação de Empréstimo
                         </Button>
                     </>
                 )}
+
+                <Dialog open={openModal} onClose={() => setOpenModal(false)}>
+                    <DialogTitle>Escolher Data de Vencimento</DialogTitle>
+                    <DialogContent>
+                        <Typography gutterBottom>
+                            Escolha a data para a primeira parcela. As demais seguirão o mesmo dia nos meses seguintes.
+                        </Typography>
+                        <FormControl fullWidth sx={{ mt: 2 }}>
+                            <InputLabel id="due-date-select-label">Dia</InputLabel>
+                            <Select
+                                labelId="due-date-select-label"
+                                value={selectedDay}
+                                label="Dia"
+                                onChange={(e) => setSelectedDay(e.target.value)}
+                            >
+                                {[5, 10, 15, 20, 25, 30].map(day => (
+                                    <MenuItem key={day} value={day}>{day}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setOpenModal(false)}>Cancelar</Button>
+                        <Button
+                            variant="contained"
+                            onClick={handleRequestLoan}
+                            disabled={!selectedDay}
+                        >
+                            Confirmar Solicitação
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             </Container>
         </Box>
     );

@@ -8,6 +8,7 @@ import AdminTransactionsPage from "./pages/AdminTransactionsPage.jsx";
 import ExchangePage from './pages/ExchangePage.jsx';
 import CardManagementPage from "./pages/CardManagementPage.jsx";
 import LoanSimulationPage from "./pages/LoanSimulationPage.jsx";
+import LoanTrackingPage from "./pages/LoanTrackingPage.jsx";
 
 function App() {
     return (
@@ -21,6 +22,7 @@ function App() {
                 <Route path="/profile" element={<ProfilePage />} /> {/* Nova rota adicionada */}
                 <Route path="/exchange" element={<ExchangePage />} />
                 <Route path="/loan" element={<LoanSimulationPage />} />
+                <Route path="/loan-tracking" element={<LoanTrackingPage />} />
                 <Route path="/user-card" element={<CardManagementPage />} />
 
             </Routes>

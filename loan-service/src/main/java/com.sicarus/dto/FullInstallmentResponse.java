@@ -1,26 +1,35 @@
 package com.sicarus.dto;
 
+import com.sicarus.model.Loan;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-public class InstallmentDTO {
+public class FullInstallmentResponse {
+    private Long id;
     private int installmentNumber;
     private BigDecimal amount;
     private BigDecimal interest;
     private BigDecimal amortization;
     private BigDecimal remainingPrincipal;
+    private LocalDate dueDate;
+
+    //Controle se a parcela foi paga ou não
+    private Boolean paid = false;
+    private LocalDateTime paidAt;
 
 
-    public InstallmentDTO() {
+    public FullInstallmentResponse() {
     }
 
-    public InstallmentDTO(int installmentNumber, BigDecimal amount, BigDecimal interest, BigDecimal amortization, BigDecimal remainingPrincipal) {
+    public FullInstallmentResponse(int installmentNumber, BigDecimal amount, BigDecimal interest, BigDecimal amortization, BigDecimal remainingPrincipal, LocalDate dueDate, Loan loan) {
         this.installmentNumber = installmentNumber;
         this.amount = amount;
         this.interest = interest;
         this.amortization = amortization;
         this.remainingPrincipal = remainingPrincipal;
+        this.dueDate = dueDate;
     }
 
     public int getInstallmentNumber() {
@@ -61,5 +70,33 @@ public class InstallmentDTO {
 
     public void setRemainingPrincipal(BigDecimal remainingPrincipal) {
         this.remainingPrincipal = remainingPrincipal;
+    }
+
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(LocalDate dueDate) {
+        this.dueDate = dueDate;
+    }
+
+    public Boolean getPaid() {
+        return paid;
+    }
+
+    public void setPaid(Boolean paid) {
+        this.paid = paid;
+    }
+
+    public LocalDateTime getPaidAt() {
+        return paidAt;
+    }
+
+    public void setPaidAt(LocalDateTime paidAt) {
+        this.paidAt = paidAt;
+    }
+
+    public Long getId() {
+        return id;
     }
 }

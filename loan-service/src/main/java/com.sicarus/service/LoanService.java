@@ -2,6 +2,7 @@ package com.sicarus.service;
 
 import com.sicarus.clients.LoanCustomer;
 import com.sicarus.dto.*;
+import com.sicarus.model.Installment;
 import com.sicarus.model.Loan;
 import com.sicarus.model.LoanStatus;
 import com.sicarus.repository.LoanRepository;
@@ -11,10 +12,12 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class LoanService {
@@ -81,14 +84,49 @@ public class LoanService {
         return schedule;
     }
 
+    public List<Installment> generateInstallment(LoanRequest loanRequest, Loan loan) {
+
+        BigDecimal principal = loanRequest.getAmount();
+        int n = loanRequest.getTermMonths();
+        BigDecimal i = loanRequest.getInterestRate();
+
+        // Cálculo da parcela fixa (Sistema Price)
+        BigDecimal onePlusI = BigDecimal.ONE.add(i);
+        BigDecimal numerator = principal.multiply(i).multiply(onePlusI.pow(n));
+        BigDecimal denominator = onePlusI.pow(n).subtract(BigDecimal.ONE);
+        BigDecimal installmentValue = numerator.divide(denominator, 2, RoundingMode.HALF_UP);
+
+        List<Installment> schedule = new ArrayList<>();
+        BigDecimal remaining = principal;
+
+        for (int k = 0; k < n; k++) {
+            BigDecimal interest = remaining.multiply(i).setScale(2, RoundingMode.HALF_UP);
+            BigDecimal amortization = installmentValue.subtract(interest);
+            remaining = remaining.subtract(amortization).max(BigDecimal.ZERO);
+
+            schedule.add(new Installment(
+                    k+1,
+                    installmentValue,
+                    interest,
+                    amortization,
+                    remaining,
+                    loanRequest.getDueDate().plusMonths(k),
+                    loan
+            ));
+        }
+
+        return schedule;
+    }
+
 
     public LoanResponse createLoan(LoanRequest request) {
         Loan loan = new Loan();
-        loan.setCustomerId(request.customerId());
-        loan.setPrincipal(request.amount());
-        loan.setTermMonths(request.termMonths());
-        loan.setInterestRate(request.interestRate());
+        loan.setCustomerId(request.getCustomerId());
+        loan.setPrincipal(request.getAmount());
+        loan.setTermMonths(request.getTermMonths());
+        loan.setInterestRate(request.getInterestRate());
         loan.setStatus(LoanStatus.PENDING);
+        loan.setInstallments(generateInstallment(request, loan));
 
         ZoneId zone = ZoneId.systemDefault();
         loan.setCreatedAt(LocalDateTime.now().atZone(zone).toInstant());
@@ -110,9 +148,16 @@ public class LoanService {
         return toResponse(loan);
     }
 
-    public List<LoanResponse> listLoansByCustomer(Long customerId) {
+    public List<FullLoanResponse> listLoansByCustomer(Long customerId) {
         List<Loan> loans = loanRepository.findByCustomerId(customerId);
-        return loans.stream().map(this::toResponse).toList();
+        return loans.stream().map(this::toResponseFull).toList();
+    }
+
+    public Boolean anyLoanForCustomer(Long customerId) {
+        if (loanRepository.findByCustomerId(customerId).isEmpty()) {
+            return false;
+        }
+        return true;
     }
 
     private LoanResponse toResponse(Loan loan) {
@@ -127,21 +172,46 @@ public class LoanService {
         );
     }
 
+    private FullLoanResponse toResponseFull(Loan loan) {
+        FullLoanResponse dto = new FullLoanResponse();
+        dto.setId(loan.getId());
+        dto.setCustomerId(loan.getCustomerId());
+        dto.setPrincipal(loan.getPrincipal());
+        dto.setTermMonths(loan.getTermMonths());
+        dto.setInterestRate(loan.getInterestRate());
+        dto.setStatus(loan.getStatus());
+        dto.setCreatedAt(loan.getCreatedAt());
+        dto.setInstallments(
+                loan.getInstallments()
+                        .stream()
+                        .map(installment -> {
+                            FullInstallmentResponse i = new FullInstallmentResponse();
+                            i.setInstallmentNumber(installment.getInstallmentNumber());
+                            i.setAmount(installment.getAmount());
+                            i.setInterest(installment.getInterest());
+                            i.setAmortization(installment.getAmortization());
+                            i.setRemainingPrincipal(installment.getRemainingPrincipal());
+                            return i;
+                        })
+                        .collect(Collectors.toList())
+        );
+        return dto;
+    }
+
     public CustomerDto getCustomerByID(Long id) {
         try {
             // Verifica se o cliente existe
             CustomerDto customer = loanCustomer.findById(id);
-
-//            // Cria empréstimo
-//            Loan loan = new Loan();
-//            loan.setCustomerId(customer.getId());
-//            loan.setAmount(request.getAmount());
-//            loan.setCreatedAt(LocalDate.now());
 
             return customer;
 
         } catch (FeignException.NotFound e) {
             throw new IllegalArgumentException("Cliente não encontrado.");
         }
+    }
+
+    public Boolean payInstallment(Long loanId) {
+        //Implementar logica de deduzir valor da conta e pagar parcela do emprestimo
+        return true;
     }
 }

@@ -1,53 +1,36 @@
-package com.sicarus.model;
+package com.sicarus.dto;
 
-import com.sicarus.dto.InstallmentDTO;
-import jakarta.persistence.*;
+import com.sicarus.model.Installment;
+import com.sicarus.model.LoanStatus;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name="loans")
-public class Loan {
-
-    @Id
-    @GeneratedValue
+public class FullLoanResponse {
     private Long id;
-
-    @Column
     private Long customerId;
-
-    @Column
     private BigDecimal principal;
-
-    @Column
     private Integer termMonths;
-
-    @Column
     private BigDecimal interestRate; // ex: 0.019 = 1.9% a.m.
-
-    @Column
     private LoanStatus status;       // “PENDING”, “APPROVED”, “REJECTED”
-
-    @Column
     private Instant createdAt;
+    private List<FullInstallmentResponse> installments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "loan", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Installment> installments = new ArrayList<>();
-
-    public Loan() {
+    public FullLoanResponse() {
 
     }
 
-    public Loan(Long customerId, BigDecimal principal, Integer termMonths, BigDecimal interestRate, Instant createdAt) {
+    public FullLoanResponse(Long id, Long customerId, BigDecimal principal, Integer termMonths, BigDecimal interestRate, LoanStatus status, Instant createdAt, List<FullInstallmentResponse> installments) {
+        this.id = id;
         this.customerId = customerId;
         this.principal = principal;
         this.termMonths = termMonths;
         this.interestRate = interestRate;
-        this.status = LoanStatus.PENDING;
+        this.status = status;
         this.createdAt = createdAt;
+        this.installments = installments;
     }
 
     public Long getId() {
@@ -92,10 +75,10 @@ public class Loan {
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
-    public List<Installment> getInstallments() {
+    public List<FullInstallmentResponse> getInstallments() {
         return installments;
     }
-    public void setInstallments(List<Installment> installments) {
+    public void setInstallments(List<FullInstallmentResponse> installments) {
         this.installments = installments;
     }
 

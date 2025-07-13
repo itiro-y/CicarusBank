@@ -428,7 +428,7 @@ export default function UserTransactionsPage() {
                 <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
                     <BalanceCard balance={balance} loading={loadingBalance} />
                     <BalanceChart data={history} loading={loadingHistory} />
-                    <ActionPanel
+                    <ActionPanela
                         onWithdraw={() => setOpenWithdraw(true)}
                         onDeposit={() => setOpenDeposit(true)}
                         onTransfer={() => setOpenTransfer(true)}

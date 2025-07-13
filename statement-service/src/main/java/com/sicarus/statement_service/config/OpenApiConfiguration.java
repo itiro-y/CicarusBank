@@ -1,4 +1,4 @@
-package com.cicarus.statement_service.config;
+package com.sicarus.statement_service.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;

@@ -1,10 +1,9 @@
-package com.cicarus.statement_service.service;
+package com.sicarus.statement_service.service;
 
-import com.cicarus.statement_service.dtos.StatementDto;
-import com.cicarus.statement_service.dtos.StatementRequestDto;
-import com.cicarus.statement_service.model.Statement;
-import com.cicarus.statement_service.repository.StatementRepository;
-import org.springframework.http.ResponseEntity;
+import com.sicarus.statement_service.dtos.StatementDto;
+import com.sicarus.statement_service.dtos.StatementRequestDto;
+import com.sicarus.statement_service.model.Statement;
+import com.sicarus.statement_service.repository.StatementRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

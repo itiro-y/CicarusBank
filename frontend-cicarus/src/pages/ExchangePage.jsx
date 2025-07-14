@@ -15,7 +15,7 @@ const widgetStyle = {
     borderRadius: '16px',
     backgroundColor: '#282d34',
     border: '1px solid rgba(255, 255, 255, 0.05)',
-    height: '100%',
+    
     color: 'white',
 };
 
@@ -231,7 +231,7 @@ export default function ExchangePage() {
                         <Grid item xs={12}>
                             <Paper elevation={0} sx={widgetStyle}>
                                 <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
-                                    Meus Saldos
+                                    Minhas Carteiras
                                 </Typography>
                                 <Box sx={{ mb: 2 }}>
                                     <Typography variant="body1" sx={{ mb: 1 }}>

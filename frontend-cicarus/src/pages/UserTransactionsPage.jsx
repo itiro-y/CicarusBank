@@ -3,7 +3,7 @@ import {
     Box, Container, Typography, Paper, Stack, Button,
     TableContainer, Table, TableHead, TableBody, TableRow, TableCell,
     Toolbar, Dialog, DialogTitle, DialogContent, DialogActions,
-    TextField, CircularProgress, Slide
+    TextField, CircularProgress, Slide, FormControl, InputLabel
 } from '@mui/material';
 
 import { NumericFormat } from 'react-number-format';
@@ -14,6 +14,7 @@ import {
 
 import { ArrowDownward, ArrowUpward, SwapHoriz } from '@mui/icons-material';
 import AppAppBar from '../components/AppAppBar.jsx';
+import { Link } from 'react-router-dom';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 const useMocks = false;
@@ -35,8 +36,8 @@ const mockTransactions = [
 
 function BalanceCard({ balance, loading }) {
     return (
-        <Paper sx={{ flex: 1, p: 3, minHeight: 120 }}>
-            <Typography variant="subtitle2" color="text.secondary">
+        <Paper sx={{ flex: 1, p: 3, minHeight: 120, textAlign: "center"}}>
+            <Typography variant="subtitle1" color="text.secondary" sx={{mt: 8}}>
                 Saldo Atual
             </Typography>
             {loading ? (
@@ -280,6 +281,8 @@ export function TransactionDialogs({ openWithdraw,
 export default function UserTransactionsPage() {
     const accountId = 1; // TODO: obter dinamicamente do contexto
 
+    const [selectedPage, setSelectedPage] = useState('user');
+
     // UI dialogs
     const [openWithdraw, setOpenWithdraw] = useState(false);
     const [openDeposit,  setOpenDeposit]  = useState(false);
@@ -419,22 +422,76 @@ export default function UserTransactionsPage() {
         }
     }
 
+    async function handleExportPdf() {
+        try {
+            const res = await fetch(`${API_URL}/statement-service/export/pdf/${accountId}`, { headers: authHeader() });
+            if (!res.ok) throw new Error(`Erro ${res.status}`);
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `transacoes_${accountId}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Erro ao exportar PDF:', error);
+        }
+    }
+
+    async function handleExportExcel() {
+        try {
+            const res = await fetch(`${API_URL}/statement-service/export/xlsx/${accountId}`, { headers: authHeader() });
+            if (!res.ok) throw new Error(`Erro ${res.status}`);
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `transacoes_${accountId}.xlsx`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Erro ao exportar Excel:', error);
+        }
+    }
+
     return (
         <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
             <AppAppBar title="Minhas Transações" />
             <Toolbar />
+
             <Container maxWidth="lg" sx={{ py: 4, mt:5 }}>
-                <Typography variant="h4" gutterBottom>Minhas Transações</Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, mb: 2 }}>
+                    <Typography variant="h4" gutterBottom>Minhas Transações</Typography>
+                    {/* botão para ir para a página de admin */}
+                    <Button
+                        variant="outlined"
+                        sx={{ mb: 2 }}
+                        component={Link}
+                        to="/admin-transactions"
+                    >
+                        Ir para Admin
+                    </Button>
+                </Box>
                 <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
                     <BalanceCard balance={balance} loading={loadingBalance} />
                     <BalanceChart data={history} loading={loadingHistory} />
-                    <ActionPanela
+                    <ActionPanel
                         onWithdraw={() => setOpenWithdraw(true)}
                         onDeposit={() => setOpenDeposit(true)}
                         onTransfer={() => setOpenTransfer(true)}
                     />
                 </Box>
-                <Typography variant="h5" gutterBottom>Histórico de Transações</Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, mb: 2 }}>
+                    <Typography variant="h5">Histórico de Transações</Typography>
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                        <Button variant="outlined" onClick={handleExportPdf}>Exportar PDF</Button>
+                        <Button variant="outlined" onClick={handleExportExcel}>Exportar Excel</Button>
+                    </Box>
+                </Box>
                 <TransactionsTable transactions={transactions} loading={loadingTransactions} />
                 <TransactionDialogs
                     openWithdraw={openWithdraw}

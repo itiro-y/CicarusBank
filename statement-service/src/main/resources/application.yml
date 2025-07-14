@@ -42,12 +42,12 @@ spring:
         exposure:
           include: health,info
 
-#  springdoc:
-#    api-docs:
-#      path: /statement/v3/api-docs
-#    swagger-ui:
-#      url: /statement/v3/api-docs
-#    override-server-url: true
+springdoc:
+  api-docs:
+    path: /statement-service/v3/api-docs
+  swagger-ui:
+    url: /statement-service/v3/api-docs
+  override-server-url: true
 
 
   #jwt:

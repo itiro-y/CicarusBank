@@ -1,4 +1,4 @@
-package com.cicarus.statement_service.model;
+package com.sicarus.statement_service.model;
 
 import jakarta.persistence.*;
 
@@ -34,6 +34,16 @@ public class Statement {
     private String fileName;
 
     public Statement() {}
+
+    public Statement(Long id, Long accountId, Date createdAt, StatementFormat format, StatementStatus status, String fileUrl, String fileName) {
+        this.id = id;
+        this.accountId = accountId;
+        this.createdAt = createdAt;
+        this.format = format;
+        this.status = status;
+        this.fileUrl = fileUrl;
+        this.fileName = fileName;
+    }
 
     public Long getId() {
         return id;

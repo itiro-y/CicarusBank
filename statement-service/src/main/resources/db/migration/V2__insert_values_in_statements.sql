@@ -1,4 +1,4 @@
-INSERT INTO statement (
+INSERT INTO statements (
     account_id,
     created_at,
     format,

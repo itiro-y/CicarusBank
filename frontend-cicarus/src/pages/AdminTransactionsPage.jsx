@@ -23,6 +23,7 @@ import {
     CircularProgress
 } from '@mui/material';
 import AppAppBar from '../components/AppAppBar.jsx';
+import {Link} from "react-router-dom";
 
 // Base URL da sua API, definida em .env
 const API_URL = import.meta.env.VITE_API_URL || '';
@@ -110,6 +111,42 @@ export default function AdminTransactionsPage() {
         }
     }
 
+    async function handleExportPdf() {
+        try {
+            const res = await fetch(`${API_URL}/statement-service/export/pdf`, { headers: authHeader() });
+            if (!res.ok) throw new Error(`Erro ${res.status}`);
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `transacoes.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Erro ao exportar PDF:', error);
+        }
+    }
+
+    async function handleExportExcel() {
+        try {
+            const res = await fetch(`${API_URL}/statement-service/export/xlsx`, { headers: authHeader() });
+            if (!res.ok) throw new Error(`Erro ${res.status}`);
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `transacoes.xlsx`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Erro ao exportar Excel:', error);
+        }
+    }
+
     // efeito inicial
     useEffect(() => {
         fetchTransactions();
@@ -120,26 +157,41 @@ export default function AdminTransactionsPage() {
             <AppAppBar title="Admin - Transações" />
             <Toolbar />
             <Container maxWidth="lg" sx={{ py: 4, mt: 5 }}>
-                <Typography variant="h4" gutterBottom>
-                    Histórico de Transações (Admin)
-                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, mb: 2 }}>
+                    <Typography variant="h4" gutterBottom>
+                        Histórico de Transações (Admin)
+                    </Typography>
+                    <Button
+                        variant="outlined"
+                        sx={{ mb: 2 }}
+                        component={Link}
+                        to="/user-transactions"
+                    >
+                        Ir para User
+                    </Button>
+                </Box>
 
-                {/* Filtros */}
                 <Paper sx={{ p: 2, mb: 3 }}>
-                    <Stack direction="row" spacing={2} alignItems="center">
-                        <TextField
-                            label="Conta"
-                            value={accountFilter}
-                            onChange={e => setAccountFilter(e.target.value)}
-                            size="small" />
-                        <TextField
-                            label="Status"
-                            value={statusFilter}
-                            onChange={e => setStatusFilter(e.target.value)}
-                            size="small" />
-                        <Button variant="contained" onClick={fetchTransactionsById}>
-                            Filtrar
-                        </Button>
+                    <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between">
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1}}>
+                            <TextField
+                                label="Conta"
+                                value={accountFilter}
+                                onChange={e => setAccountFilter(e.target.value)}
+                                size="small" />
+                            <TextField
+                                label="Status"
+                                value={statusFilter}
+                                onChange={e => setStatusFilter(e.target.value)}
+                                size="small" />
+                            <Button variant="contained" onClick={fetchTransactionsById}>
+                                Filtrar
+                            </Button>
+                        </Box>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1}}>
+                            <Button variant="outlined"  onClick={handleExportPdf}>Exportar PDF</Button>
+                            <Button variant="outlined" onClick={handleExportExcel}>Exportar Excel</Button>
+                        </Box>
                     </Stack>
                 </Paper>
 

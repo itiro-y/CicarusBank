@@ -170,6 +170,11 @@ public class TransactionController {
             notificationProducer.sendNotification(tranferenceNotificationDto);
         }
 
+        if(request.getTransactionType().equals(TransactionType.PAYMENT)){
+            // Deduzir valor da conta para pagamento de parcela de emprestimo
+            transactionService.withdrawBalance(account.getId(), request.getAmount());
+        }
+
         Transaction transaction = transactionService.createAndSetTransaction(request.getAccountId(),
                                                                              request.getAmount(),
                                                                              request.getTransactionType(),

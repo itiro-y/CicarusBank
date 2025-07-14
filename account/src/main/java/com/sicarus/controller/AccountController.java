@@ -37,6 +37,13 @@ public class AccountController {
         return accountRepository.findAll();
     }
 
+    @GetMapping("/account/customer/{id}")
+    public Long getAccountByUserId(@PathVariable("id") Long id){
+        return accountRepository.findByUserId(id)
+                .map(Account::getId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta não encontrada"));
+    }
+
     @GetMapping("/account/ping")
     public String ping(){
         return "Pong!";

@@ -16,20 +16,22 @@ public class FullInstallmentResponse {
     private LocalDate dueDate;
 
     //Controle se a parcela foi paga ou não
-    private Boolean paid = false;
+    private Boolean paid;
     private LocalDateTime paidAt;
 
 
     public FullInstallmentResponse() {
     }
 
-    public FullInstallmentResponse(int installmentNumber, BigDecimal amount, BigDecimal interest, BigDecimal amortization, BigDecimal remainingPrincipal, LocalDate dueDate, Loan loan) {
+    public FullInstallmentResponse(int installmentNumber, BigDecimal amount, BigDecimal interest, BigDecimal amortization, BigDecimal remainingPrincipal, LocalDate dueDate, Boolean paid, LocalDateTime paidAt) {
         this.installmentNumber = installmentNumber;
         this.amount = amount;
         this.interest = interest;
         this.amortization = amortization;
         this.remainingPrincipal = remainingPrincipal;
         this.dueDate = dueDate;
+        this.paid = paid;
+        this.paidAt = paidAt;
     }
 
     public int getInstallmentNumber() {

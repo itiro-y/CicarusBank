@@ -51,6 +51,16 @@ public class LoanController {
         return ResponseEntity.ok(loanService.getCustomerByID(customerId));
     }
 
+    @PostMapping("/{loanId}/installment/{installmentNumber}/pay")
+    public ResponseEntity<Void> pagarParcela(
+            @PathVariable Long loanId,
+            @PathVariable int installmentNumber,
+            @RequestParam Long userId
+    ) {
+        loanService.pagarParcela(loanId, installmentNumber, userId);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/ping")
     public String ping(){
         return "ping";

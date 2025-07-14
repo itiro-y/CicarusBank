@@ -43,7 +43,7 @@ public class TransactionService {
             return true;
         }
 
-        if(balance == null || balance.compareTo(BigDecimal.ZERO) <= 0) {
+        if((balance == null || balance.compareTo(BigDecimal.ZERO) <= 0) && !transactionType.equals(TransactionType.DEPOSIT)) {
             System.out.println("flag2");
             return true;
         }

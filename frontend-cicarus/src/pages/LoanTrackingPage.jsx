@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import {
     Box, Container, Typography, Paper, Stack, Button, Collapse, Divider
 } from '@mui/material';
@@ -13,6 +14,10 @@ export default function LoanTrackingPage() {
     const customerId = 1; // Id do cliente
 
     useEffect(() => {
+        fetchLoans();
+    }, []);
+
+    const fetchLoans = () => {
         fetch(`${API_URL}/loan/client/${customerId}`, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -21,7 +26,20 @@ export default function LoanTrackingPage() {
             .then(res => res.json())
             .then(data => setLoans(data))
             .catch(err => console.error('Erro ao buscar empréstimos:', err));
-    }, []);
+    };
+
+    const handlePagarParcela = async (loanId, installmentNumber) => {
+        try {
+            await axios.post(
+                `${API_URL}/loan/${loanId}/installment/${installmentNumber}/pay?userId=${customerId}`,
+                null, // corpo da requisição é nulo
+            );
+            await fetchLoans(); // atualiza a tela após pagamento
+        } catch (error) {
+            console.error("Erro ao pagar parcela:", error);
+            alert("Erro ao realizar o pagamento da parcela.");
+        }
+    };
 
     const groupedLoans = {
         PENDING: [],
@@ -77,6 +95,17 @@ export default function LoanTrackingPage() {
                         <Typography><strong>Pago:</strong> {inst.paid ? 'Sim' : 'Não'}</Typography>
                         {inst.paidAt && (
                             <Typography><strong>Pago em:</strong> {new Date(inst.paidAt).toLocaleDateString('pt-BR')}</Typography>
+                        )}
+
+                        {!inst.paid && loan.status === 'APPROVED' && (
+                            <Button
+                                variant="contained"
+                                color="secondary"
+                                sx={{ mt: 1 }}
+                                onClick={() => handlePagarParcela(loan.id, inst.installmentNumber)}
+                            >
+                                Realizar Pagamento
+                            </Button>
                         )}
                     </Paper>
                 ))}

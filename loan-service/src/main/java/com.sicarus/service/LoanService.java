@@ -1,12 +1,17 @@
 package com.sicarus.service;
 
+import com.sicarus.clients.AccountClient;
 import com.sicarus.clients.LoanCustomer;
+import com.sicarus.clients.TransactionClient;
 import com.sicarus.dto.*;
 import com.sicarus.model.Installment;
 import com.sicarus.model.Loan;
 import com.sicarus.model.LoanStatus;
 import com.sicarus.repository.LoanRepository;
 import feign.FeignException;
+import jakarta.transaction.Transactional;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -23,11 +28,15 @@ import java.util.stream.Collectors;
 public class LoanService {
     private final LoanRepository loanRepository;
     private final LoanCustomer loanCustomer;
+    private final TransactionClient transactionClient;
+    private final AccountClient accountClient;
     //private final NotificationClient notificationClient; // envia evento
 
-    public LoanService(LoanRepository loanRepository, LoanCustomer loanCustomer) {
+    public LoanService(LoanRepository loanRepository, LoanCustomer loanCustomer, TransactionClient transactionClient, AccountClient accountClient) {
         this.loanRepository = loanRepository;
         this.loanCustomer = loanCustomer;
+        this.transactionClient = transactionClient;
+        this.accountClient = accountClient;
     }
 
     public LoanSimulationResponse simulateLoan(SimulateLoanRequest request) {
@@ -191,6 +200,8 @@ public class LoanService {
                             i.setInterest(installment.getInterest());
                             i.setAmortization(installment.getAmortization());
                             i.setRemainingPrincipal(installment.getRemainingPrincipal());
+                            i.setPaid(installment.getPaid());
+                            i.setPaidAt(installment.getPaidAt());
                             return i;
                         })
                         .collect(Collectors.toList())
@@ -207,6 +218,45 @@ public class LoanService {
 
         } catch (FeignException.NotFound e) {
             throw new IllegalArgumentException("Cliente não encontrado.");
+        }
+    }
+
+    @Transactional
+    public void pagarParcela(Long loanId, int installmentNumber, Long userId) {
+
+        //Localiza o id da conta do usuario
+        Long accountId = accountClient.findById(userId);
+
+        //Localiza o emprestimo no banco
+        Loan loan = loanRepository.findById(loanId)
+                .orElseThrow(() -> new RuntimeException("Empréstimo não encontrado"));
+
+        Installment parcela = loan.getInstallments().stream()
+                .filter(i -> i.getInstallmentNumber() == installmentNumber)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Parcela não encontrada"));
+
+        if (parcela.getPaid()) {
+            throw new IllegalStateException("Parcela já foi paga");
+        }
+
+        // Envia a transação para o micro de transactions
+        TransactionRequestDTO request = new TransactionRequestDTO();
+        request.setAccountId(accountId);
+        request.setAmount(parcela.getAmount());
+        request.setTransactionType(TransactionType.PAYMENT);
+
+        ResponseEntity<String> response = transactionClient.processPayment(request);
+
+        if(response.getStatusCode() == HttpStatus.CREATED) {
+            // Marca como paga
+            parcela.setPaid(true);
+            parcela.setPaidAt(LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault()));
+
+            // Salva o empréstimo com a parcela atualizada
+            loanRepository.save(loan);
+        }else {
+            throw new RuntimeException("Falha ao realizar pagamento: " + response.getBody());
         }
     }
 

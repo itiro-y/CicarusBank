@@ -1,4 +1,4 @@
-package com.sicarus.model;
+package com.sicarus.dto;
 
 public enum TransactionType {
     WITHDRAWAL,

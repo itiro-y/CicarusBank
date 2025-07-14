@@ -236,6 +236,23 @@ const AccountInfo = ({ profile }) => (
     </Paper>
 );
 
+const SecurityActions = () => (
+    <Paper elevation={0} sx={widgetStyle}>
+        <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>Segurança</Typography>
+        <Stack spacing={2}>
+            <Button variant="contained" startIcon={<Lock />} sx={{ justifyContent: 'flex-start', py: 1.5, backgroundColor: '#e46820' }}>
+                Alterar Senha de Acesso
+            </Button>
+            <Button variant="outlined" startIcon={<Shield />} sx={{ justifyContent: 'flex-start', py: 1.5, color: 'white' }}>
+                Gerenciar Dispositivos Conectados
+            </Button>
+            <Button variant="outlined" startIcon={<PhoneAndroid />} sx={{ justifyContent: 'flex-start', py: 1.5, color: 'white' }}>
+                Validar iSafe Token
+            </Button>
+        </Stack>
+    </Paper>
+);
+
 // ------------------ PÁGINA PRINCIPAL ------------------
 export default function ProfilePage() {
     const [profile, setProfile] = React.useState(initialProfile);
@@ -261,6 +278,11 @@ export default function ProfilePage() {
                         <Grid item xs={12} md={6}>
                             <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.4 }}>
                                 <AccountInfo profile={profile} />
+                            </motion.div>
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.5 }}>
+                                <SecurityActions />
                             </motion.div>
                         </Grid>
                     </Grid>

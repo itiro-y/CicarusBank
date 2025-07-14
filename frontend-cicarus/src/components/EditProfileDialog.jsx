@@ -7,15 +7,27 @@ import {
     Close, Person, Email, AssignmentInd, Cake,
     Public, Business, LocationCity, Streetview, Home
 } from '@mui/icons-material';
-import InputMask from 'react-input-mask'; // Importe o InputMask
+import InputMask from 'react-input-mask';
 
+// Campo com suporte a máscara (CPF, CEP)
 function FormField(props) {
     const { mask, ...otherProps } = props;
 
     if (mask) {
         return (
-            <InputMask mask={mask} value={otherProps.value} onChange={otherProps.onChange}>
-                {(inputProps) => <TextField {...inputProps} {...otherProps} />}
+            <InputMask
+                mask={mask}
+                value={otherProps.value}
+                onChange={otherProps.onChange}
+                maskChar={null}
+            >
+                {(inputProps) => (
+                    <TextField
+                        {...otherProps}
+                        {...inputProps}
+                        inputRef={inputProps.ref}
+                    />
+                )}
             </InputMask>
         );
     }
@@ -23,12 +35,10 @@ function FormField(props) {
     return <TextField {...otherProps} />;
 }
 
-
 export default function EditProfileDialog({ open, onClose, data, onSave }) {
     const initialForm = {
         ...data,
         birthDate: data.birthDate ? new Date(data.birthDate).toISOString().split('T')[0] : '',
-        // Garante que CPF e CEP existam para aplicar a máscara, mesmo que vazios
         document: data.document || '',
         address: {
             ...data.address,
@@ -55,11 +65,10 @@ export default function EditProfileDialog({ open, onClose, data, onSave }) {
         const dataToSave = {
             ...form,
             birthDate: form.birthDate ? new Date(form.birthDate).toISOString() : null,
-            // Remover caracteres de máscara se o backend não os espera
             document: form.document.replace(/\D/g, ''),
             address: {
                 ...form.address,
-                zip: form.address.zip.replace(/\D/g, ''),
+                zip: form.address.zip.replace(/\D/g, '')
             }
         };
         onSave(dataToSave);
@@ -116,7 +125,7 @@ export default function EditProfileDialog({ open, onClose, data, onSave }) {
                             onChange={handleChange}
                             margin="normal"
                             fullWidth
-                            mask="999.999.999-99" 
+                            mask="999.999.999-99"
                             InputProps={{
                                 startAdornment: <AssignmentInd sx={{ mr: 1, color: 'text.secondary' }} />
                             }}
@@ -124,19 +133,16 @@ export default function EditProfileDialog({ open, onClose, data, onSave }) {
                     </Grid>
 
                     <Grid item xs={12} sm={6}>
-                        <FormField
+                        <TextField
                             id="birthDate"
                             name="birthDate"
                             label="Data de Nascimento"
                             type="date"
                             value={form.birthDate}
                             onChange={handleChange}
-                            slotProps={{ inputLabel: { shrink: true } }}
                             margin="normal"
                             fullWidth
-                            InputProps={{
-                                startAdornment: <Cake sx={{ mr: 1, color: 'text.secondary' }} />
-                            }}
+                            InputLabelProps={{ shrink: true }}
                         />
                     </Grid>
 
@@ -209,7 +215,7 @@ export default function EditProfileDialog({ open, onClose, data, onSave }) {
                             onChange={handleChange}
                             margin="normal"
                             fullWidth
-                            mask="99999-999" 
+                            mask="99999-999"
                             InputProps={{
                                 startAdornment: <Home sx={{ mr: 1, color: 'text.secondary' }} />
                             }}

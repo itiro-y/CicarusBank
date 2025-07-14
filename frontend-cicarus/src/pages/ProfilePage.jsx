@@ -49,7 +49,7 @@ function EditProfileDialog({ open, onClose, data, onSave }) {
     const [form, setForm] = React.useState({ ...data });
 
     React.useEffect(() => {
-        setForm(data); // sempre que abrir, reseta o form com os dados atuais
+        setForm(data);
     }, [data]);
 
     const handleChange = (e) => {
@@ -70,6 +70,9 @@ function EditProfileDialog({ open, onClose, data, onSave }) {
         onClose();
     };
 
+    const isFieldDisabled = (field) =>
+        ['name', 'document', 'birthDate'].includes(field);
+
     return (
         <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
             <DialogTitle>
@@ -81,19 +84,46 @@ function EditProfileDialog({ open, onClose, data, onSave }) {
             <DialogContent dividers>
                 <Grid container spacing={6}>
                     <Grid item xs={12} md={6}>
-                        <TextField label="Nome" name="name" value={form.name} onChange={handleChange} fullWidth InputLabelProps={{ shrink: true }}
+                        <TextField
+                            label="Nome"
+                            name="name"
+                            value={form.name}
+                            onChange={handleChange}
+                            fullWidth
+                            InputLabelProps={{ shrink: true }}
+                            disabled={isFieldDisabled('name')}
                         />
                     </Grid>
                     <Grid item xs={12} md={6}>
-                        <TextField label="Email" name="email" value={form.email} onChange={handleChange} fullWidth InputLabelProps={{ shrink: true }}
+                        <TextField
+                            label="Email"
+                            name="email"
+                            value={form.email}
+                            onChange={handleChange}
+                            fullWidth
+                            InputLabelProps={{ shrink: true }}
                         />
                     </Grid>
                     <Grid item xs={12} md={6}>
-                        <TextField label="CPF" name="document" value={form.document} onChange={handleChange} fullWidth InputLabelProps={{ shrink: true }}
+                        <TextField
+                            label="CPF"
+                            name="document"
+                            value={form.document}
+                            onChange={handleChange}
+                            fullWidth
+                            InputLabelProps={{ shrink: true }}
+                            disabled={isFieldDisabled('document')}
                         />
                     </Grid>
                     <Grid item xs={12} md={6}>
-                        <TextField label="Data de Nascimento" name="birthDate" value={form.birthDate} onChange={handleChange} fullWidth InputLabelProps={{ shrink: true }}
+                        <TextField
+                            label="Data de Nascimento"
+                            name="birthDate"
+                            value={form.birthDate}
+                            onChange={handleChange}
+                            fullWidth
+                            InputLabelProps={{ shrink: true }}
+                            disabled={isFieldDisabled('birthDate')}
                         />
                     </Grid>
                     <Grid item xs={12} md={4}>

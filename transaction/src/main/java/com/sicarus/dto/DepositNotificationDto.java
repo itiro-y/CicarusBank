@@ -90,4 +90,18 @@ public class DepositNotificationDto {
     public void setBody(String body) {
         this.body = body;
     }
+
+    @Override
+    public String toString() {
+        return "DepositNotificationDto{" +
+                "type='" + type + '\'' +
+                ", customerId=" + customerId +
+                ", customerName='" + customerName + '\'' +
+                ", recipientEmail='" + recipientEmail + '\'' +
+                ", channel='" + channel + '\'' +
+                ", amount=" + amount +
+                ", dateTime=" + dateTime +
+                ", body='" + body + '\'' +
+                '}';
+    }
 }

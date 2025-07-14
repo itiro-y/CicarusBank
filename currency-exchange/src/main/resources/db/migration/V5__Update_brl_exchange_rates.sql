@@ -1,0 +1,2 @@
+UPDATE exchange_rate SET rate = 0.15, updated_at = NOW() WHERE from_currency = 'BRL' AND to_currency = 'EUR';
+UPDATE exchange_rate SET rate = 0.18, updated_at = NOW() WHERE from_currency = 'BRL' AND to_currency = 'USD';

@@ -23,6 +23,20 @@ public class NotificationDto {
         this.recipientEmail = dto.getRecipientEmail();
     }
 
+    public NotificationDto(TranferenceNotificationDto dto) {
+        this.customerId = dto.getCustomerId();
+        this.channel = dto.getChannel();
+        this.message = dto.getBody();
+        this.recipientEmail = dto.getRecipientEmail();
+    }
+
+    public NotificationDto(WithdrawalNotificationDto dto) {
+        this.customerId = dto.getCustomerId();
+        this.channel = dto.getChannel();
+        this.message = dto.getBody();
+        this.recipientEmail = dto.getRecipientEmail();
+    }
+
     public Long getCustomerId() {
         return customerId;
     }

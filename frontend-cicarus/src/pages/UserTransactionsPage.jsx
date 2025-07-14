@@ -3,17 +3,21 @@ import {
     Box, Container, Typography, Paper, Stack, Button,
     TableContainer, Table, TableHead, TableBody, TableRow, TableCell,
     Toolbar, Dialog, DialogTitle, DialogContent, DialogActions,
-    TextField, CircularProgress
+    TextField, CircularProgress, Slide, FormControl, InputLabel
 } from '@mui/material';
+
+import { NumericFormat } from 'react-number-format';
+
 import {
     LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts';
-import AppAppBar from '../components/AppAppBar.jsx';
 
-// Base URL da sua API, definida em .env
+import { ArrowDownward, ArrowUpward, SwapHoriz } from '@mui/icons-material';
+import AppAppBar from '../components/AppAppBar.jsx';
+import { Link } from 'react-router-dom';
+
 const API_URL = import.meta.env.VITE_API_URL || '';
-// Flag para usar mocks durante o desenvolvimento
-const useMocks = true;
+const useMocks = false;
 
 // Mock data
 const mockBalance = 12345.67;
@@ -30,11 +34,10 @@ const mockTransactions = [
     { id: 3, accountId: 1, accountType: 'TRANSFER', amount: 750, timestamp: Date.now(), transactionStatus: 'PENDING' }
 ];
 
-/** 1) Card de Saldo */
 function BalanceCard({ balance, loading }) {
     return (
-        <Paper sx={{ flex: 1, p: 3, minHeight: 120 }}>
-            <Typography variant="subtitle2" color="text.secondary">
+        <Paper sx={{ flex: 1, p: 3, minHeight: 120, textAlign: "center"}}>
+            <Typography variant="subtitle1" color="text.secondary" sx={{mt: 8}}>
                 Saldo Atual
             </Typography>
             {loading ? (
@@ -48,7 +51,6 @@ function BalanceCard({ balance, loading }) {
     );
 }
 
-/** 2) Gráfico de Histórico de Saldo */
 function BalanceChart({ data, loading }) {
     return (
         <Paper sx={{ flex: 2, p: 3, minHeight: 200 }}>
@@ -72,7 +74,6 @@ function BalanceChart({ data, loading }) {
     );
 }
 
-/** 3) Painel de Ações */
 function ActionPanel({ onWithdraw, onDeposit, onTransfer }) {
     return (
         <Paper sx={{ flex: 1, p: 3 }}>
@@ -88,7 +89,6 @@ function ActionPanel({ onWithdraw, onDeposit, onTransfer }) {
     );
 }
 
-/** 4) Tabela de Histórico de Transações */
 function TransactionsTable({ transactions, loading }) {
     if (loading) return <CircularProgress />;
     return (
@@ -109,7 +109,7 @@ function TransactionsTable({ transactions, loading }) {
                         <TableRow key={tx.id}>
                             <TableCell>{tx.id}</TableCell>
                             <TableCell>{tx.accountId}</TableCell>
-                            <TableCell>{tx.accountType}</TableCell>
+                            <TableCell>{tx.transactionType}</TableCell>
                             <TableCell>
                                 {tx.amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                             </TableCell>
@@ -123,10 +123,40 @@ function TransactionsTable({ transactions, loading }) {
     );
 }
 
-/** 5) Diálogos de Transação */
-function TransactionDialogs({ openWithdraw, onCloseWithdraw, onConfirmWithdraw,
-                                openDeposit, onCloseDeposit, onConfirmDeposit,
-                                openTransfer, onCloseTransfer, onConfirmTransfer }) {
+const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
+
+// Custom input for currency mask
+function NumberFormatCustom(props) {
+    const { inputRef, onChange, name, ...other } = props;
+    return (
+        <NumericFormat {...other}
+                       getInputRef={inputRef}
+                       onValueChange={(values) => {
+                           onChange({
+                               target: {
+                                   name,
+                                   value: values.value,
+                               },
+                           });
+                       }}
+                       thousandSeparator='.'
+                       decimalSeparator=','
+                       prefix='R$ '
+                       isnumericstring="true"/>
+    );
+}
+
+export function TransactionDialogs({ openWithdraw,
+                                     onCloseWithdraw,
+                                     onConfirmWithdraw,
+                                     openDeposit,
+                                     onCloseDeposit,
+                                     onConfirmDeposit,
+                                     openTransfer,
+                                     onCloseTransfer,
+                                     onConfirmTransfer}) {
 
     const [amount, setAmount] = useState('');
     const [transferAccount, setTransferAccount] = useState('');
@@ -134,48 +164,111 @@ function TransactionDialogs({ openWithdraw, onCloseWithdraw, onConfirmWithdraw,
 
     return (
         <>
-            <Dialog open={openWithdraw} onClose={onCloseWithdraw}>
-                <DialogTitle>Sacar</DialogTitle>
+            <Dialog open={openWithdraw}
+                    TransitionComponent={Transition}
+                    keepMounted
+                    onClose={onCloseWithdraw}
+                    fullWidth
+                    maxWidth="xs">
+                <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <ArrowDownward color="error" />
+                    <Box component="span" sx={{ fontSize: '1.25rem', fontWeight: 500 }}>Sacar</Box>
+                </DialogTitle>
                 <DialogContent>
-                    <TextField label="Valor" type="number" fullWidth value={amount}
-                               onChange={e => setAmount(e.target.value)} />
+                    <TextField autoFocus
+                               margin="dense"
+                               placeholder="Valor"
+                               name="amount"
+                               fullWidth
+                               variant="outlined"
+                               value={amount}
+                               onChange={(e) => setAmount(e.target.value)}
+                               InputProps={{ inputComponent: NumberFormatCustom }} />
                 </DialogContent>
-                <DialogActions>
+                <DialogActions sx={{ px: 3, pb: 2 }}>
                     <Button onClick={onCloseWithdraw}>Cancelar</Button>
-                    <Button onClick={() => { onConfirmWithdraw(Number(amount)); setAmount(''); }}>
+                    <Button variant="contained"
+                            onClick={() => {
+                                onConfirmWithdraw(Number(amount));
+                                setAmount('');
+                            }}>
                         Confirmar
                     </Button>
                 </DialogActions>
             </Dialog>
 
-            <Dialog open={openDeposit} onClose={onCloseDeposit}>
-                <DialogTitle>Depositar</DialogTitle>
+            {/* Deposit Dialog */}
+            <Dialog open={openDeposit}
+                    TransitionComponent={Transition}
+                    keepMounted
+                    onClose={onCloseDeposit}
+                    fullWidth
+                    maxWidth="xs">
+                <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <ArrowUpward color="success" />
+                    <Box component="span" sx={{ fontSize: '1.25rem', fontWeight: 500 }}>Depositar</Box>
+                </DialogTitle>
                 <DialogContent>
-                    <TextField label="Valor" type="number" fullWidth value={amount}
-                               onChange={e => setAmount(e.target.value)} />
+                    <TextField autoFocus
+                            margin="dense"
+                            placeholder="Valor"
+                            name="amount"
+                            fullWidth
+                            variant="outlined"
+                            value={amount}
+                            onChange={(e) => setAmount(e.target.value)}
+                            InputProps={{ inputComponent: NumberFormatCustom }} />
                 </DialogContent>
-                <DialogActions>
+                <DialogActions sx={{ px: 3, pb: 2 }}>
                     <Button onClick={onCloseDeposit}>Cancelar</Button>
-                    <Button onClick={() => { onConfirmDeposit(Number(amount)); setAmount(''); }}>
+                    <Button variant="contained"
+                            onClick={() => {
+                                onConfirmDeposit(Number(amount));
+                                setAmount('');
+                            }}>
                         Confirmar
                     </Button>
                 </DialogActions>
             </Dialog>
 
-            <Dialog open={openTransfer} onClose={onCloseTransfer}>
-                <DialogTitle>Transferir</DialogTitle>
+            <Dialog open={openTransfer}
+                    TransitionComponent={Transition}
+                    keepMounted
+                    onClose={onCloseTransfer}
+                    fullWidth
+                    maxWidth="xs">
+                <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <SwapHoriz color="primary" />
+                    <Box component="span" sx={{ fontSize: '1.25rem', fontWeight: 500 }}>Transferir</Box>
+                </DialogTitle>
                 <DialogContent>
-                    <TextField label="Conta Destino" fullWidth value={transferAccount}
-                               onChange={e => setTransferAccount(e.target.value)} />
-                    <TextField label="Valor" type="number" fullWidth value={transferAmount}
-                               onChange={e => setTransferAmount(e.target.value)} />
+                    <Box sx={{ mb: 2 }}>
+                        <TextField autoFocus
+                                   margin="dense"
+                                   placeholder="Numero da Conta Destino"
+                                   type="text"
+                                   fullWidth
+                                   variant="outlined"
+                                   value={transferAccount}
+                                   onChange={e => setTransferAccount(e.target.value)}/>
+                    </Box>
+                    <TextField margin="dense"
+                               placeholder="Valor"
+                               name="transferAmount"
+                               fullWidth
+                               variant="outlined"
+                               value={transferAmount}
+                               onChange={e => setTransferAmount(e.target.value)}
+                               InputProps={{inputComponent: NumberFormatCustom}}/>
                 </DialogContent>
-                <DialogActions>
+                <DialogActions sx={{ px: 3, pb: 2 }}>
                     <Button onClick={onCloseTransfer}>Cancelar</Button>
-                    <Button onClick={() => {
-                        onConfirmTransfer({ toAccountId: transferAccount, amount: Number(transferAmount) });
-                        setTransferAccount(''); setTransferAmount('');
-                    }}>
+                    <Button variant="contained"
+                            onClick={() => {
+                                onConfirmTransfer({ toAccountId: transferAccount, amount: Number(transferAmount) });
+                                setTransferAccount('');
+                                setTransferAmount('');
+                            }}>
                         Confirmar
                     </Button>
                 </DialogActions>
@@ -187,6 +280,8 @@ function TransactionDialogs({ openWithdraw, onCloseWithdraw, onConfirmWithdraw,
 // --- Página Principal ---
 export default function UserTransactionsPage() {
     const accountId = 1; // TODO: obter dinamicamente do contexto
+
+    const [selectedPage, setSelectedPage] = useState('user');
 
     // UI dialogs
     const [openWithdraw, setOpenWithdraw] = useState(false);
@@ -227,52 +322,160 @@ export default function UserTransactionsPage() {
     async function fetchHistory() {
         setLoadingHistory(true);
         try {
-            const res = await fetch(`${API_URL}/accounts/${accountId}/balance/history`, { headers: authHeader() });
-            setHistory(await res.json());
-        } catch {} finally { setLoadingHistory(false); }
+            const res = await fetch(
+                `${API_URL}/account/balance-history/${accountId}`,
+                { headers: authHeader() }
+            );
+            if (!res.ok) throw new Error(`Erro ${res.status}`);
+            const raw = await res.json();
+
+            // Mapeia para { name, balance }
+            const formatted = raw.map(item => ({
+                name: new Date(item.timestamp)
+                    .toLocaleDateString('pt-BR', {
+                        day:   '2-digit',
+                        month: '2-digit',
+                        year:  'numeric'
+                    }),
+                balance: item.balance
+            }));
+
+            setHistory(formatted);
+        } catch (e) {
+            console.error('Erro ao buscar histórico:', e);
+        } finally {
+            setLoadingHistory(false);
+        }
     }
 
     async function fetchTransactions() {
         setLoadingTransactions(true);
         try {
-            const res = await fetch(`${API_URL}/transactions/${accountId}`, { headers: authHeader() });
+            const res = await fetch(`${API_URL}/transaction/accounts/${accountId}`, { headers: authHeader() });
             setTransactions(await res.json());
         } catch {} finally { setLoadingTransactions(false); }
     }
 
     async function handleWithdraw(amount) {
-        await fetch(`${API_URL}/transactions`, {
-            method: 'POST', headers: authHeader(),
-            body: JSON.stringify({ accountId, accountToId:'', transactionType: 'WITHDRAW', amount })
+        await fetch(`${API_URL}/transaction`, {
+            method: 'POST',
+            headers: authHeader(),
+            body: JSON.stringify({ accountId,
+                                         accountToId: null,
+                                         transactionType: 'WITHDRAWAL',
+                                         amount})
         });
         setOpenWithdraw(false);
-        if (!useMocks) { await fetchBalance(); await fetchTransactions(); }
+        if (!useMocks) {
+            await fetchBalance();
+            await fetchTransactions();
+            await fetchHistory()
+        }
     }
 
     async function handleDeposit(amount) {
-        await fetch(`${API_URL}/transactions/deposit`, {
-            method: 'POST', headers: authHeader(),
-            body: JSON.stringify({ accountId,  accountToId:'', transactionType: 'DEPOSIT', amount })
+        await fetch(`${API_URL}/transaction`, {
+            method: 'POST',
+            headers: authHeader(),
+            body: JSON.stringify({ accountId,
+                                         accountToId: null,
+                                         transactionType: 'DEPOSIT',
+                                         amount })
         });
         setOpenDeposit(false);
-        if (!useMocks) { await fetchBalance(); await fetchTransactions(); }
+        if (!useMocks) {
+            await fetchBalance();
+            await fetchTransactions();
+            await fetchHistory();}
     }
 
+
     async function handleTransfer({ toAccountId, amount }) {
-        await fetch(`${API_URL}/transactions/transfer`, {
-            method: 'POST', headers: authHeader(),
-            body: JSON.stringify({ accountId, accountToId, transactionType: 'TRANSFER', amount })
-        });
-        setOpenTransfer(false);
-        if (!useMocks) { await fetchBalance(); await fetchTransactions(); }
+        try {
+            const res = await fetch(
+                `${API_URL}/transaction`,
+                {
+                    method: 'POST',
+                    headers: authHeader(),
+                    body: JSON.stringify({
+                        accountId,
+                        accountToId: toAccountId,
+                        transactionType: 'TRANSFER',
+                        amount
+                    })
+                }
+            );
+
+            if (!res.ok) {
+                const errorText = await res.text();
+                throw new Error(`Erro ${res.status}: ${errorText}`);
+            }
+
+            setOpenTransfer(false);
+            if (!useMocks) {
+                await fetchBalance();
+                await fetchTransactions();
+                await fetchHistory();
+            }
+        } catch (error) {
+            console.error('Erro ao realizar transferência:', error);
+        }
+    }
+
+    async function handleExportPdf() {
+        try {
+            const res = await fetch(`${API_URL}/statement-service/export/pdf/${accountId}`, { headers: authHeader() });
+            if (!res.ok) throw new Error(`Erro ${res.status}`);
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `transacoes_${accountId}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Erro ao exportar PDF:', error);
+        }
+    }
+
+    async function handleExportExcel() {
+        try {
+            const res = await fetch(`${API_URL}/statement-service/export/xlsx/${accountId}`, { headers: authHeader() });
+            if (!res.ok) throw new Error(`Erro ${res.status}`);
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `transacoes_${accountId}.xlsx`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Erro ao exportar Excel:', error);
+        }
     }
 
     return (
         <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
             <AppAppBar title="Minhas Transações" />
             <Toolbar />
+
             <Container maxWidth="lg" sx={{ py: 4, mt:5 }}>
-                <Typography variant="h4" gutterBottom>Minhas Transações</Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, mb: 2 }}>
+                    <Typography variant="h4" gutterBottom>Minhas Transações</Typography>
+                    {/* botão para ir para a página de admin */}
+                    <Button
+                        variant="outlined"
+                        sx={{ mb: 2 }}
+                        component={Link}
+                        to="/admin-transactions"
+                    >
+                        Ir para Admin
+                    </Button>
+                </Box>
                 <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
                     <BalanceCard balance={balance} loading={loadingBalance} />
                     <BalanceChart data={history} loading={loadingHistory} />
@@ -282,12 +485,26 @@ export default function UserTransactionsPage() {
                         onTransfer={() => setOpenTransfer(true)}
                     />
                 </Box>
-                <Typography variant="h5" gutterBottom>Histórico de Transações</Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, mb: 2 }}>
+                    <Typography variant="h5">Histórico de Transações</Typography>
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                        <Button variant="outlined" onClick={handleExportPdf}>Exportar PDF</Button>
+                        <Button variant="outlined" onClick={handleExportExcel}>Exportar Excel</Button>
+                    </Box>
+                </Box>
                 <TransactionsTable transactions={transactions} loading={loadingTransactions} />
                 <TransactionDialogs
-                    openWithdraw= {openWithdraw} onCloseWithdraw = {() => setOpenWithdraw(false)} onConfirmWithdraw={handleWithdraw}
-                    openDeposit= {openDeposit}   onCloseDeposit = {() => setOpenDeposit(false)} onConfirmDeposit={handleDeposit}
-                    openTransfer= {openTransfer} onCloseTransfer = {() => setOpenTransfer(false)} onConfirmTransfer={handleTransfer}
+                    openWithdraw={openWithdraw}
+                    onCloseWithdraw={() => setOpenWithdraw(false)}
+                    onConfirmWithdraw={handleWithdraw}
+
+                    openDeposit={openDeposit}
+                    onCloseDeposit={() => setOpenDeposit(false)}
+                    onConfirmDeposit={handleDeposit}
+
+                    openTransfer={openTransfer}
+                    onCloseTransfer={() => setOpenTransfer(false)}
+                    onConfirmTransfer={handleTransfer}
                 />
             </Container>
         </Box>

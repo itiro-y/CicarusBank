@@ -1,5 +1,9 @@
 package com.cicarus.currency_exchange.controller;
 
+import com.cicarus.currency_exchange.dto.ConvertBrlToEurRequest;
+import com.cicarus.currency_exchange.dto.ConvertBrlToEurResponse;
+import com.cicarus.currency_exchange.dto.ConvertBrlToUsdRequest;
+import com.cicarus.currency_exchange.dto.ConvertBrlToUsdResponse;
 import com.cicarus.currency_exchange.dto.ConvertRequest;
 import com.cicarus.currency_exchange.dto.ConvertResponse;
 import com.cicarus.currency_exchange.service.ExchangeService;
@@ -39,6 +43,18 @@ public class ExchangeController {
     @PostMapping("/convert")
     public ConvertResponse convert(@RequestBody ConvertRequest request) {
         return service.convert((request));
+    }
+
+    @Operation(summary = "Converte BRL para USD e atualiza as carteiras do usuário")
+    @PostMapping("/convert-brl-to-usd")
+    public ConvertBrlToUsdResponse convertBrlToUsd(@RequestBody ConvertBrlToUsdRequest request) {
+        return service.convertBrlToUsd(request);
+    }
+
+    @Operation(summary = "Converte BRL para EUR e atualiza as carteiras do usuário")
+    @PostMapping("/convert-brl-to-eur")
+    public ConvertBrlToEurResponse convertBrlToEur(@RequestBody ConvertBrlToEurRequest request) {
+        return service.convertBrlToEur(request);
     }
 
     @GetMapping("/ping")

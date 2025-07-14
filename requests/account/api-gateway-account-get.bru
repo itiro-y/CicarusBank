@@ -1,19 +1,15 @@
 meta {
   name: api-gateway-account-get
   type: http
-  seq: 4
+  seq: 1
 }
 
 get {
   url: http://localhost:8765/account
   body: none
-  auth: bearer
+  auth: none
 }
 
 headers {
   ~Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIiwicm9sZXMiOiJST0xFX1VTRVIiLCJpYXQiOjE3NTIxNzY3MTUsImV4cCI6MTc1MjI2MzExNX0.1Cl0mP4rGp0x3jskKvWxGbPfZwhPwCpStmlV5a7w6Ps
-}
-
-auth:bearer {
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIiwicm9sZXMiOiJST0xFX1VTRVIiLCJpYXQiOjE3NTIxNzY3MTUsImV4cCI6MTc1MjI2MzExNX0.1Cl0mP4rGp0x3jskKvWxGbPfZwhPwCpStmlV5a7w6Ps
 }

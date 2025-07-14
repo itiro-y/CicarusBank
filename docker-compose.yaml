@@ -50,6 +50,17 @@ services:
     volumes:
       - transaction-data:/var/lib/mysql
 
+  mysql-notification: # From main branch
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_DATABASE: notification_db
+    ports:
+      - "3310:3306" # Notification DB on host port 3310
+    volumes:
+      - notification-data:/var/lib/mysql
+
   mysql-customer: # From guilherme-Customer branch
     image: mysql:8.0
     restart: always
@@ -60,6 +71,17 @@ services:
       - "3311:3306"
     volumes:
       - customer-data:/var/lib/mysql
+
+  mysql-loan:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_DATABASE: loan_db
+    ports:
+      - "3312:3306"  # Loan DB on host port 3312
+    volumes:
+      - loan-data:/var/lib/mysql
 
   mysql-currency:
     image: mysql:8.0
@@ -72,28 +94,27 @@ services:
     volumes:
       - currency-data:/var/lib/mysql
 
-  mysql-notification: # From main branch
+  mysql-card:
     image: mysql:8.0
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: 123
-      MYSQL_DATABASE: notification_db
+      MYSQL_DATABASE: card_db
     ports:
-      - "3310:3306" # Notification DB on host port 3310
+      - "3314:3306" # Notification DB on host port 3313
     volumes:
-      - notification-data:/var/lib/mysql
+      - card-data:/var/lib/mysql
 
-
-  mysql-loan:
+  mysql-statement:
     image: mysql:8.0
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: 123
-      MYSQL_DATABASE: loan_db
+      MYSQL_DATABASE: statement_db
     ports:
-      - "3312:3306"  # Loan DB on host port 3312
+      - "3315:3306" # Notification DB on host port 3313
     volumes:
-      - loan-data:/var/lib/mysql
+      - statement-data:/var/lib/mysql
 
   naming-server:
     build:
@@ -125,19 +146,19 @@ services:
       - mysql-account
       - naming-server
 
-  auth:
-    build:
-      context: ./auth
-    ports:
-      - "8000:8000"
-    environment:
-      # Override the datasource URL to point to the MySQL container's service name
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-auth:3306/auth_db
-      # You also need to do this for Eureka!
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
-    depends_on:
-      - mysql-auth
-      - naming-server
+#  auth:
+#    build:
+#      context: ./auth
+#    ports:
+#      - "8000:8000"
+#    environment:
+#      # Override the datasource URL to point to the MySQL container's service name
+#      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-auth:3306/auth_db
+#      # You also need to do this for Eureka!
+#      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
+#    depends_on:
+#      - mysql-auth
+#      - naming-server
 
   customer-service:
     build:
@@ -209,6 +230,34 @@ services:
       - mysql-currency
       - naming-server
 
+#  card:
+#    build:
+#      context: ./card
+#    ports:
+#      - "8600:8600"
+#    environment:
+#      # Override the datasource URL to point to the MySQL container's service name
+#      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-card:3314/card_db
+#      # You also need to do this for Eureka!
+#      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
+#    depends_on:
+#      - mysql-card
+#      - naming-server
+
+#  statement-service:
+#    build:
+#      context: ./statement-service
+#    ports:
+#      - "8700:8700"
+#    environment:
+#      # Override the datasource URL to point to the MySQL container's service name
+#      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-card:3315/statement_db
+#      # You also need to do this for Eureka!
+#      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
+#    depends_on:
+#      - mysql-statement
+#      - naming-server
+
 volumes:
   auth-data:
   account-data:
@@ -218,3 +267,5 @@ volumes:
   currency-data:
   notification-data: # Added from main branch
   kafka_data:
+  card-data:
+  statement-data:

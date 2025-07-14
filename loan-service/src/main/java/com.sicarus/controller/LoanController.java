@@ -19,9 +19,9 @@ public class LoanController {
     }
 
     @PostMapping("/simulate")
-    public ResponseEntity<List<InstallmentDTO>> simulateLoan(@RequestBody SimulateLoanRequest request) {
-        List<InstallmentDTO> schedule = loanService.simulateLoanSchedule(request);
-        return ResponseEntity.ok(schedule);
+    public ResponseEntity<LoanSimulationResponse> simulateLoan(@RequestBody SimulateLoanRequest request) {
+        LoanSimulationResponse response = loanService.simulateLoan(request);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping
@@ -36,14 +36,29 @@ public class LoanController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/anyLoan/{customerId}")
+    public ResponseEntity<Boolean> anyLoanForCustomer(@PathVariable Long customerId) {
+        return ResponseEntity.ok(loanService.anyLoanForCustomer(customerId));
+    }
+
     @GetMapping("/client/{customerId}")
-    public ResponseEntity<List<LoanResponse>> getByCustomer(@PathVariable Long customerId) {
+    public ResponseEntity<List<FullLoanResponse>> getByCustomer(@PathVariable Long customerId) {
         return ResponseEntity.ok(loanService.listLoansByCustomer(customerId));
     }
 
     @GetMapping("/clientData/{customerId}")
     public ResponseEntity<CustomerDto> getCustomerById(@PathVariable Long customerId) {
         return ResponseEntity.ok(loanService.getCustomerByID(customerId));
+    }
+
+    @PostMapping("/{loanId}/installment/{installmentNumber}/pay")
+    public ResponseEntity<Void> pagarParcela(
+            @PathVariable Long loanId,
+            @PathVariable int installmentNumber,
+            @RequestParam Long userId
+    ) {
+        loanService.pagarParcela(loanId, installmentNumber, userId);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/ping")

@@ -1,9 +1,12 @@
 package com.sicarus.model;
 
+import com.sicarus.dto.InstallmentDTO;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name="loans")
@@ -30,6 +33,9 @@ public class Loan {
 
     @Column
     private Instant createdAt;
+
+    @OneToMany(mappedBy = "loan", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Installment> installments = new ArrayList<>();
 
     public Loan() {
 
@@ -85,6 +91,12 @@ public class Loan {
     }
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
+    }
+    public List<Installment> getInstallments() {
+        return installments;
+    }
+    public void setInstallments(List<Installment> installments) {
+        this.installments = installments;
     }
 
     @Override

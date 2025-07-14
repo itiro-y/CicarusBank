@@ -1,13 +1,16 @@
 package com.sicarus.dto;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class InstallmentDTO {
-    int installmentNumber;
-    BigDecimal amount;
-    BigDecimal interest;
-    BigDecimal amortization;
-    BigDecimal remainingPrincipal;
+    private int installmentNumber;
+    private BigDecimal amount;
+    private BigDecimal interest;
+    private BigDecimal amortization;
+    private BigDecimal remainingPrincipal;
+
 
     public InstallmentDTO() {
     }

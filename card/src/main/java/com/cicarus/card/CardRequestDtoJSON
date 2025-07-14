@@ -1,0 +1,12 @@
+{
+  "customerId": 1,
+  "cardNumber": "4111111111111111",
+  "expiry": "2027-05-01",
+  "creditLimit": 10000.00,
+  "status": "ACTIVE",
+  "cardholderName": "João da Silva",
+  "network": "VISA",
+  "cardType": "CREDIT",
+  "cvvHash": "e4da3b7fbbce2345d7772b0674a318d5",
+  "last4Digits": "1111"
+}

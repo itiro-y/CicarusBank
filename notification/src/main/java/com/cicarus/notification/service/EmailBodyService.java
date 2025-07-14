@@ -1,6 +1,8 @@
 package com.cicarus.notification.service;
 
 import com.cicarus.notification.dto.DepositNotificationDto;
+import com.cicarus.notification.dto.TranferenceNotificationDto;
+import com.cicarus.notification.dto.WithdrawalNotificationDto;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
@@ -76,6 +78,38 @@ public class EmailBodyService {
                 depositBody,
                 depositNotificationDto.getCustomerName(),
                 depositNotificationDto.getAmount(),
+                formato.format(date)
+        );
+
+        return body.formatted(corpoEmail);
+    }
+
+    public String generateTranferenceBody(TranferenceNotificationDto tranferenceNotificationDto) {
+        formato.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo"));
+        // Converter Instant para Date
+        Date date = Date.from(tranferenceNotificationDto.getDateTime());
+
+        String corpoEmail = String.format(
+                transferBody,
+                tranferenceNotificationDto.getCustomerName(),
+                tranferenceNotificationDto.getAmount(),
+                tranferenceNotificationDto.getCustomerToName(),
+                tranferenceNotificationDto.getAccountToId(),
+                formato.format(date)
+        );
+
+        return body.formatted(corpoEmail);
+    }
+
+    public String generateWithdrawalBody(WithdrawalNotificationDto wnd) {
+        formato.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo"));
+        // Converter Instant para Date
+        Date date = Date.from(wnd.getDateTime());
+
+        String corpoEmail = String.format(
+                withdrawBody,
+                wnd.getCustomerName(),
+                wnd.getAmount(),
                 formato.format(date)
         );
 

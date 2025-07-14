@@ -12,6 +12,6 @@ echo "Running Maven clean and package..."
 
 # Run Docker Compose with sudo, build and start containers in detached mode
 echo "Building and starting Docker containers..."
-sudo docker compose up -d --build
+sudo docker compose up --build -d
 
 echo "Done."

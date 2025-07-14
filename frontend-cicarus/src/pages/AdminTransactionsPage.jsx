@@ -23,6 +23,7 @@ import {
     CircularProgress
 } from '@mui/material';
 import AppAppBar from '../components/AppAppBar.jsx';
+import {Link} from "react-router-dom";
 
 // Base URL da sua API, definida em .env
 const API_URL = import.meta.env.VITE_API_URL || '';
@@ -43,18 +44,19 @@ export default function AdminTransactionsPage() {
         return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
     };
 
-    // buscar transações com filtros aplicados
     const fetchTransactions = async () => {
         setLoading(true);
         try {
-            const params = new URLSearchParams();
-            if (accountFilter) params.append('accountId', accountFilter);
-            if (statusFilter) params.append('transactionStatus', statusFilter);
+            const res = await fetch(`${API_URL}/transaction`, { headers: authHeader() });
 
-            const res = await fetch(
-                `${API_URL}/transaction`,
-                { headers: authHeader() }
-            );
+            // clone permite duas leituras independentes
+            const clone = res.clone();
+
+            // leitura para log/erro
+            const rawText = await clone.text();
+            console.log('Resposta bruta:', rawText);
+
+            // leitura para parse JSON
             const data = await res.json();
             setTransactions(data);
         } catch (error) {
@@ -67,14 +69,19 @@ export default function AdminTransactionsPage() {
     const fetchTransactionsById = async () => {
         setLoading(true);
         try {
-            const params = new URLSearchParams();
-            if (accountFilter) params.append('id', accountFilter);
-            if (statusFilter) params.append('transactionStatus', statusFilter);
-
-            const res = await fetch(
-                `${API_URL}/transaction/${params}`,
-                { headers: authHeader() }
-            );
+            let url = `${API_URL}/transaction`;
+            if (accountFilter && !statusFilter) {
+                url = `${API_URL}/transaction/accounts/${accountFilter}`;
+            } else if (!accountFilter && statusFilter) {
+                url = `${API_URL}/transaction/status/${statusFilter}`;
+            } else if (accountFilter && statusFilter) {
+                url = `${API_URL}/transaction/accounts-status/${accountFilter}/${statusFilter}`;
+            }
+            const res = await fetch(url, { headers: authHeader() });
+            if (!res.ok) {
+                const err = await res.text();
+                throw new Error(`Erro ${res.status}: ${err}`);
+            }
             const data = await res.json();
             setTransactions(data);
         } catch (error) {
@@ -82,14 +89,18 @@ export default function AdminTransactionsPage() {
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     const reverseTransaction = async (transactionID) => {
         setLoading(true);
         try {
             const res = await fetch(
                 `${API_URL}/transaction/reversal/${transactionID}`,
-                { headers: authHeader() }
+                {
+                        method: 'PUT',
+                        headers: authHeader(),
+                        body: null
+                    }
             );
             const data = await res.json();
             setTransactions(data);
@@ -100,18 +111,41 @@ export default function AdminTransactionsPage() {
         }
     }
 
-    // ação sobre transação: cancel, refund, approve
-    const handleAction = async (id, action) => {
+    async function handleExportPdf() {
         try {
-            await fetch(
-                `${API_URL}/transactions/${id}/${action}`,
-                { method: 'POST', headers: authHeader() }
-            );
-            fetchTransactions();
+            const res = await fetch(`${API_URL}/statement-service/export/pdf`, { headers: authHeader() });
+            if (!res.ok) throw new Error(`Erro ${res.status}`);
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `transacoes.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
         } catch (error) {
-            console.error(`Erro ao executar ${action} na transação ${id}:`, error);
+            console.error('Erro ao exportar PDF:', error);
         }
-    };
+    }
+
+    async function handleExportExcel() {
+        try {
+            const res = await fetch(`${API_URL}/statement-service/export/xlsx`, { headers: authHeader() });
+            if (!res.ok) throw new Error(`Erro ${res.status}`);
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `transacoes.xlsx`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Erro ao exportar Excel:', error);
+        }
+    }
 
     // efeito inicial
     useEffect(() => {
@@ -123,30 +157,44 @@ export default function AdminTransactionsPage() {
             <AppAppBar title="Admin - Transações" />
             <Toolbar />
             <Container maxWidth="lg" sx={{ py: 4, mt: 5 }}>
-                <Typography variant="h4" gutterBottom>
-                    Histórico de Transações (Admin)
-                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, mb: 2 }}>
+                    <Typography variant="h4" gutterBottom>
+                        Histórico de Transações (Admin)
+                    </Typography>
+                    <Button
+                        variant="outlined"
+                        sx={{ mb: 2 }}
+                        component={Link}
+                        to="/user-transactions"
+                    >
+                        Ir para User
+                    </Button>
+                </Box>
 
-                {/* Filtros */}
                 <Paper sx={{ p: 2, mb: 3 }}>
-                    <Stack direction="row" spacing={2} alignItems="center">
-                        <TextField
-                            label="Conta"
-                            value={accountFilter}
-                            onChange={e => setAccountFilter(e.target.value)}
-                            size="small" />
-                        <TextField
-                            label="Status"
-                            value={statusFilter}
-                            onChange={e => setStatusFilter(e.target.value)}
-                            size="small" />
-                        <Button variant="contained" onClick={fetchTransactionsById}>
-                            Filtrar
-                        </Button>
+                    <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between">
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1}}>
+                            <TextField
+                                label="Conta"
+                                value={accountFilter}
+                                onChange={e => setAccountFilter(e.target.value)}
+                                size="small" />
+                            <TextField
+                                label="Status"
+                                value={statusFilter}
+                                onChange={e => setStatusFilter(e.target.value)}
+                                size="small" />
+                            <Button variant="contained" onClick={fetchTransactionsById}>
+                                Filtrar
+                            </Button>
+                        </Box>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1}}>
+                            <Button variant="outlined"  onClick={handleExportPdf}>Exportar PDF</Button>
+                            <Button variant="outlined" onClick={handleExportExcel}>Exportar Excel</Button>
+                        </Box>
                     </Stack>
                 </Paper>
 
-                {/* Tabela */}
                 {loading ? (<CircularProgress />) : (
                     <TableContainer component={Paper}>
                         <Table>
@@ -192,7 +240,7 @@ export default function AdminTransactionsPage() {
                                                     </>
                                                 )}
                                                 {tx.transactionStatus === 'COMPLETED' && (
-                                                    <Button size="small" onClick={() => handleAction(tx.id, reverseTransaction(tx.id))}>
+                                                    <Button size="small" onClick={() =>  reverseTransaction(tx.id)}>
                                                         Reembolsar
                                                     </Button>
                                                 )}

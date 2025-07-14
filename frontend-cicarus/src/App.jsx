@@ -9,6 +9,8 @@ import ExchangePage from './pages/ExchangePage.jsx';
 import CardManagementPage from "./pages/CardManagementPage.jsx";
 import LoanSimulationPage from "./pages/LoanSimulationPage.jsx";
 import LoanTrackingPage from "./pages/LoanTrackingPage.jsx";
+import AdminDashboardPage from './pages/AdminDashboardPage.jsx';
+import AdminRoute from './components/AdminRoute.jsx';
 
 function App() {
     return (
@@ -24,6 +26,14 @@ function App() {
                 <Route path="/loan" element={<LoanSimulationPage />} />
                 <Route path="/loan-tracking" element={<LoanTrackingPage />} />
                 <Route path="/user-card" element={<CardManagementPage />} />
+                <Route
+                    path="/admin/dashboard"
+                    element={
+                        <AdminRoute>
+                            <AdminDashboardPage />
+                        </AdminRoute>
+                    }
+                />
 
             </Routes>
         </AppTheme>

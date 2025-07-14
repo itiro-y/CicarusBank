@@ -18,6 +18,7 @@ import { Link } from 'react-router-dom';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 const useMocks = false;
+const accountId = 1;
 
 // Mock data
 const mockBalance = 12345.67;
@@ -44,7 +45,9 @@ function BalanceCard({ balance, loading }) {
                 <CircularProgress size={24} />
             ) : (
                 <Typography variant="h4" color="primary">
-                    {balance.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                    {balance != null
+                        ? balance.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                        : 'Carregando...'}
                 </Typography>
             )}
         </Paper>

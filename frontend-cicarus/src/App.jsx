@@ -11,6 +11,7 @@ import LoanSimulationPage from "./pages/LoanSimulationPage.jsx";
 import LoanTrackingPage from "./pages/LoanTrackingPage.jsx";
 import AdminDashboardPage from './pages/AdminDashboardPage.jsx';
 import AdminRoute from './components/AdminRoute.jsx';
+import NearbyAgenciesPage from './pages/NearbyAgenciesPage.jsx';
 
 function App() {
     return (
@@ -34,6 +35,7 @@ function App() {
                         </AdminRoute>
                     }
                 />
+                <Route path="/agencias" element={<NearbyAgenciesPage />} />
 
             </Routes>
         </AppTheme>

@@ -1,0 +1,99 @@
+package com.cicarus.benefits_service.entities;
+
+import jakarta.persistence.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+@Entity
+@Table(name = "benefits") // Nome da tabela no banco de dados
+public class Benefit {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true)
+    private String name;
+
+    @Column(nullable = false, length = 1000)
+    private String description;
+
+    @Enumerated(EnumType.STRING) // Armazena o nome da enumeração como String
+    @Column(nullable = false)
+    private BenefitType type; // Ex: CASHBACK, DISCOUNT, SERVICE
+
+    private BigDecimal value; // Ex: porcentagem de cashback, valor de desconto
+    private LocalDate validUntil; // Data de expiração do benefício
+
+    private boolean active; // Indica se o benefício está ativo ou inativo
+
+    public Benefit() {
+    }
+
+    public Benefit(Long id, String name, String description, BenefitType type, BigDecimal value, LocalDate validUntil, boolean active) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.type = type;
+        this.value = value;
+        this.validUntil = validUntil;
+        this.active = active;
+    }
+
+    // Getters e Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public BenefitType getType() {
+        return type;
+    }
+
+    public void setType(BenefitType type) {
+        this.type = type;
+    }
+
+    public BigDecimal getValue() {
+        return value;
+    }
+
+    public void setValue(BigDecimal value) {
+        this.value = value;
+    }
+
+    public LocalDate getValidUntil() {
+        return validUntil;
+    }
+
+    public void setValidUntil(LocalDate validUntil) {
+        this.validUntil = validUntil;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+}

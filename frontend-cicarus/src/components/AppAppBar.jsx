@@ -101,7 +101,7 @@ export default function AppAppBar() {
                 <StyledToolbar variant="dense" disableGutters>
                     <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', px: 0 }}>
                         <img
-                            src="https://i.postimg.cc/7PTgDFMq/b75972db-ce38-4634-a3f1-18f023cc50c7-removebg-preview.png"
+                            src="https://i.postimg.cc/13MB7w9d/download.png"
                             style={{ height: '80px', marginRight: '16px', cursor: 'pointer' }}
                             alt="CicarusBank logo"
                             onClick={() => navigate('/dashboard')}

@@ -200,6 +200,7 @@ public class LoanService {
                             i.setInterest(installment.getInterest());
                             i.setAmortization(installment.getAmortization());
                             i.setRemainingPrincipal(installment.getRemainingPrincipal());
+                            i.setDueDate(installment.getDueDate());
                             i.setPaid(installment.getPaid());
                             i.setPaidAt(installment.getPaidAt());
                             return i;

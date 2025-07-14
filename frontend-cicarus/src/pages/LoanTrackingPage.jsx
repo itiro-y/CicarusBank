@@ -91,7 +91,7 @@ export default function LoanTrackingPage() {
                         <Typography><strong>Valor:</strong> R$ {Number(inst.amount).toLocaleString('pt-BR')}</Typography>
                         <Typography><strong>Juros:</strong> R$ {Number(inst.interest).toLocaleString('pt-BR')}</Typography>
                         <Typography><strong>Amortização:</strong> R$ {Number(inst.amortization).toLocaleString('pt-BR')}</Typography>
-                        <Typography><strong>Vencimento:</strong> {inst.dueDate ? new Date(inst.dueDate).toLocaleDateString('pt-BR') : 'Não definido'}</Typography>
+                        <Typography><strong>Vencimento:</strong> {inst.dueDate ? new Date(`${inst.dueDate}T00:00`).toLocaleDateString('pt-BR') : 'Não definido'}</Typography>
                         <Typography><strong>Pago:</strong> {inst.paid ? 'Sim' : 'Não'}</Typography>
                         {inst.paidAt && (
                             <Typography><strong>Pago em:</strong> {new Date(inst.paidAt).toLocaleDateString('pt-BR')}</Typography>

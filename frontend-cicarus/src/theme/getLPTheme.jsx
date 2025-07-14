@@ -11,8 +11,8 @@ const getLPTheme = (mode) => ({
             dark: brand[700],
         },
         background: {
-            default: mode === 'light' ? gray[50] : '#111010', // Cor de fundo do body
-            paper: mode === 'light' ? '#fff' : '#282d34', // Cor de fundo dos cards
+            default: mode === 'light' ? '#fff' : '#111010', // Alterado de gray[50] para '#fff'
+            paper: mode === 'light' ? '#fff' : '#282d34',
         },
         text: {
             primary: mode === 'light' ? gray[900] : '#fff',

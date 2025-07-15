@@ -1,138 +1,240 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import {
-    Box, Container, Typography, Paper, Stack, Button, Collapse, Divider
+    Box, Container, Typography, Paper, Stack, Button, Collapse, Divider,
+    Chip, Tabs, Tab, CircularProgress, Alert, LinearProgress
 } from '@mui/material';
+import { motion, AnimatePresence } from 'framer-motion';
 import AppAppBar from '../components/AppAppBar';
+import Swal from 'sweetalert2';
+
+// Ícones
+import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import CancelIcon from '@mui/icons-material/Cancel';
+import PaidIcon from '@mui/icons-material/Paid';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import TodayIcon from '@mui/icons-material/Today';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
+// --- Componente para uma linha de parcela ---
+const InstallmentRow = ({ inst, onPay, loanStatus }) => (
+    <Paper
+        variant="outlined"
+        sx={{
+            p: 2,
+            mb: 1.5,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            borderRadius: '12px',
+            opacity: inst.paid ? 0.7 : 1,
+            transition: 'all 0.3s'
+        }}
+    >
+        <Stack direction="row" alignItems="center" spacing={2}>
+            {inst.paid ? <CheckCircleOutlineIcon color="success" /> : <HourglassEmptyIcon color="warning" />}
+            <Box>
+                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                    Parcela {inst.installmentNumber} - {Number(inst.amount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                    Vencimento: {new Date(inst.dueDate + 'T00:00').toLocaleDateString('pt-BR')}
+                    {inst.paidAt && ` | Pago em: ${new Date(inst.paidAt).toLocaleDateString('pt-BR')}`}
+                </Typography>
+            </Box>
+        </Stack>
+        {!inst.paid && loanStatus === 'APPROVED' && (
+            <Button variant="contained" size="small" onClick={onPay}>Pagar</Button>
+        )}
+    </Paper>
+);
+
+// --- Componente para o Card de Empréstimo ---
+const LoanCard = ({ loan, onPayInstallment }) => {
+    const [expanded, setExpanded] = useState(false);
+
+    const statusConfig = {
+        PENDING: { label: 'Em Análise', color: 'warning', icon: <HourglassEmptyIcon /> },
+        APPROVED: { label: 'Ativo', color: 'success', icon: <CheckCircleOutlineIcon /> },
+        REJECTED: { label: 'Rejeitado', color: 'error', icon: <CancelIcon /> },
+        PAID_OFF: { label: 'Quitado', color: 'info', icon: <PaidIcon /> },
+    };
+
+    const currentStatus = loan.status === 'APPROVED' && loan.installments.every(i => i.paid)
+        ? 'PAID_OFF'
+        : loan.status;
+
+    const paidInstallments = loan.installments.filter(i => i.paid).length;
+    const progress = (paidInstallments / loan.termMonths) * 100;
+
+    return (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+            <Paper sx={{ p: 2, mb: 3, borderRadius: '16px', overflow: 'hidden' }}>
+                <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems="flex-start" spacing={2}>
+                    <Box>
+                        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                            Proposta de Empréstimo #{loan.id}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" gutterBottom>
+                            Solicitado em: {new Date(loan.createdAt).toLocaleDateString('pt-BR')}
+                        </Typography>
+                        <Chip
+                            icon={statusConfig[currentStatus].icon}
+                            label={statusConfig[currentStatus].label}
+                            color={statusConfig[currentStatus].color}
+                            size="small"
+                        />
+                    </Box>
+                    <Stack direction="row" spacing={3} sx={{ mt: { xs: 2, sm: 0 } }}>
+                        <Box textAlign="center">
+                            <Typography variant="caption" color="text.secondary">Valor Contratado</Typography>
+                            <Typography sx={{ fontWeight: 'bold' }}>{Number(loan.principal).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</Typography>
+                        </Box>
+                        <Box textAlign="center">
+                            <Typography variant="caption" color="text.secondary">Parcelas</Typography>
+                            <Typography sx={{ fontWeight: 'bold' }}>{loan.termMonths}x</Typography>
+                        </Box>
+                    </Stack>
+                </Stack>
+
+                {currentStatus === 'Ativo' && (
+                    <Box sx={{ mt: 2 }}>
+                        <LinearProgress variant="determinate" value={progress} />
+                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'right', mt: 0.5 }}>
+                            {paidInstallments} de {loan.termMonths} pagas
+                        </Typography>
+                    </Box>
+                )}
+
+                <Divider sx={{ my: 2 }} />
+
+                <Button
+                    fullWidth
+                    variant="text"
+                    onClick={() => setExpanded(!expanded)}
+                    endIcon={expanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                >
+                    {expanded ? 'Ocultar Detalhes' : 'Ver Detalhes e Parcelas'}
+                </Button>
+
+                <Collapse in={expanded} timeout="auto" unmountOnExit>
+                    <Box sx={{ p: 2, pt: 2, bgcolor: 'action.hover', borderRadius: '12px', mt: 1 }}>
+                        <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 'bold' }}>Parcelas</Typography>
+                        {loan.installments.length > 0 ? (
+                            loan.installments.map((inst, idx) => (
+                                <InstallmentRow
+                                    key={idx}
+                                    inst={inst}
+                                    loanStatus={loan.status}
+                                    onPay={() => onPayInstallment(loan.id, inst.installmentNumber)}
+                                />
+                            ))
+                        ) : (
+                            <Typography variant="body2" color="text.secondary">Nenhuma parcela a ser exibida.</Typography>
+                        )}
+                    </Box>
+                </Collapse>
+            </Paper>
+        </motion.div>
+    );
+};
+
+// --- Página Principal ---
 export default function LoanTrackingPage() {
     const [loans, setLoans] = useState([]);
-    const [expandedLoanId, setExpandedLoanId] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState(0);
 
-    const customerId = 1; // Id do cliente
+    const customerId = 1;
+
+    const fetchLoans = async () => {
+        setLoading(true);
+        try {
+            const res = await fetch(`${API_URL}/loan/client/${customerId}`, {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+            });
+            const data = await res.json();
+            setLoans(data);
+        } catch (err) {
+            console.error('Erro ao buscar empréstimos:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         fetchLoans();
     }, []);
 
-    const fetchLoans = () => {
-        fetch(`${API_URL}/loan/client/${customerId}`, {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`
-            }
-        })
-            .then(res => res.json())
-            .then(data => setLoans(data))
-            .catch(err => console.error('Erro ao buscar empréstimos:', err));
-    };
-
     const handlePagarParcela = async (loanId, installmentNumber) => {
         try {
-            await axios.post(
-                `${API_URL}/loan/${loanId}/installment/${installmentNumber}/pay?userId=${customerId}`,
-                null, // corpo da requisição é nulo
-            );
-            await fetchLoans(); // atualiza a tela após pagamento
+            await axios.post(`${API_URL}/loan/${loanId}/installment/${installmentNumber}/pay?userId=${customerId}`);
+            Swal.fire('Sucesso!', 'Pagamento da parcela realizado com sucesso.', 'success');
+            fetchLoans();
         } catch (error) {
             console.error("Erro ao pagar parcela:", error);
-            alert("Erro ao realizar o pagamento da parcela.");
+            Swal.fire('Erro!', 'Não foi possível realizar o pagamento.', 'error');
         }
     };
 
-    const groupedLoans = {
-        PENDING: [],
-        APPROVED: [],
-        REJECTED: [],
-    };
-
-    loans.forEach(loan => {
-        groupedLoans[loan.status]?.push(loan);
-    });
-
-    const toggleInstallments = (loanId) => {
-        setExpandedLoanId(prev => (prev === loanId ? null : loanId));
-    };
-
-    const renderLoan = (loan) => (
-        <Paper key={loan.id} sx={{ p: 2, mb: 2 }}>
-            <Typography variant="subtitle1"><strong>ID:</strong> {loan.id}</Typography>
-            <Typography><strong>Valor:</strong> R$ {Number(loan.principal).toLocaleString('pt-BR')}</Typography>
-            <Typography><strong>Parcelas:</strong> {loan.termMonths}</Typography>
-            <Typography><strong>Juros:</strong> {(loan.interestRate * 100).toFixed(2)}%</Typography>
-            <Typography><strong>Status:</strong> {loan.status}</Typography>
-            <Typography><strong>Criado em:</strong> {new Date(loan.createdAt).toLocaleString('pt-BR')}</Typography>
-
-            <Button
-                sx={{ mt: 1 }}
-                variant="outlined"
-                onClick={() => toggleInstallments(loan.id)}
-            >
-                {expandedLoanId === loan.id ? 'Ocultar Parcelas' : 'Visualizar Parcelas'}
-            </Button>
-
-            <Collapse in={expandedLoanId === loan.id} timeout="auto" unmountOnExit>
-                <Divider sx={{ my: 2 }} />
-                <Typography variant="subtitle2" gutterBottom>Parcelas</Typography>
-                {loan.installments?.map((inst, idx) => (
-                    <Paper
-                        key={idx}
-                        sx={{
-                            p: 1,
-                            mb: 1,
-                            backgroundColor: inst.paid ? '#2e7d32' : '#1e1e1e', // verde se pago, escuro se não
-                            color: '#fff',
-                            borderRadius: 2,
-                            boxShadow: 1,
-                        }}
-                    >
-                        <Typography><strong>Parcela:</strong> {inst.installmentNumber}</Typography>
-                        <Typography><strong>Valor:</strong> R$ {Number(inst.amount).toLocaleString('pt-BR')}</Typography>
-                        <Typography><strong>Juros:</strong> R$ {Number(inst.interest).toLocaleString('pt-BR')}</Typography>
-                        <Typography><strong>Amortização:</strong> R$ {Number(inst.amortization).toLocaleString('pt-BR')}</Typography>
-                        <Typography><strong>Vencimento:</strong> {inst.dueDate ? new Date(`${inst.dueDate}T00:00`).toLocaleDateString('pt-BR') : 'Não definido'}</Typography>
-                        <Typography><strong>Pago:</strong> {inst.paid ? 'Sim' : 'Não'}</Typography>
-                        {inst.paidAt && (
-                            <Typography><strong>Pago em:</strong> {new Date(inst.paidAt).toLocaleDateString('pt-BR')}</Typography>
-                        )}
-
-                        {!inst.paid && loan.status === 'APPROVED' && (
-                            <Button
-                                variant="contained"
-                                color="secondary"
-                                sx={{ mt: 1 }}
-                                onClick={() => handlePagarParcela(loan.id, inst.installmentNumber)}
-                            >
-                                Realizar Pagamento
-                            </Button>
-                        )}
-                    </Paper>
-                ))}
-            </Collapse>
-        </Paper>
-    );
+    const filteredLoans = useMemo(() => {
+        const isPaidOff = (loan) => loan.installments.every(i => i.paid);
+        switch (activeTab) {
+            case 0: // Em Análise
+                return loans.filter(loan => loan.status === 'PENDING');
+            case 1: // Ativos
+                return loans.filter(loan => loan.status === 'APPROVED' && !isPaidOff(loan));
+            case 2: // Histórico
+                return loans.filter(loan => loan.status === 'REJECTED' || (loan.status === 'APPROVED' && isPaidOff(loan)));
+            default:
+                return [];
+        }
+    }, [loans, activeTab]);
 
     return (
         <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
             <AppAppBar title="Acompanhamento de Empréstimos" />
-            <Container maxWidth="md" sx={{ py: 4, pt: 16 }}>
-                <Typography variant="h4" gutterBottom>
+            <Container maxWidth="md" sx={{ pt: 14, pb: 4 }}>
+                <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1 }}>
                     Seus Empréstimos
                 </Typography>
+                <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+                    Acompanhe o status, visualize as parcelas e gerencie seus pagamentos.
+                </Typography>
 
-                {['PENDING', 'APPROVED', 'REJECTED'].map(status => (
-                    groupedLoans[status].length > 0 && (
-                        <Box key={status} sx={{ mb: 4 }}>
-                            <Typography variant="h6" sx={{ mb: 2 }}>
-                                {status === 'PENDING' && 'Em Análise'}
-                                {status === 'APPROVED' && 'Aprovados'}
-                                {status === 'REJECTED' && 'Rejeitados'}
-                            </Typography>
-                            {groupedLoans[status].map(renderLoan)}
-                        </Box>
-                    )
-                ))}
+                <Paper sx={{ position: 'sticky', top: 80, zIndex: 10, mb: 3 }}>
+                    <Tabs
+                        value={activeTab}
+                        onChange={(e, newValue) => setActiveTab(newValue)}
+                        indicatorColor="primary"
+                        textColor="primary"
+                        variant="fullWidth"
+                    >
+                        <Tab icon={<HourglassEmptyIcon />} iconPosition="start" label="Em Análise" />
+                        <Tab icon={<ReceiptLongIcon />} iconPosition="start" label="Ativos" />
+                        <Tab icon={<TodayIcon />} iconPosition="start" label="Histórico" />
+                    </Tabs>
+                </Paper>
+
+                {loading ? (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}><CircularProgress /></Box>
+                ) : (
+                    <AnimatePresence>
+                        {filteredLoans.length > 0 ? (
+                            filteredLoans.map(loan => (
+                                <LoanCard key={loan.id} loan={loan} onPayInstallment={handlePagarParcela} />
+                            ))
+                        ) : (
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+                                <Alert severity="info" sx={{ mt: 3 }}>Nenhum empréstimo encontrado nesta categoria.</Alert>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                )}
             </Container>
         </Box>
     );

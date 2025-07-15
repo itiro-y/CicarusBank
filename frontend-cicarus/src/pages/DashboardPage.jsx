@@ -239,17 +239,34 @@ const CreditCardComponent = () => {
 };
 
 const CardManagementActions = () => {
+    const navigate = useNavigate();
+
     const actions = [
         { label: "Ver Fatura", icon: <Article /> },
         { label: "Ajustar Limite", icon: <Tune /> },
         { label: "Bloquear Cartão", icon: <Lock /> },
-        { label: "Cartão Virtual", icon: <AddCard /> },
+        { label: "Cartão Virtual", icon: <AddCard />, path: '/virtual-card' },
     ];
+
     return (
         <Paper elevation={0} sx={{p:2, borderRadius: '16px', backgroundColor: 'background.paper', border: '1px solid', borderColor: 'divider', maxWidth: 400, mx: 'auto'}}>
             <Stack divider={<Divider flexItem />}>
                 {actions.map(action => (
-                    <Button key={action.label} startIcon={action.icon} sx={{ justifyContent: 'flex-start', p: 1.5, color: 'text.primary', textTransform: 'none' }}>
+                    <Button
+                        key={action.label}
+                        startIcon={action.icon}
+                        onClick={() => {
+                            if (action.path) {
+                                navigate(action.path);
+                            }
+                        }}
+                        sx={{
+                            justifyContent: 'flex-start',
+                            p: 1.5,
+                            color: 'text.primary',
+                            textTransform: 'none'
+                        }}
+                    >
                         {action.label}
                     </Button>
                 ))}

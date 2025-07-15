@@ -14,6 +14,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import ColorModeIconDropdown from '../theme/ColorModeIconDropdown.jsx';
 import Swal from 'sweetalert2'; // Importação do SweetAlert2
+import NotificationBell from './NotificationBell.jsx';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
     display: 'flex',
@@ -122,6 +123,7 @@ export default function AppAppBar() {
                             alignItems: 'center',
                         }}
                     >
+                        <NotificationBell />
                         <Button component={Link} to="/profile" color="primary" variant="text" size="small">
                             Perfil
                         </Button>
@@ -132,6 +134,7 @@ export default function AppAppBar() {
                         <ColorModeIconDropdown />
                     </Box>
                     <Box sx={{ display: { xs: 'flex', md: 'none' }, gap: 1 }}>
+                        <NotificationBell />
                         <ColorModeIconDropdown />
                         <IconButton aria-label="Menu button" onClick={toggleDrawer(true)}>
                             <MenuIcon />

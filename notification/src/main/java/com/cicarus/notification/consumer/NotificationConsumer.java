@@ -1,11 +1,9 @@
 package com.cicarus.notification.consumer;
 
-import com.cicarus.notification.dto.DepositNotificationDto;
-import com.cicarus.notification.dto.NotificationDto;
-import com.cicarus.notification.dto.TranferenceNotificationDto;
-import com.cicarus.notification.dto.WithdrawalNotificationDto;
+import com.cicarus.notification.dto.*;
 import com.cicarus.notification.service.EmailBodyService;
-import com.cicarus.notification.service.NotificationService;
+import com.cicarus.notification.service.EmailNotificationService;
+import com.cicarus.notification.service.WebSocketNotificationService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -15,13 +13,15 @@ import org.springframework.stereotype.Component;
 public class NotificationConsumer {
 
     private final ObjectMapper objectMapper;
-    private final NotificationService notificationService;
+    private final EmailNotificationService emailNotificationService;
     private final EmailBodyService emailBodyService;
+    private final WebSocketNotificationService webSocketNotificationService;
 
-    public NotificationConsumer(ObjectMapper objectMapper, NotificationService notificationService,  EmailBodyService emailBodyService) {
+    public NotificationConsumer(ObjectMapper objectMapper, EmailNotificationService emailNotificationService, EmailBodyService emailBodyService, WebSocketNotificationService webSocketNotificationService) {
         this.objectMapper = objectMapper;
-        this.notificationService = notificationService;
+        this.emailNotificationService = emailNotificationService;
         this.emailBodyService = emailBodyService;
+        this.webSocketNotificationService = webSocketNotificationService;
     }
 
     @KafkaListener(topics = "transaction-topic", groupId = "notification-test", containerFactory = "kafkaListenerContainerFactory")
@@ -32,7 +32,7 @@ public class NotificationConsumer {
             JsonNode root = objectMapper.readTree(mensagemJson);
             JsonNode typeNode = root.get("type");
             if (typeNode == null || typeNode.isNull()) {
-                System.err.println("❌ Campo 'type' ausente no JSON.");
+                System.err.println("Campo 'type' ausente no JSON.");
                 return;
             }
             String tipo = typeNode.asText();
@@ -40,27 +40,60 @@ public class NotificationConsumer {
             switch (tipo) {
                 case "deposit":
                     DepositNotificationDto dto = objectMapper.treeToValue(root, DepositNotificationDto.class);
-                    dto.setBody(emailBodyService.generateDepositBody(dto));
 
-                    NotificationDto notificationDto = new NotificationDto(dto);
+                    //Encaminhamento para envio via email
+                    try {
+                        emailNotificationService.processNotification(dto);
+                    } catch (Exception e) {
+                        System.out.println("Erro ao enviar e-mail: {" + e.getMessage() +"}");
+                    }
 
-                    notificationService.processNotification(notificationDto);
+
+                    // Enviar notificação WebSocket
+                    try {
+                        webSocketNotificationService.processNotification(dto);
+                    } catch (Exception e) {
+                        System.out.println("Erro ao enviar notificação in-app: {" + e.getMessage() +"}");
+                    }
+
                     break;
                 case "tranference":
                     TranferenceNotificationDto dto2 = objectMapper.treeToValue(root, TranferenceNotificationDto.class);
-                    dto2.setBody(emailBodyService.generateTranferenceBody(dto2));
 
-                    NotificationDto notificationDto2 = new NotificationDto(dto2);
+                    //Encaminhamento para envio via email
+                    try {
+                        emailNotificationService.processNotification(dto2);
+                    } catch (Exception e) {
+                        System.out.println("Erro ao enviar e-mail: {" + e.getMessage() +"}");
+                    }
 
-                    notificationService.processNotification(notificationDto2);
+
+                    // Enviar notificação WebSocket
+                    try {
+                        webSocketNotificationService.processNotification(dto2);
+                    } catch (Exception e) {
+                        System.out.println("Erro ao enviar notificação in-app: {" + e.getMessage() +"}");
+                    }
+
                     break;
                 case "withdrawal":
                     WithdrawalNotificationDto dto3 = objectMapper.treeToValue(root, WithdrawalNotificationDto.class);
-                    dto3.setBody(emailBodyService.generateWithdrawalBody(dto3));
 
-                    NotificationDto notificationDto3 = new NotificationDto(dto3);
+                    //Encaminhamento para envio via email
+                    try {
+                        emailNotificationService.processNotification(dto3);
+                    } catch (Exception e) {
+                        System.out.println("Erro ao enviar e-mail: {" + e.getMessage() +"}");
+                    }
 
-                    notificationService.processNotification(notificationDto3);
+
+                    // Enviar notificação WebSocket
+                    try {
+                        webSocketNotificationService.processNotification(dto3);
+                    } catch (Exception e) {
+                        System.out.println("Erro ao enviar notificação in-app: {" + e.getMessage() +"}");
+                    }
+
                     break;
                 default:
                     System.out.println("ERRO: Tipo invalido");

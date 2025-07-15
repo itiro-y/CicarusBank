@@ -21,6 +21,7 @@
         <module>currency-exchange</module>
         <module>card</module>
         <module>statement-service</module>
+        <module>investment</module>
     </modules>
 
 </project>

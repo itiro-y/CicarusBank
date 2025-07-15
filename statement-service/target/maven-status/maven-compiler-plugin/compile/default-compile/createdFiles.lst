@@ -1,0 +1,15 @@
+com/sicarus/statement_service/config/OpenApiConfiguration.class
+com/sicarus/statement_service/model/StatementStatus.class
+com/sicarus/statement_service/dtos/StatementDto.class
+com/sicarus/statement_service/repository/StatementRepository.class
+com/sicarus/statement_service/StatementServiceStartup.class
+com/sicarus/statement_service/dtos/StatementRequestDto.class
+com/sicarus/statement_service/controller/StatementController.class
+com/sicarus/statement_service/service/StatementService.class
+com/sicarus/statement_service/model/StatementFormat.class
+com/sicarus/statement_service/dtos/TransactionStatus.class
+com/sicarus/statement_service/dtos/TransactionType.class
+com/sicarus/statement_service/dtos/TransactionDto.class
+com/sicarus/statement_service/clients/TransactionClient.class
+com/sicarus/statement_service/service/StatementExportService.class
+com/sicarus/statement_service/model/Statement.class

@@ -71,7 +71,12 @@ public class WebSocketNotificationService {
 
     public void sendNotificationToUser(Long userId, NotificationMessageDto dto) {
         // Rota que o front deve se inscrever: /topic/notifications/{userId}
-        messagingTemplate.convertAndSend("/topic/notifications/" + userId, dto);
+        messagingTemplate.convertAndSendToUser(
+                userId.toString(),             // identifica o usuário
+                "/queue/notification",       // destino que o usuário vai escutar
+                dto                            // mensagem
+        );
+//        messagingTemplate.convertAndSend("/topic/notification/" + userId, dto);
     }
 
     public List<NotificationMessageDto> listAllByUserId(Long userId) {

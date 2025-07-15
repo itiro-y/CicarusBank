@@ -7,6 +7,7 @@ import com.cicarus.notification.service.WebSocketNotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,10 +19,12 @@ public class NotificationController {
 
     private final EmailRepository emailRepository;
     private final WebSocketNotificationService notificationService;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public NotificationController(EmailRepository repository, WebSocketNotificationService notificationService) {
+    public NotificationController(EmailRepository repository, WebSocketNotificationService notificationService, SimpMessagingTemplate messagingTemplate) {
         this.emailRepository = repository;
         this.notificationService = notificationService;
+        this.messagingTemplate = messagingTemplate;
     }
 
     @Operation(summary = "Get that returns a customer by its ID")
@@ -36,10 +39,19 @@ public class NotificationController {
         return "Hello from notification ms!";
     }
 
-    @GetMapping("/ws/{userId}")
+    @GetMapping("/websocket/{userId}")
     public ResponseEntity<List<NotificationMessageDto>> getAllByUser(@PathVariable Long userId) {
         List<NotificationMessageDto> notifications = notificationService.listAllByUserId(userId);
         return ResponseEntity.ok(notifications);
+    }
+
+    @PostMapping("/send/{userId}")
+    public void sendNotification(@PathVariable Long userId, @RequestBody NotificationMessageDto dto) {
+        messagingTemplate.convertAndSendToUser(
+                userId.toString(),
+                "/queue/notifications",
+                dto
+        );
     }
 
     @GetMapping("/ping")

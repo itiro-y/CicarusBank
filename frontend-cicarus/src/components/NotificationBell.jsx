@@ -1,4 +1,7 @@
+import './setupGlobals';
 import React, { useState, useEffect } from 'react';
+import SockJS from 'sockjs-client';
+import { Client } from '@stomp/stompjs';
 import {
     Box, IconButton, Badge, Menu, List, ListItem, ListItemIcon, ListItemText,
     Avatar, Typography, Divider, Button, Dialog, DialogTitle, DialogContent,
@@ -10,48 +13,48 @@ import {
 } from '@mui/icons-material';
 
 // --- Mock Data ---
-const mockNotifications = [
-    {
-        id: 1,
-        type: 'transfer_received',
-        title: 'Transferência Recebida',
-        shortDescription: 'Você recebeu R$ 500,00 de João Silva.',
-        fullDescription: 'A transferência de R$ 500,00 enviada por João Silva (CPF ***.123.456-**) foi creditada em sua conta corrente com sucesso.',
-        image: 'https://i.postimg.cc/8PpsdBFy/5cc7a884-24a1-4235-857e-1206f3e1f08e.jpg',
-        timestamp: new Date(Date.now() - 1000 * 60 * 5), // 5 minutes ago
-        read: false,
-    },
-    {
-        id: 2,
-        type: 'loan_approved',
-        title: 'Empréstimo Aprovado!',
-        shortDescription: 'Sua solicitação de empréstimo foi aprovada.',
-        fullDescription: 'Parabéns! Sua solicitação de empréstimo no valor de R$ 5.000,00 foi aprovada. O valor estará disponível em sua conta em até 24 horas. Acesse a área de empréstimos para mais detalhes.',
-        image: 'https://i.postimg.cc/4NZrFh9R/14bcbf74-1ca1-4f50-ac3d-58bf3b90140e.jpg',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-        read: false,
-    },
-    {
-        id: 3,
-        type: 'promotion',
-        title: 'Invista e Ganhe!',
-        shortDescription: 'Novos fundos de investimento disponíveis.',
-        fullDescription: 'Não perca a chance de fazer seu dinheiro render! Conheça nossos novos fundos de investimento com rentabilidade de até 15% a.a. Fale com seu gerente ou invista diretamente pelo app.',
-        image: 'https://i.postimg.cc/L5nKvcWQ/7dfab5c1-8a75-4a2f-bfee-49f81bf985c4.jpg',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-        read: true,
-    },
-    {
-        id: 4,
-        type: 'security_alert',
-        title: 'Alerta de Segurança',
-        shortDescription: 'Um novo dispositivo foi conectado à sua conta.',
-        fullDescription: 'Um novo dispositivo (Chrome em Windows 10) foi autorizado a acessar sua conta. Se não foi você, por favor, altere sua senha imediatamente e entre em contato conosco.',
-        image: 'https://i.postimg.cc/3xz1VPc0/31060b73-d7fc-424f-b4f1-7409a41e1ea8.jpg',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48), // 2 days ago
-        read: true,
-    },
-];
+// const mockNotifications = [
+//     {
+//         id: 1,
+//         type: 'transfer_received',
+//         title: 'Transferência Recebida',
+//         shortDescription: 'Você recebeu R$ 500,00 de João Silva.',
+//         fullDescription: 'A transferência de R$ 500,00 enviada por João Silva (CPF ***.123.456-**) foi creditada em sua conta corrente com sucesso.',
+//         image: 'https://i.postimg.cc/8PpsdBFy/5cc7a884-24a1-4235-857e-1206f3e1f08e.jpg',
+//         timestamp: new Date(Date.now() - 1000 * 60 * 5), // 5 minutes ago
+//         read: false,
+//     },
+//     {
+//         id: 2,
+//         type: 'loan_approved',
+//         title: 'Empréstimo Aprovado!',
+//         shortDescription: 'Sua solicitação de empréstimo foi aprovada.',
+//         fullDescription: 'Parabéns! Sua solicitação de empréstimo no valor de R$ 5.000,00 foi aprovada. O valor estará disponível em sua conta em até 24 horas. Acesse a área de empréstimos para mais detalhes.',
+//         image: 'https://i.postimg.cc/4NZrFh9R/14bcbf74-1ca1-4f50-ac3d-58bf3b90140e.jpg',
+//         timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
+//         read: false,
+//     },
+//     {
+//         id: 3,
+//         type: 'promotion',
+//         title: 'Invista e Ganhe!',
+//         shortDescription: 'Novos fundos de investimento disponíveis.',
+//         fullDescription: 'Não perca a chance de fazer seu dinheiro render! Conheça nossos novos fundos de investimento com rentabilidade de até 15% a.a. Fale com seu gerente ou invista diretamente pelo app.',
+//         image: 'https://i.postimg.cc/L5nKvcWQ/7dfab5c1-8a75-4a2f-bfee-49f81bf985c4.jpg',
+//         timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
+//         read: true,
+//     },
+//     {
+//         id: 4,
+//         type: 'security_alert',
+//         title: 'Alerta de Segurança',
+//         shortDescription: 'Um novo dispositivo foi conectado à sua conta.',
+//         fullDescription: 'Um novo dispositivo (Chrome em Windows 10) foi autorizado a acessar sua conta. Se não foi você, por favor, altere sua senha imediatamente e entre em contato conosco.',
+//         image: 'https://i.postimg.cc/3xz1VPc0/31060b73-d7fc-424f-b4f1-7409a41e1ea8.jpg',
+//         timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48), // 2 days ago
+//         read: true,
+//     },
+// ];
 
 // --- Animação ---
 const ring = keyframes`
@@ -85,7 +88,13 @@ const getNotificationIcon = (type) => {
 };
 
 export default function NotificationBell() {
-    const [notifications, setNotifications] = useState(mockNotifications);
+    const API_URL = import.meta.env.VITE_API_URL || '';
+
+    //Posteriormente capturar o userId dinamicamente
+    const userId = 1;
+
+    // const [notifications, setNotifications] = useState(mockNotifications);
+    const [notifications, setNotifications] = useState([]);
     const [anchorEl, setAnchorEl] = useState(null);
     const [selectedNotification, setSelectedNotification] = useState(null);
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -102,14 +111,58 @@ export default function NotificationBell() {
     };
 
     // Mark all as read when menu is opened
+    // useEffect(() => {
+    //     if (open) {
+    //         const timeout = setTimeout(() => {
+    //             setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    //         }, 2000); // delay to show the unread status for a moment
+    //         return () => clearTimeout(timeout);
+    //     }
+    // }, [open])
+
+
+    // Carrega notificações do banco ao montar o componente
+    const fetchNotifications = async () => {
+        try {
+            const response = await fetch(`${API_URL}/notification/websocket/${userId}`);
+            const data = await response.json();
+            setNotifications(data);
+        } catch (error) {
+            console.error("Erro ao buscar notificações:", error);
+        }
+    };
+
+    // Conecta ao WebSocket e ouve notificações em tempo real
+    const connectWebSocket = () => {
+        const socket = new SockJS(`${API_URL}/notification/ws?userId=${userId}`);
+        const stompClient = new Client({
+            webSocketFactory: () => socket,
+            onConnect: () => {
+                stompClient.subscribe(`/user/queue/notifications`, (message) => {
+                    const newNotification = JSON.parse(message.body);
+                    setNotifications((prev) => [newNotification, ...prev]);
+                });
+            },
+            onStompError: (frame) => {
+                console.error("Erro no WebSocket:", frame);
+            }
+        });
+        stompClient.activate();
+    };
+
+    useEffect(() => {
+        fetchNotifications();
+        connectWebSocket();
+    }, [userId]);
+
     useEffect(() => {
         if (open) {
             const timeout = setTimeout(() => {
                 setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-            }, 2000); // delay to show the unread status for a moment
+            }, 2000);
             return () => clearTimeout(timeout);
         }
-    }, [open])
+    }, [open]);
 
 
     const handleNotificationClick = (notification) => {

@@ -72,6 +72,17 @@ services:
     volumes:
       - customer-data:/var/lib/mysql
 
+  mysql-benefits:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_DATABASE: benefits_db
+    ports:
+        - "3316:3306"
+    volumes:
+        - benefits-data:/var/lib/mysql
+
   mysql-loan:
     image: mysql:8.0
     restart: always
@@ -185,6 +196,18 @@ services:
       - mysql-customer
       - naming-server
 
+  benefits-service:
+    build:
+      context: ./benefits-service
+    ports:
+      - "8800:8800"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-benefits:3306/benefits_db
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
+    depends_on:
+      - mysql-benefits
+      - naming-server
+
   loan-service:
     build:
       context: ./loan-service
@@ -291,3 +314,4 @@ volumes:
   card-data:
   statement-data:
   investment-data:
+  benefits-data:

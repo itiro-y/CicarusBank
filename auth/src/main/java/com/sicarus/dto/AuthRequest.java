@@ -23,7 +23,7 @@ public class AuthRequest {
         return password;
     }
 
-    public void void setPassword(String password) {
+    public void setPassword(String password) {
         this.password = password;
     }
 }

@@ -12,6 +12,7 @@ import LoanTrackingPage from "./pages/LoanTrackingPage.jsx";
 import AdminDashboardPage from './pages/AdminDashboardPage.jsx';
 import AdminRoute from './components/AdminRoute.jsx';
 import NearbyAgenciesPage from './pages/NearbyAgenciesPage.jsx';
+import BenefitsPage from './pages/BenefitsPage.jsx'; // <--- ADICIONE ESTA LINHA: Importa a nova página de Benefícios
 
 function App() {
     return (
@@ -22,11 +23,13 @@ function App() {
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/user-transactions" element={<UserTransactionsPage />} />
                 <Route path="/admin-transactions" element={<AdminTransactionsPage />} />
-                <Route path="/profile" element={<ProfilePage />} /> {/* Nova rota adicionada */}
+                <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/exchange" element={<ExchangePage />} />
                 <Route path="/loan" element={<LoanSimulationPage />} />
                 <Route path="/loan-tracking" element={<LoanTrackingPage />} />
                 <Route path="/user-card" element={<CardManagementPage />} />
+                {/* <--- ADICIONE ESTA NOVA ROTA PARA BENEFÍCIOS */}
+                <Route path="/benefits" element={<BenefitsPage />} />
                 <Route
                     path="/admin/dashboard"
                     element={

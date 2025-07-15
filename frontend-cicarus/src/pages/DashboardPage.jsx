@@ -14,6 +14,7 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'rec
 import AppAppBar from '../components/AppAppBar.jsx';
 import ChatAssistant from '../components/ChatAssistant.jsx';
 import PromotionalCarousel from '../components/PromotionalCarousel.jsx';
+import {useEffect, useState} from "react";
 
 // --- DADOS MOCK E API URL ---
 const userData = { name: "Admin", avatar: "https://i.pravatar.cc/150?u=admin" };
@@ -29,6 +30,8 @@ const balanceHistory = [
 ];
 const API_URL = import.meta.env.VITE_API_URL || '';
 
+
+
 // --- COMPONENTES DO DASHBOARD ---
 const WelcomeHeader = () => (
     <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
@@ -42,15 +45,20 @@ const WelcomeHeader = () => (
     </motion.div>
 );
 
-const BalanceCard = () => {
+const BalanceCard = ({ balance, loading }) => {
     const [showBalance, setShowBalance] = React.useState(true);
+
     return (
         <Paper elevation={0} sx={{ p: 3, borderRadius: '16px', backgroundColor: 'background.paper', border: '1px solid', borderColor: 'divider', height: '100%' }}>
             <Typography variant="subtitle1" sx={{ color: 'text.secondary', mb: 1 }}>Saldo em Conta Corrente</Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Typography variant="h3" component="p" sx={{ fontWeight: 'bold' }}>
-                    {showBalance ? `R$ ${accountData.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'R$ ••••••'}
-                </Typography>
+                {loading ? (
+                    <Skeleton variant="text" width={180} height={40} />
+                ) : (
+                    <Typography variant="h3" component="p" sx={{ fontWeight: 'bold' }}>
+                        {showBalance ? `R$ ${balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'R$ ••••••'}
+                    </Typography>
+                )}
                 <IconButton onClick={() => setShowBalance(!showBalance)} size="small" sx={{color: 'text.secondary'}}>
                     {showBalance ? <VisibilityOff /> : <Visibility />}
                 </IconButton>
@@ -233,53 +241,129 @@ const CardManagementActions = () => {
     );
 };
 
-const RecentTransactions = () => (
+const RecentTransactions = ({ transactions, loading }) => (
     <Paper elevation={0} sx={{ p: 3, borderRadius: '16px', backgroundColor: 'background.paper', border: '1px solid', borderColor: 'divider', height: '100%' }}>
         <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>Últimas Transações</Typography>
-        <List disablePadding>
-            {recentTransactions.map((tx, index) => (
-                <React.Fragment key={tx.id}>
-                    <ListItem disablePadding sx={{py: 1}}>
-                        <ListItemAvatar>
-                            <Avatar sx={{ bgcolor: 'action.hover' }}>{tx.icon}</Avatar>
-                        </ListItemAvatar>
-                        <ListItemText primaryTypographyProps={{ fontWeight: 'medium' }} primary={tx.store} secondary={tx.type} />
-                        <Typography variant="body1" sx={{ fontWeight: 'bold', color: tx.amount > 0 ? 'success.main' : 'error.main' }}>
-                            {tx.amount > 0 ? '+' : '-'} R$ {Math.abs(tx.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                        </Typography>
-                    </ListItem>
-                    {index < recentTransactions.length - 1 && <Divider />}
-                </React.Fragment>
-            ))}
-        </List>
+
+        {loading ? (
+            <Skeleton variant="rectangular" height={150} />
+        ) : (
+            <List disablePadding>
+                {transactions.map((tx, index) => (
+                    <React.Fragment key={tx.id}>
+                        <ListItem disablePadding sx={{ py: 1 }}>
+                            <ListItemAvatar>
+                                <Avatar sx={{ bgcolor: 'action.hover' }}>{tx.icon}</Avatar>
+                            </ListItemAvatar>
+                            <ListItemText primaryTypographyProps={{ fontWeight: 'medium' }} primary={tx.store} secondary={tx.type} />
+                            <Typography variant="body1" sx={{ fontWeight: 'bold', color: tx.amount > 0 ? 'success.main' : 'error.main' }}>
+                                {tx.amount > 0 ? '+' : '-'} R$ {Math.abs(tx.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </Typography>
+                        </ListItem>
+                        {index < transactions.length - 1 && <Divider />}
+                    </React.Fragment>
+                ))}
+            </List>
+        )}
     </Paper>
 );
 
-const BalanceChart = () => {
+const BalanceChart = ({ history, loading }) => {
     const theme = useTheme();
+
     return (
-        <Paper elevation={0} sx={{p: 3, borderRadius: '16px', backgroundColor: 'background.paper', border: '1px solid', borderColor: 'divider', height: 250 }}>
+        <Paper elevation={0} sx={{ p: 3, borderRadius: '16px', backgroundColor: 'background.paper', border: '1px solid', borderColor: 'divider', height: 250 }}>
             <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>Evolução do Saldo</Typography>
-            <ResponsiveContainer width="100%" height="85%">
-                <AreaChart data={balanceHistory} margin={{ top: 10, right: 20, left: -20, bottom: 0 }}>
-                    <defs>
-                        <linearGradient id="colorSaldo" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor={theme.palette.primary.main} stopOpacity={0.4}/>
-                            <stop offset="95%" stopColor={theme.palette.primary.main} stopOpacity={0}/>
-                        </linearGradient>
-                    </defs>
-                    <XAxis dataKey="name" stroke={theme.palette.text.secondary} fontSize="12px" axisLine={false} tickLine={false} />
-                    <YAxis stroke={theme.palette.text.secondary} fontSize="12px" tickFormatter={(value) => `R$${value/1000}k`} axisLine={false} tickLine={false} />
-                    <Tooltip contentStyle={{ backgroundColor: theme.palette.background.paper, border: `1px solid ${theme.palette.divider}`, borderRadius: '8px' }} />
-                    <Area type="monotone" dataKey="saldo" stroke={theme.palette.primary.main} fillOpacity={1} fill="url(#colorSaldo)" strokeWidth={2} />
-                </AreaChart>
-            </ResponsiveContainer>
+
+            {loading ? (
+                <Skeleton variant="rectangular" width="100%" height="85%" />
+            ) : (
+                <ResponsiveContainer width="100%" height="85%">
+                    <AreaChart data={history} margin={{ top: 10, right: 20, left: -20, bottom: 0 }}>
+                        <defs>
+                            <linearGradient id="colorSaldo" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor={theme.palette.primary.main} stopOpacity={0.4} />
+                                <stop offset="95%" stopColor={theme.palette.primary.main} stopOpacity={0} />
+                            </linearGradient>
+                        </defs>
+                        <XAxis dataKey="name" stroke={theme.palette.text.secondary} fontSize="12px" axisLine={false} tickLine={false} />
+                        <YAxis stroke={theme.palette.text.secondary} fontSize="12px" tickFormatter={(value) => `R$${value / 1000}k`} axisLine={false} tickLine={false} />
+                        <Tooltip contentStyle={{ backgroundColor: theme.palette.background.paper, border: `1px solid ${theme.palette.divider}`, borderRadius: '8px' }} />
+                        <Area type="monotone" dataKey="saldo" stroke={theme.palette.primary.main} fillOpacity={1} fill="url(#colorSaldo)" strokeWidth={2} />
+                    </AreaChart>
+                </ResponsiveContainer>
+            )}
         </Paper>
     );
-}
+};
 
 // --- PÁGINA PRINCIPAL DO DASHBOARD (Layout original mantido) ---
 export default function DashboardPage() {
+    const [balance, setBalance] = useState(0);
+    const [history, setHistory] = useState([]);
+    const [transactions, setTransactions] = useState([]);
+    const [loadingBalance, setLoadingBalance] = useState(false);
+    const [loadingHistory, setLoadingHistory] = useState(false);
+    const [loadingTransactions, setLoadingTransactions] = useState(false);
+
+    const accountId = 1; // ou pegue de algum contexto ou autenticação
+
+    const authHeader = () => {
+        const token = localStorage.getItem('token') || '';
+        return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+    };
+
+    useEffect(() => {
+        fetchBalance();
+        fetchHistory();
+        fetchTransactions();
+    }, []);
+
+    async function fetchBalance() {
+        setLoadingBalance(true);
+        try {
+            const res = await fetch(`${API_URL}/account/${accountId}`, { });
+            const data = await res.json();
+            setBalance(data.balance);
+        } catch (err) {
+            console.error('Erro ao buscar saldo:', err);
+        } finally {
+            setLoadingBalance(false);
+        }
+    }
+
+    async function fetchHistory() {
+        setLoadingHistory(true);
+        try {
+            const res = await fetch(`${API_URL}/account/balance-history/${accountId}`, { headers: authHeader() });
+            if (!res.ok) throw new Error(`Erro ${res.status}`);
+            const raw = await res.json();
+            const formatted = raw.map(item => ({
+                name: new Date(item.timestamp).toLocaleDateString('pt-BR', {
+                    day: '2-digit', month: '2-digit', year: 'numeric'
+                }),
+                saldo: item.balance
+            }));
+            setHistory(formatted);
+        } catch (e) {
+            console.error('Erro ao buscar histórico:', e);
+        } finally {
+            setLoadingHistory(false);
+        }
+    }
+
+    async function fetchTransactions() {
+        setLoadingTransactions(true);
+        try {
+            const res = await fetch(`${API_URL}/transaction/accounts/${accountId}`, { headers: authHeader() });
+            setTransactions(await res.json());
+        } catch (err) {
+            console.error('Erro ao buscar transações:', err);
+        } finally {
+            setLoadingTransactions(false);
+        }
+    }
+
     return (
         <Box sx={{ width: '100%', minHeight: '100vh', bgcolor: 'background.default' }}>
             <AppAppBar />
@@ -292,11 +376,11 @@ export default function DashboardPage() {
                         <Stack spacing={3}>
                             <WelcomeHeader />
                             <Grid container spacing={3}>
-                                <BalanceCard />
+                                <BalanceCard balance={balance} loading={loadingBalance}/>
                                 <QuickActions />
                             </Grid>
-                            <BalanceChart />
-                            <RecentTransactions />
+                            <BalanceChart history={history} loading={loadingHistory} />
+                            <RecentTransactions transactions={transactions} loading={loadingTransactions} />
                         </Stack>
                     </Grid>
                     <Grid item xs={12} lg={4}>

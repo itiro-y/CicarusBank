@@ -3,6 +3,8 @@ server:
 spring:
   application:
     name: transaction
+  kafka:
+    bootstrap-servers: kafka:9092
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3309/transaction_db

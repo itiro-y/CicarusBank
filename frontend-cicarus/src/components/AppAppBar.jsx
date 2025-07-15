@@ -14,6 +14,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import ColorModeIconDropdown from '../theme/ColorModeIconDropdown.jsx';
 import Swal from 'sweetalert2'; // Importação do SweetAlert2
+import NotificationBell from './NotificationBell.jsx';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
     display: 'flex',
@@ -112,6 +113,7 @@ export default function AppAppBar() {
                             <Button component={Link} to="/user-card" variant="text" color="info" size="small">Cartões</Button>
                             <Button component={Link} to="/loan" variant="text" color="info" size="small">Empréstimos</Button>
                             <Button component={Link} to="/exchange" variant="text" color="info" size="small">Câmbio</Button>
+                            <Button component={Link} to="/agencias" variant="text" color="info" size="small">Agências</Button>
                         </Box>
                     </Box>
                     <Box
@@ -121,6 +123,7 @@ export default function AppAppBar() {
                             alignItems: 'center',
                         }}
                     >
+                        <NotificationBell />
                         <Button component={Link} to="/profile" color="primary" variant="text" size="small">
                             Perfil
                         </Button>
@@ -131,6 +134,7 @@ export default function AppAppBar() {
                         <ColorModeIconDropdown />
                     </Box>
                     <Box sx={{ display: { xs: 'flex', md: 'none' }, gap: 1 }}>
+                        <NotificationBell />
                         <ColorModeIconDropdown />
                         <IconButton aria-label="Menu button" onClick={toggleDrawer(true)}>
                             <MenuIcon />
@@ -145,7 +149,6 @@ export default function AppAppBar() {
                                 <MenuItem onClick={() => { navigate('/dashboard'); toggleDrawer(false)(); }}>Visão Geral</MenuItem>
                                 <MenuItem onClick={() => { navigate('/user-transactions'); toggleDrawer(false)(); }}>Transferências</MenuItem>
                                 <MenuItem onClick={() => { navigate('/user-card'); toggleDrawer(false)(); }}>Cartões</MenuItem>
-                                <MenuItem>Investimentos</MenuItem>
                                 <MenuItem onClick={() => { navigate('/exchange'); toggleDrawer(false)(); }}>Câmbio</MenuItem>
                                 <Divider sx={{ my: 3 }} />
                                 <MenuItem>

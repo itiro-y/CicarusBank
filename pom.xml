@@ -18,7 +18,8 @@
         <module>notification</module>
         <module>transaction</module>
         <module>currency-exchange</module>
-<!--        <module>card</module>-->
+        <module>card</module>
+        <module>statement-service</module>
     </modules>
 
 </project>

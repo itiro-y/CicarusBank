@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
     Box, Container, Typography, Grid, Paper, Avatar, Divider, Stack,
     Button, List, ListItem, ListItemIcon, ListItemText, IconButton, Dialog,
-    DialogTitle, DialogContent, DialogActions, TextField
+    DialogTitle, DialogContent, DialogActions, TextField, useTheme
 } from '@mui/material';
 import {
     Person, Mail, CalendarToday, LocationOn, Edit, Lock, Shield,
@@ -32,16 +32,6 @@ const initialProfile = {
         accountNumber: "123456-7",
         memberSince: "15/06/2020"
     }
-};
-
-// ------------------ ESTILO GLOBAL ------------------
-const widgetStyle = {
-    p: 3,
-    borderRadius: '16px',
-    backgroundColor: '#282d34',
-    border: '1px solid rgba(255, 255, 255, 0.05)',
-    height: '100%',
-    color: 'white',
 };
 
 // ------------------ MODAL DE EDIÇÃO ------------------
@@ -82,75 +72,36 @@ function EditProfileDialog({ open, onClose, data, onSave }) {
                 </IconButton>
             </DialogTitle>
             <DialogContent dividers>
-                <Grid container spacing={6}>
+                <Grid container spacing={2}>
                     <Grid item xs={12} md={6}>
-                        <TextField
-                            label="Nome"
-                            name="name"
-                            value={form.name}
-                            onChange={handleChange}
-                            fullWidth
-                            InputLabelProps={{ shrink: true }}
-                            disabled={isFieldDisabled('name')}
-                        />
+                        <TextField name="name" label="Nome Completo" value={form.name} onChange={handleChange} fullWidth margin="normal" disabled={isFieldDisabled('name')} />
                     </Grid>
                     <Grid item xs={12} md={6}>
-                        <TextField
-                            label="Email"
-                            name="email"
-                            value={form.email}
-                            onChange={handleChange}
-                            fullWidth
-                            InputLabelProps={{ shrink: true }}
-                        />
+                        <TextField name="document" label="Documento (CPF)" value={form.document} onChange={handleChange} fullWidth margin="normal" disabled={isFieldDisabled('document')} />
                     </Grid>
                     <Grid item xs={12} md={6}>
-                        <TextField
-                            label="CPF"
-                            name="document"
-                            value={form.document}
-                            onChange={handleChange}
-                            fullWidth
-                            InputLabelProps={{ shrink: true }}
-                            disabled={isFieldDisabled('document')}
-                        />
+                        <TextField name="email" label="Email" value={form.email} onChange={handleChange} fullWidth margin="normal" />
                     </Grid>
                     <Grid item xs={12} md={6}>
-                        <TextField
-                            label="Data de Nascimento"
-                            name="birthDate"
-                            value={form.birthDate}
-                            onChange={handleChange}
-                            fullWidth
-                            InputLabelProps={{ shrink: true }}
-                            disabled={isFieldDisabled('birthDate')}
-                        />
+                        <TextField name="birthDate" label="Data de Nascimento" value={form.birthDate} onChange={handleChange} fullWidth margin="normal" disabled={isFieldDisabled('birthDate')} />
                     </Grid>
-                    <Grid item xs={12} md={4}>
-                        <TextField label="País" name="address.country" value={form.address.country} onChange={handleChange} fullWidth slotProps={{ inputLabel: { shrink: true } }}
-                        />
+                    <Grid item xs={12} md={6}>
+                        <TextField name="address.street" label="Rua" value={form.address.street} onChange={handleChange} fullWidth margin="normal" />
                     </Grid>
-                    <Grid item xs={12} md={4}>
-                        <TextField label="Estado" name="address.state" value={form.address.state} onChange={handleChange} fullWidth slotProps={{ inputLabel: { shrink: true } }}
-                        />
+                    <Grid item xs={12} md={6}>
+                        <TextField name="address.city" label="Cidade" value={form.address.city} onChange={handleChange} fullWidth margin="normal" />
                     </Grid>
-                    <Grid item xs={12} md={4}>
-                        <TextField label="Cidade" name="address.city" value={form.address.city} onChange={handleChange} fullWidth slotProps={{ inputLabel: { shrink: true } }}
-                        />
+                    <Grid item xs={12} md={6}>
+                        <TextField name="address.state" label="Estado" value={form.address.state} onChange={handleChange} fullWidth margin="normal" />
                     </Grid>
-                    <Grid item xs={12} md={8}>
-                        <TextField label="Rua" name="address.street" value={form.address.street} onChange={handleChange} slotProps={{ inputLabel: { shrink: true } }}
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={4}>
-                        <TextField label="CEP" name="address.zip" value={form.address.zip} onChange={handleChange} fullWidth slotProps={{ inputLabel: { shrink: true } }}
-                        />
+                    <Grid item xs={12} md={6}>
+                        <TextField name="address.zip" label="CEP" value={form.address.zip} onChange={handleChange} fullWidth margin="normal" />
                     </Grid>
                 </Grid>
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Cancelar</Button>
-                <Button onClick={handleSubmit} variant="contained" sx={{ backgroundColor: '#e46820' }}>Salvar</Button>
+                <Button onClick={handleSubmit} variant="contained" color="primary">Salvar</Button>
             </DialogActions>
         </Dialog>
     );
@@ -159,10 +110,10 @@ function EditProfileDialog({ open, onClose, data, onSave }) {
 // ------------------ COMPONENTES ------------------
 const InfoListItem = ({ icon, primary, secondary }) => (
     <ListItem>
-        <ListItemIcon sx={{ color: '#e46820', minWidth: '40px' }}>{icon}</ListItemIcon>
+        <ListItemIcon sx={{ color: 'primary.main', minWidth: '40px' }}>{icon}</ListItemIcon>
         <ListItemText primary={primary} secondary={secondary}
                       primaryTypographyProps={{ color: 'text.secondary', fontSize: '0.9rem' }}
-                      secondaryTypographyProps={{ color: 'white', fontWeight: 'medium', fontSize: '1rem' }}
+                      secondaryTypographyProps={{ color: 'text.primary', fontWeight: 'medium', fontSize: '1rem' }}
         />
     </ListItem>
 );
@@ -173,8 +124,11 @@ const ProfileHeader = ({ profile, onEdit }) => (
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
     >
-        <Paper elevation={0} sx={{ ...widgetStyle, display: 'flex', alignItems: 'center', gap: 3 }}>
-            <Avatar src={profile.avatar} sx={{ width: 80, height: 80, border: '3px solid #e46820' }} />
+        <Paper elevation={0} sx={{
+            p: 3, borderRadius: '16px', bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider',
+            display: 'flex', alignItems: 'center', gap: 3
+        }}>
+            <Avatar src={profile.avatar} sx={{ width: 80, height: 80, border: '3px solid', borderColor: 'primary.main' }} />
             <Box>
                 <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
                     {profile.name}
@@ -187,7 +141,7 @@ const ProfileHeader = ({ profile, onEdit }) => (
                 variant="outlined"
                 startIcon={<Edit />}
                 onClick={onEdit}
-                sx={{ ml: 'auto', color: 'white', borderColor: 'rgba(255,255,255,0.2)' }}
+                sx={{ ml: 'auto' }}
             >
                 Editar Perfil
             </Button>
@@ -195,71 +149,89 @@ const ProfileHeader = ({ profile, onEdit }) => (
     </motion.div>
 );
 
+const InfoWidget = ({ title, children }) => (
+    <Paper elevation={0} sx={{
+        p: 3, borderRadius: '16px', bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', height: '100%'
+    }}>
+        <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>{title}</Typography>
+        {children}
+    </Paper>
+);
+
+
 const PersonalInfo = ({ profile }) => (
-    <Paper elevation={0} sx={widgetStyle}>
-        <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>Informações Pessoais</Typography>
+    <InfoWidget title="Informações Pessoais">
         <List dense>
             <InfoListItem icon={<Person />} primary="Nome Completo" secondary={profile.name} />
-            <Divider component="li" sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
+            <Divider component="li" sx={{ borderColor: 'divider' }} />
             <InfoListItem icon={<CreditCard />} primary="Documento (CPF)" secondary={profile.document} />
-            <Divider component="li" sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
+            <Divider component="li" sx={{ borderColor: 'divider' }} />
             <InfoListItem icon={<Mail />} primary="Email" secondary={profile.email} />
-            <Divider component="li" sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
+            <Divider component="li" sx={{ borderColor: 'divider' }} />
             <InfoListItem icon={<CalendarToday />} primary="Data de Nascimento" secondary={profile.birthDate} />
         </List>
-    </Paper>
+    </InfoWidget>
 );
 
 const AddressInfo = ({ profile }) => (
-    <Paper elevation={0} sx={widgetStyle}>
-        <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>Endereço</Typography>
+    <InfoWidget title="Endereço">
         <List dense>
             <InfoListItem icon={<LocationOn />} primary="País" secondary={profile.address.country} />
-            <Divider component="li" sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
+            <Divider component="li" sx={{ borderColor: 'divider' }} />
             <InfoListItem icon={<Business />} primary="Estado / Cidade" secondary={`${profile.address.state} / ${profile.address.city}`} />
-            <Divider component="li" sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
+            <Divider component="li" sx={{ borderColor: 'divider' }} />
             <InfoListItem icon={<Home />} primary="Rua e CEP" secondary={`${profile.address.street}, ${profile.address.zip}`} />
         </List>
-    </Paper>
+    </InfoWidget>
 );
 
 const AccountInfo = ({ profile }) => (
-    <Paper elevation={0} sx={widgetStyle}>
-        <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>Dados Bancários</Typography>
+    <InfoWidget title="Dados Bancários">
         <List dense>
             <InfoListItem icon={<AccountBalance />} primary="Tipo de Conta" secondary={profile.account.type} />
-            <Divider component="li" sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
+            <Divider component="li" sx={{ borderColor: 'divider' }} />
             <InfoListItem icon={<VpnKey />} primary="Agência / Conta" secondary={`${profile.account.agency} / ${profile.account.accountNumber}`} />
-            <Divider component="li" sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
+            <Divider component="li" sx={{ borderColor: 'divider' }} />
             <InfoListItem icon={<CalendarToday />} primary="Cliente Desde" secondary={profile.account.memberSince} />
         </List>
-    </Paper>
+    </InfoWidget>
 );
 
 const SecurityActions = () => (
-    <Paper elevation={0} sx={widgetStyle}>
-        <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>Segurança</Typography>
+    <InfoWidget title="Segurança">
         <Stack spacing={2}>
-            <Button variant="contained" startIcon={<Lock />} sx={{ justifyContent: 'flex-start', py: 1.5, backgroundColor: '#e46820' }}>
+            <Button variant="contained" startIcon={<Lock />} color="primary" sx={{ justifyContent: 'flex-start', py: 1.5 }}>
                 Alterar Senha de Acesso
             </Button>
-            <Button variant="outlined" startIcon={<Shield />} sx={{ justifyContent: 'flex-start', py: 1.5, color: 'white' }}>
+            <Button variant="outlined" startIcon={<Shield />} sx={{ justifyContent: 'flex-start', py: 1.5 }}>
                 Gerenciar Dispositivos Conectados
             </Button>
-            <Button variant="outlined" startIcon={<PhoneAndroid />} sx={{ justifyContent: 'flex-start', py: 1.5, color: 'white' }}>
+            <Button variant="outlined" startIcon={<PhoneAndroid />} sx={{ justifyContent: 'flex-start', py: 1.5 }}>
                 Validar iSafe Token
             </Button>
         </Stack>
-    </Paper>
+    </InfoWidget>
 );
+
 
 // ------------------ PÁGINA PRINCIPAL ------------------
 export default function ProfilePage() {
     const [profile, setProfile] = React.useState(initialProfile);
     const [openEdit, setOpenEdit] = React.useState(false);
+    const theme = useTheme();
+
+    const widgetStyle = {
+        p: 3,
+        borderRadius: '16px',
+        backgroundColor: theme.palette.background.paper,
+        border: '1px solid',
+        borderColor: theme.palette.divider,
+        height: '100%',
+    };
+
 
     return (
-        <Box sx={{ width: '100%', minHeight: '100vh' }}>
+        <Box sx={{ width: '100%', minHeight: '100vh', bgcolor: 'background.default' }}>
             <AppAppBar />
             <Container maxWidth="lg" sx={{ pt: '120px', pb: 4 }}>
                 <Stack spacing={3}>

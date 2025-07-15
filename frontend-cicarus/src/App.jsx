@@ -14,6 +14,7 @@ import AdminRoute from './components/AdminRoute.jsx';
 import NearbyAgenciesPage from './pages/NearbyAgenciesPage.jsx';
 import PixPage from './pages/PixPage.jsx';
 import MobileRechargePage from './pages/MobileRechargePage.jsx'; // 1. IMPORTADO
+import BenefitsPage from './pages/BenefitsPage.jsx'; // <--- ADICIONE ESTA LINHA: Importa a nova página de Benefícios
 
 function App() {
     return (
@@ -30,7 +31,8 @@ function App() {
                 <Route path="/loan-tracking" element={<LoanTrackingPage />} />
                 <Route path="/user-card" element={<CardManagementPage />} />
                 <Route path="/pix" element={<PixPage />} />
-                <Route path="/recharge" element={<MobileRechargePage />} /> {/* 2. ROTA ADICIONADA */}
+                <Route path="/recharge" element={<MobileRechargePage />} /> 
+                <Route path="/benefits" element={<BenefitsPage />} />
                 <Route
                     path="/admin/dashboard"
                     element={

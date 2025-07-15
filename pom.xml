@@ -14,6 +14,7 @@
         <module>auth</module>
         <module>loan-service</module>
         <module>customer-service</module>
+        <module>benefits-service</module>
         <module>naming-server</module>
         <module>notification</module>
         <module>transaction</module>

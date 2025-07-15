@@ -12,6 +12,8 @@ import LoanTrackingPage from "./pages/LoanTrackingPage.jsx";
 import AdminDashboardPage from './pages/AdminDashboardPage.jsx';
 import AdminRoute from './components/AdminRoute.jsx';
 import NearbyAgenciesPage from './pages/NearbyAgenciesPage.jsx';
+import PixPage from './pages/PixPage.jsx';
+import MobileRechargePage from './pages/MobileRechargePage.jsx'; // 1. IMPORTADO
 
 function App() {
     return (
@@ -22,11 +24,13 @@ function App() {
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/user-transactions" element={<UserTransactionsPage />} />
                 <Route path="/admin-transactions" element={<AdminTransactionsPage />} />
-                <Route path="/profile" element={<ProfilePage />} /> {/* Nova rota adicionada */}
+                <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/exchange" element={<ExchangePage />} />
                 <Route path="/loan" element={<LoanSimulationPage />} />
                 <Route path="/loan-tracking" element={<LoanTrackingPage />} />
                 <Route path="/user-card" element={<CardManagementPage />} />
+                <Route path="/pix" element={<PixPage />} />
+                <Route path="/recharge" element={<MobileRechargePage />} /> {/* 2. ROTA ADICIONADA */}
                 <Route
                     path="/admin/dashboard"
                     element={

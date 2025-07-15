@@ -196,7 +196,6 @@ export default function ExchangePage() {
         backgroundColor: 'background.paper',
         border: '1px solid',
         borderColor: 'divider',
-        height: '100%',
     };
 
     // Lógica de desativação do botão mais clara

@@ -17,23 +17,7 @@ import AppAppBar from '../components/AppAppBar.jsx';
 import { Link } from 'react-router-dom';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
-const useMocks = false;
 const accountId = 1;
-
-// Mock data
-const mockBalance = 12345.67;
-const mockHistory = [
-    { name: 'Jan', balance: 10000 },
-    { name: 'Feb', balance: 12000 },
-    { name: 'Mar', balance: 9000  },
-    { name: 'Apr', balance: 15000 },
-    { name: 'May', balance: 13000 }
-];
-const mockTransactions = [
-    { id: 1, accountId: 1, accountType: 'WITHDRAW', amount: 500, timestamp: Date.now() - 86400000 * 2, transactionStatus: 'APPROVED' },
-    { id: 2, accountId: 1, accountType: 'DEPOSIT', amount: 2000, timestamp: Date.now() - 86400000 * 1, transactionStatus: 'APPROVED' },
-    { id: 3, accountId: 1, accountType: 'TRANSFER', amount: 750, timestamp: Date.now(), transactionStatus: 'PENDING' }
-];
 
 function BalanceCard({ balance, loading }) {
     return (
@@ -292,9 +276,9 @@ export default function UserTransactionsPage() {
     const [openTransfer, setOpenTransfer] = useState(false);
 
     // data & loading
-    const [balance, setBalance]                 = useState(useMocks ? mockBalance : 0);
-    const [history, setHistory]                 = useState(useMocks ? mockHistory : []);
-    const [transactions, setTransactions]       = useState(useMocks ? mockTransactions : []);
+    const [balance, setBalance]                 = useState(0);
+    const [history, setHistory]                 = useState([]);
+    const [transactions, setTransactions]       = useState([]);
     const [loadingBalance, setLoadingBalance]         = useState(false);
     const [loadingHistory, setLoadingHistory]         = useState(false);
     const [loadingTransactions, setLoadingTransactions] = useState(false);
@@ -306,11 +290,9 @@ export default function UserTransactionsPage() {
 
     // Carregamento inicial
     useEffect(() => {
-        if (!useMocks) {
             fetchBalance();
             fetchHistory();
             fetchTransactions();
-        }
     }, []);
 
     async function fetchBalance() {
@@ -364,16 +346,14 @@ export default function UserTransactionsPage() {
             method: 'POST',
             headers: authHeader(),
             body: JSON.stringify({ accountId,
-                                         accountToId: null,
+                                         accountToId: '',
                                          transactionType: 'WITHDRAWAL',
                                          amount})
         });
         setOpenWithdraw(false);
-        if (!useMocks) {
-            await fetchBalance();
-            await fetchTransactions();
-            await fetchHistory()
-        }
+        await fetchBalance();
+        await fetchTransactions();
+        await fetchHistory()
     }
 
     async function handleDeposit(amount) {
@@ -381,15 +361,14 @@ export default function UserTransactionsPage() {
             method: 'POST',
             headers: authHeader(),
             body: JSON.stringify({ accountId,
-                                         accountToId: null,
+                                         accountToId: '',
                                          transactionType: 'DEPOSIT',
                                          amount })
         });
         setOpenDeposit(false);
-        if (!useMocks) {
-            await fetchBalance();
-            await fetchTransactions();
-            await fetchHistory();}
+        await fetchBalance();
+        await fetchTransactions();
+        await fetchHistory();
     }
 
 
@@ -415,11 +394,9 @@ export default function UserTransactionsPage() {
             }
 
             setOpenTransfer(false);
-            if (!useMocks) {
                 await fetchBalance();
                 await fetchTransactions();
                 await fetchHistory();
-            }
         } catch (error) {
             console.error('Erro ao realizar transferência:', error);
         }

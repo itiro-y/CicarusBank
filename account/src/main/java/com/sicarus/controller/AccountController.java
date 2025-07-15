@@ -1,7 +1,9 @@
 package com.sicarus.controller;
 
+import com.sicarus.dto.CreateAccountRequest;
 import com.sicarus.dto.UpdateAccountBalancesRequest;
 import com.sicarus.dto.UpdateBrlToEurRequest;
+import com.sicarus.enums.AccountType;
 import com.sicarus.enums.TransactionType;
 import com.sicarus.model.Account;
 import com.sicarus.model.AccountRepository;
@@ -33,8 +35,22 @@ public class AccountController {
     }
 
     @GetMapping("/account")
-    public List<Account> getAll(){
-        return accountRepository.findAll();
+    public List<AccountDTO> getAll(){
+        return accountRepository.findAll().stream()
+                .map(this::toDtoWithoutHistory)
+                .toList();
+    }
+
+    private AccountDTO toDtoWithoutHistory(Account acc) {
+        return new AccountDTO(
+                acc.getId(),
+                acc.getUserId(),
+                acc.getType().name(),
+                acc.getBalance(),
+                acc.getUsdWallet(),
+                acc.getEurWallet(),
+                List.of() // Empty list for history to avoid lazy loading issues
+        );
     }
 
     @GetMapping("/account/customer/{id}")
@@ -77,8 +93,16 @@ public class AccountController {
     }
 
     @PostMapping("/account")
-    public Account createAccount(@RequestBody Account account){
-        return accountRepository.save(account);
+    public ResponseEntity<AccountDTO> createAccount(@RequestBody CreateAccountRequest request){
+        Account account = new Account();
+        account.setUserId(request.getUserId());
+        account.setType(AccountType.valueOf(request.getAccountType())); // Convert String to Enum
+        account.setBalance(request.getBalance() != null ? request.getBalance() : BigDecimal.ZERO);
+        account.setUsdWallet(BigDecimal.ZERO); // Initialize as per Account constructor
+        account.setEurWallet(BigDecimal.ZERO); // Initialize as per Account constructor
+
+        Account savedAccount = accountRepository.save(account);
+        return ResponseEntity.status(HttpStatus.CREATED).body(toDtoWithoutHistory(savedAccount));
     }
 
     @DeleteMapping("/account/{id}")

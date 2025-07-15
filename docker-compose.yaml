@@ -290,17 +290,17 @@ services:
       - mysql-statement
       - naming-server
 
-#  investment:
-#    build:
-#      context: ./investment
-#    ports:
-#      - "8900:8900"
-#    environment:
-#      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-statement:3306/statement_db
-#      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
-#    depends_on:
-#      - mysql-statement
-#      - naming-server
+  investment:
+    build:
+      context: ./investment
+    ports:
+      - "8900:8900"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-statement:3306/statement_db
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
+    depends_on:
+      - mysql-statement
+      - naming-server
 
 volumes:
   auth-data:

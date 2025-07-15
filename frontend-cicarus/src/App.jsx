@@ -13,8 +13,9 @@ import AdminDashboardPage from './pages/AdminDashboardPage.jsx';
 import AdminRoute from './components/AdminRoute.jsx';
 import NearbyAgenciesPage from './pages/NearbyAgenciesPage.jsx';
 import PixPage from './pages/PixPage.jsx';
-import MobileRechargePage from './pages/MobileRechargePage.jsx'; // 1. IMPORTADO
-import BenefitsPage from './pages/BenefitsPage.jsx'; // <--- ADICIONE ESTA LINHA: Importa a nova página de Benefícios
+import MobileRechargePage from './pages/MobileRechargePage.jsx';
+import BenefitsPage from './pages/BenefitsPage.jsx';
+import InvestmentsPage from './pages/InvestmentsPage.jsx';
 
 function App() {
     return (
@@ -33,6 +34,7 @@ function App() {
                 <Route path="/pix" element={<PixPage />} />
                 <Route path="/recharge" element={<MobileRechargePage />} /> 
                 <Route path="/benefits" element={<BenefitsPage />} />
+                <Route path="/investments" element={<InvestmentsPage />} />
                 <Route
                     path="/admin/dashboard"
                     element={

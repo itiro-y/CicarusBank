@@ -3,7 +3,7 @@ import { Box, Container, Typography, Paper, useTheme, Card, CardMedia, CardConte
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import AppAppBar from '../components/AppAppBar.jsx';
 
-const Maps_API_KEY = "AIzaSyAwVvovfl-dAo9gUE2xuqCrqxRtEMoBWuA";
+const Maps_API_KEY = "AIzaSyDQYOUaVv3zqjsRAn7A_2A5B3rJ22JHV7E";
 
 const agencies = [
     {
@@ -26,17 +26,6 @@ const agencies = [
     }
 ];
 
-const mapContainerStyle = {
-    width: '100%',
-    height: '70vh',
-    borderRadius: '16px'
-};
-
-const center = {
-    lat: -23.325,
-    lng: -51.17
-};
-
 const darkMapStyle = [
     { elementType: 'geometry', stylers: [{ color: '#242f3e' }] },
     { elementType: 'labels.text.stroke', stylers: [{ color: '#242f3e' }] },
@@ -57,6 +46,7 @@ const darkMapStyle = [
     { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#515c6d' }] },
     { featureType: 'water', elementType: 'labels.text.stroke', stylers: [{ color: '#17263c' }] }
 ];
+
 
 export default function NearbyAgenciesPage() {
     const theme = useTheme();
@@ -81,11 +71,11 @@ export default function NearbyAgenciesPage() {
                     Encontre a agência Cicarus Bank mais perto de você. Passe o mouse sobre um marcador para ver a foto.
                 </Typography>
 
-                <Paper elevation={0} sx={{ p: 1, borderRadius: '18px', backgroundColor: 'background.paper' }}>
+                <Paper elevation={0} sx={{ height: '70vh', width: '100%', borderRadius: '18px', overflow: 'hidden', backgroundColor: 'background.paper', p: 1 }}>
                     <LoadScript googleMapsApiKey={Maps_API_KEY}>
                         <GoogleMap
-                            mapContainerStyle={mapContainerStyle}
-                            center={center}
+                            mapContainerStyle={{ width: '100%', height: '100%', borderRadius: '16px' }}
+                            center={{ lat: -23.325, lng: -51.17 }}
                             zoom={13}
                             options={{
                                 streetViewControl: false,
@@ -100,24 +90,12 @@ export default function NearbyAgenciesPage() {
                                     position={agency.position}
                                     onMouseOver={() => handleMouseOver(agency.id)}
                                     onMouseOut={handleMouseOut}
-                                    // Adicionando um ícone personalizado para melhor visibilidade
-                                    icon={{
-                                        path: 'M8 1.05a7 7 0 100 13.9A7 7 0 008 1.05z',
-                                        fillColor: theme.palette.primary.main,
-                                        fillOpacity: 1,
-                                        strokeColor: theme.palette.background.default,
-                                        strokeWeight: 2,
-                                        scale: 1.5,
-                                    }}
                                 >
                                     {activeMarker === agency.id && (
-                                        // Alterações feitas aqui para um InfoWindow mais robusto
                                         <InfoWindow
                                             onCloseClick={handleMouseOut}
-                                            options={{
-                                                pixelOffset: new window.google.maps.Size(0, -35), // Ajusta a posição do popup
-                                                disableAutoPan: true,
-                                            }}
+                                            // AQUI ESTÁ A CORREÇÃO
+                                            options={{ disableAutoPan: true }}
                                         >
                                             <Card sx={{ maxWidth: 280, p: 0, boxShadow: 'lg', border: '1px solid', borderColor: 'divider' }}>
                                                 <CardMedia

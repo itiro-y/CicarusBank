@@ -21,6 +21,7 @@ import AdminInvestmentsPage from "./pages/AdminInvestmentsPage.jsx";
 import VirtualCardCreationPage from './pages/VirtualCardCreationPage.jsx';
 import ConnectedDevicesPage from "./pages/ConnectedDevicesPage.jsx";
 import BillPaymentPage from "./pages/BillPaymentPage.jsx";
+import CryptoInvestmentsPage from "./pages/CryptoInvestmentsPage.jsx";
 
 function App() {
     return (
@@ -54,6 +55,7 @@ function App() {
                 />
                 <Route path="/agencias" element={<NearbyAgenciesPage />} />
                 <Route path="/virtual-card" element={<VirtualCardCreationPage />} />
+                <Route path="/investments/criptomoeda" element={<CryptoInvestmentsPage />} />
 
             </Routes>
         </AppTheme>

@@ -15,7 +15,8 @@ import NearbyAgenciesPage from './pages/NearbyAgenciesPage.jsx';
 import PixPage from './pages/PixPage.jsx';
 import MobileRechargePage from './pages/MobileRechargePage.jsx';
 import BenefitsPage from './pages/BenefitsPage.jsx';
-import InvestmentsPage from './pages/InvestmentsPage.jsx';
+import UserInvestmentsPage from "./pages/UserInvestmentsPage.jsx";
+import AdminInvestmentsPage from "./pages/AdminInvestmentsPage.jsx";
 
 function App() {
     return (
@@ -34,7 +35,8 @@ function App() {
                 <Route path="/pix" element={<PixPage />} />
                 <Route path="/recharge" element={<MobileRechargePage />} /> 
                 <Route path="/benefits" element={<BenefitsPage />} />
-                <Route path="/investments" element={<InvestmentsPage />} />
+                <Route path="/user-investments" element={<UserInvestmentsPage />} />
+                <Route path="/admin-investments" element={<AdminInvestmentsPage />} />
                 <Route
                     path="/admin/dashboard"
                     element={

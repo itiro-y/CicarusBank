@@ -105,6 +105,7 @@ export default function AppAppBar() {
                             <Button component={Link} to="/dashboard" color="primary" variant="text" size="small">Visão Geral</Button>
                             <Button component={Link} to="/user-transactions" variant="text" color="info" size="small">Transferências</Button>
                             <Button component={Link} to="/user-card" variant="text" color="info" size="small">Cartões</Button>
+                            <Button component={Link} to="/user-investments" variant="text" color="info" size="small">Investimentos</Button>
                             <Button component={Link} to="/loan" variant="text" color="info" size="small">Empréstimos</Button>
                             <Button component={Link} to="/exchange" variant="text" color="info" size="small">Câmbio</Button>
                             <Button component={Link} to="/agencias" variant="text" color="info" size="small">Agências</Button>
@@ -164,6 +165,7 @@ export default function AppAppBar() {
                                 <MenuItem onClick={() => { navigate('/dashboard'); toggleDrawer(false)(); }}>Visão Geral</MenuItem>
                                 <MenuItem onClick={() => { navigate('/user-transactions'); toggleDrawer(false)(); }}>Transferências</MenuItem>
                                 <MenuItem onClick={() => { navigate('/user-card'); toggleDrawer(false)(); }}>Cartões</MenuItem>
+                                <MenuItem onClick={() => { navigate('/investments'); toggleDrawer(false)(); }}>Investimentos</MenuItem>
                                 <MenuItem onClick={() => { navigate('/loan'); toggleDrawer(false)(); }}>Empréstimos</MenuItem>
                                 <MenuItem onClick={() => { navigate('/exchange'); toggleDrawer(false)(); }}>Câmbio</MenuItem>
                                 <MenuItem onClick={() => { navigate('/agencias'); toggleDrawer(false)(); }}>Agências</MenuItem>

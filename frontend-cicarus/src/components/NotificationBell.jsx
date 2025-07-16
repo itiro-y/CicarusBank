@@ -221,6 +221,32 @@ export default function NotificationBell() {
     }, [open]);
 
 
+    const marcarComoLidaLocal = (notificationId) => {
+        setNotifications((prevNotifications) =>
+            prevNotifications.map((n) =>
+                n.id === notificationId ? { ...n, read: true } : n
+            )
+        );
+    };
+
+    const handleMouseEnter = (notificationId) => {
+
+        // Salva o estado anterior
+        const prevNotifications = [...notifications];
+
+        // Atualiza localmente
+        marcarComoLidaLocal(notificationId);
+
+        // Envia para o backend
+        fetch(`${API_URL}/notification/${notificationId}/read`, {
+            method: "PUT",
+        }).catch((err) => {
+            console.error("Erro ao marcar notificação como lida no backend", err);
+            // Desfazer alterações locais se não der para atualizar no banco
+            setNotifications(prevNotifications);
+        });
+    };
+
     const handleNotificationClick = (notification) => {
         setSelectedNotification(notification);
         setDialogOpen(true);
@@ -296,6 +322,7 @@ export default function NotificationBell() {
                     {notifications.length > 0 ? notifications.map((notification) => (
                         <ListItem key={notification.id} disablePadding>
                             <ListItemButton
+                                onMouseEnter={() => handleMouseEnter(notification.id)}
                                 onClick={() => handleNotificationClick(notification)}
                                 sx={{
                                     backgroundColor: !notification.read ? 'action.hover' : 'transparent',

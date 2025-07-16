@@ -6,6 +6,7 @@ import com.cicarus.notification.dto.TranferenceNotificationDto;
 import com.cicarus.notification.dto.WithdrawalNotificationDto;
 import com.cicarus.notification.model.NotificationModel;
 import com.cicarus.notification.repository.NotificationRepository;
+import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +27,7 @@ public class WebSocketNotificationService {
                 dto.getCustomerId(),
                 "Novo depósito em sua conta",
                 "Você recebeu R$" + dto.getAmount(),
-                dto.getCustomerName()+", você recebeu um depósito de R$" + dto.getAmount() +"Em sua conta.",
+                dto.getCustomerName()+", você recebeu um depósito de R$" + dto.getAmount() +" em sua conta.",
                 dto.getDateTime().toString(),
                 false
         );
@@ -92,5 +93,15 @@ public class WebSocketNotificationService {
         return notificationRepository.findByUserIdOrderByTimestampDesc(userId).stream()
                 .map(NotificationMessageDto::fromEntity)
                 .toList();
+    }
+
+    public boolean readNotification(Long notificationId) {
+        NotificationModel notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Notificação não encontrada com id: " + notificationId));
+
+        notification.setRead(true);
+        notificationRepository.save(notification);
+
+        return true;
     }
 }

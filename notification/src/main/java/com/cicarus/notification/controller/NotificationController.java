@@ -54,6 +54,12 @@ public class NotificationController {
         );
     }
 
+    @PutMapping("{notificationId}/read")
+    public ResponseEntity readNotification(@PathVariable Long notificationId) {
+        notificationService.readNotification(notificationId);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/ping")
     public String ping(){
         return "Pong!";

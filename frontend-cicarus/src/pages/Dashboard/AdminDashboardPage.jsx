@@ -14,7 +14,7 @@ import {
     HighlightOff, SyncAlt, TrendingUp, MonetizationOn
 } from '@mui/icons-material';
 
-import SummaryCard from '../components/SummaryCard.jsx';
+import SummaryCard from '../../components/SummaryCard.jsx';
 
 // ==============================================
 // CONFIGURAÇÃO E DADOS MOCKADOS (Substitua pela sua API)

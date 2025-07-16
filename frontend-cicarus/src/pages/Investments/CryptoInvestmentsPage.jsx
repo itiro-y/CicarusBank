@@ -3,9 +3,13 @@ import {
     Box, Container, Typography, Paper, Grid, Card, CardContent, Button, CircularProgress,
     Tabs, Tab, TextField, MenuItem, Tooltip, Toolbar
 } from '@mui/material';
-import AppAppBar from '../components/AppAppBar.jsx';
+import AppAppBar from '../../components/AppAppBar.jsx';
 import { Link } from 'react-router-dom';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
+import EmojiObjectsIcon from '@mui/icons-material/EmojiObjects';
+import CurrencyBitcoinIcon from '@mui/icons-material/CurrencyBitcoin';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import ShieldIcon from '@mui/icons-material/Shield';
 
 // Lista de moedas para exibir
 const CRYPTOS = [
@@ -14,6 +18,15 @@ const CRYPTOS = [
     { symbol: 'BNBUSDT', name: 'BNB', icon: 'https://assets.coingecko.com/coins/images/825/large/binance-coin-logo.png' },
     { symbol: 'SOLUSDT', name: 'Solana', icon: 'https://assets.coingecko.com/coins/images/4128/large/solana.png' },
     { symbol: 'ADAUSDT', name: 'Cardano', icon: 'https://assets.coingecko.com/coins/images/975/large/cardano.png' },
+    { symbol: 'XRPUSDT', name: 'XRP', icon: 'https://assets.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png' },
+    { symbol: 'DOGEUSDT', name: 'Dogecoin', icon: 'https://assets.coingecko.com/coins/images/5/large/dogecoin.png' },
+    { symbol: 'MATICUSDT', name: 'Polygon', icon: 'https://assets.coingecko.com/coins/images/4713/large/matic-token-icon.png' },
+    { symbol: 'DOTUSDT', name: 'Polkadot', icon: 'https://assets.coingecko.com/coins/images/12171/large/polkadot.png' },
+    { symbol: 'AVAXUSDT', name: 'Avalanche', icon: 'https://assets.coingecko.com/coins/images/12559/large/Avalanche_Circle_RedWhite_Trans.png' },
+    { symbol: 'LTCUSDT', name: 'Litecoin', icon: 'https://assets.coingecko.com/coins/images/2/large/litecoin.png' },
+    { symbol: 'TRXUSDT', name: 'TRON', icon: 'https://assets.coingecko.com/coins/images/1094/large/tron-logo.png' },
+    { symbol: 'LINKUSDT', name: 'Chainlink', icon: 'https://assets.coingecko.com/coins/images/877/large/chainlink-new-logo.png' },
+    { symbol: 'SHIBUSDT', name: 'Shiba Inu', icon: 'https://assets.coingecko.com/coins/images/11939/large/shiba.png' },
 ];
 
 export default function CryptoInvestmentsPage() {
@@ -95,23 +108,67 @@ export default function CryptoInvestmentsPage() {
         setSimResult({ qty, price });
     }
 
+    // Estatísticas rápidas do mercado
+    const totalMarketCap = Object.values(prices).reduce((acc, price, idx) => {
+        // Simulação: soma dos preços (não é market cap real)
+        return acc + Number(price || 0);
+    }, 0);
+
+    const bestPerformer = Object.entries(changes).sort((a, b) => Number(b[1]) - Number(a[1]))[0];
+    const worstPerformer = Object.entries(changes).sort((a, b) => Number(a[1]) - Number(b[1]))[0];
+
     return (
         <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
             <AppAppBar title="Investimentos em Criptomoedas" />
-            <Container maxWidth="md" sx={{ py: 4 }}>
-                <Toolbar sx={{mt:5}}/>
-                <Tabs value={tab} onChange={handleTabChange} sx={{ mb: 3 }}>
-                    <Tab label="Mercado" />
-                    <Tab label="Simulação" />
-                </Tabs>
+
+            <Container
+                maxWidth="lg"
+                sx={{
+                    py: 4,
+                    minHeight: '100vh',
+                    display: 'flex',
+                    flexDirection: 'column',
+                }}
+            >
+                {/* Dicas de segurança */}
+                <Paper sx={{ mt: 13, mb: -6, p: 3, bgcolor: 'grey.100', borderLeft: '6px solid #1976d2', display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+                    <ShieldIcon color="primary" sx={{ fontSize: 36, mt: 0.5 }} />
+                    <Box>
+                        <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+                            Dica de Segurança
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            Nunca compartilhe suas senhas ou chaves privadas. Use autenticação em dois fatores e mantenha seus dispositivos protegidos para garantir a segurança dos seus investimentos em criptomoedas.
+                        </Typography>
+                    </Box>
+                </Paper>
+                <Toolbar/>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        mb: 3
+                    }}
+                >
+                    <Tabs value={tab} onChange={handleTabChange}>
+                        <Tab label="Mercado" />
+                        <Tab label="Simulação" />
+                    </Tabs>
+
+                    <Button
+                        variant="outlined"
+                        component={Link}
+                        to="/user-investments"
+                    >
+                        Voltar para Investimentos
+                    </Button>
+                </Box>
                 {tab === 0 && (
                     <>
                         <Typography variant="h4" sx={{ mb: 3, fontWeight: 700 }}>
                             Criptomoedas
                         </Typography>
-                        <Button variant="outlined" component={Link} to="/user-investments" sx={{ mb: 3 }}>
-                            Voltar para Investimentos
-                        </Button>
                         {loading ? (
                             <CircularProgress />
                         ) : error ? (
@@ -123,9 +180,22 @@ export default function CryptoInvestmentsPage() {
                                     const change = changes[crypto.symbol];
                                     const isPositive = Number(change) >= 0;
                                     const hist = history[crypto.symbol] || [];
+
                                     return (
                                         <Grid item xs={12} sm={6} md={4} key={crypto.symbol}>
-                                            <Card sx={{ p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: 4 }}>
+                                            <Card sx={{
+                                                p: 2,
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                alignItems: 'center',
+                                                boxShadow: 4,
+                                                borderRadius: 3,
+                                                transition: 'transform 0.2s, box-shadow 0.2s',
+                                                '&:hover': {
+                                                    transform: 'translateY(-4px) scale(1.03)',
+                                                    boxShadow: 8,
+                                                },
+                                            }}>
                                                 <img src={crypto.icon} alt={crypto.name} style={{ width: 48, height: 48, marginBottom: 8 }} />
                                                 <Typography variant="h6" sx={{ fontWeight: 600 }}>{crypto.name}</Typography>
                                                 <Typography variant="body2" sx={{ mb: 1, color: 'text.secondary' }}>
@@ -153,6 +223,7 @@ export default function CryptoInvestmentsPage() {
                                 })}
                             </Grid>
                         )}
+
                     </>
                 )}
                 {tab === 1 && (
@@ -186,6 +257,13 @@ export default function CryptoInvestmentsPage() {
                                 <Typography>Você compraria <b>{simResult.qty.toFixed(6)}</b> {simCrypto.replace('USDT','')} a US$ {Number(simResult.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} cada.</Typography>
                             </Box>
                         )}
+                        {/* Dica de simulação */}
+                        <Box sx={{ mt: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <EmojiObjectsIcon color="warning" />
+                            <Typography variant="body2" color="text.secondary">
+                                Simule diferentes valores para ver quantas moedas você pode adquirir.
+                            </Typography>
+                        </Box>
                     </Paper>
                 )}
             </Container>

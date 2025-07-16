@@ -4,12 +4,16 @@ import {
     TableContainer, Table, TableHead, TableBody, TableRow, TableCell,
     Toolbar, CircularProgress, Grid, Card, CardContent
 } from '@mui/material';
-import AppAppBar from '../components/AppAppBar.jsx';
+import AppAppBar from '../../components/AppAppBar.jsx';
 import { Link } from 'react-router-dom';
-import InvestmentCarouselInvestments from "../components/PromotionalCarouselInvestments.jsx";
+import InvestmentCarouselInvestments from "../../components/PromotionalCarouselInvestments.jsx";
 import { Link as RouterLink } from 'react-router-dom';
 import {Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from "recharts";
 import { useTheme } from '@mui/material/styles';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import HomeWorkIcon from '@mui/icons-material/HomeWork';
+import CurrencyBitcoinIcon from '@mui/icons-material/CurrencyBitcoin';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 const accountId = 1;
@@ -27,52 +31,6 @@ const historico = [
     { mes: 'Nov', valor: 13500 },
     { mes: 'Dez', valor: 14000 },
 ];
-
-export function InvestmentToolbar() {
-    return (
-        <Box sx={{ bgcolor: 'background.paper', borderTop: '1px solid', borderColor: 'divider' }}>
-            <Toolbar
-                component="nav"
-                variant="dense"
-                sx={{
-                    justifyContent: 'center',
-                    gap: 2,
-                    py: 1,
-                }}
-            >
-                <Button
-                    component={RouterLink}
-                    to="/investments/renda-fixa"
-                    variant="outlined"
-                >
-                    Renda Fixa
-                </Button>
-                <Button
-                    component={RouterLink}
-                    to="/investments/fundo-imobiliario"
-                    variant="outlined"
-                >
-                    Fundo Imobiliário
-                </Button>
-                <Button
-                    component={RouterLink}
-                    to="/investments/acoes"
-                    variant="outlined"
-                >
-                    Ações
-                </Button>
-                <Button
-                    component={RouterLink}
-                    to="/investments/criptomoeda"
-                    variant="outlined"
-                >
-                    Criptomoeda
-                </Button>
-            </Toolbar>
-        </Box>
-    );
-}
-
 
 function InvestmentTable({ investments, loading }) {
     if (loading) return <CircularProgress />;
@@ -157,31 +115,31 @@ export default function UserInvestmentsPage() {
     const [loading, setLoading] = useState(false);
     const theme = useTheme();
 
-    // Simulação de dados para cards
+    // Atualize os cards para incluir ícones e descrições
     const cards = [
         {
             title: 'Renda Fixa',
-            description: 'Invista com segurança e previsibilidade.',
             to: '/investments/renda-fixa',
-            color: theme.palette.success.light,
+            icon: <AccountBalanceIcon fontSize="large" color="primary" />,
+            description: 'Investimentos seguros e previsíveis.',
         },
         {
             title: 'Fundo Imobiliário',
-            description: 'Diversifique com imóveis e renda passiva.',
             to: '/investments/fundo-imobiliario',
-            color: theme.palette.info.light,
+            icon: <HomeWorkIcon fontSize="large" color="primary" />,
+            description: 'Ganhe com imóveis sem burocracia.',
         },
         {
             title: 'Ações',
-            description: 'Participe do mercado de capitais.',
             to: '/investments/acoes',
-            color: theme.palette.warning.light,
+            icon: <TrendingUpIcon fontSize="large" color="primary" />,
+            description: 'Participe do crescimento das empresas.',
         },
         {
             title: 'Criptomoeda',
-            description: 'Invista em moedas digitais.',
             to: '/investments/criptomoeda',
-            color: theme.palette.secondary.light,
+            icon: <CurrencyBitcoinIcon fontSize="large" color="primary" />,
+            description: 'Invista em ativos digitais inovadores.',
         },
     ];
 
@@ -212,26 +170,56 @@ export default function UserInvestmentsPage() {
             <AppAppBar title="Meus Investimentos" />
             <Toolbar />
             <Container maxWidth="lg" sx={{ py: 4, mt: 5 }}>
-                <Typography variant="h4" sx={{ mb: 3, fontWeight: 700 }}>
+
+                <InvestmentCarouselInvestments />
+
+                <Typography variant="h4" sx={{ mb: 2, mt: 3, fontWeight: 700 }}>
                     Dashboard de Investimentos
                 </Typography>
+
+                {/* Botões elegantes e alinhados */}
                 <Grid container spacing={3} sx={{ mb: 4 }}>
                     {cards.map(card => (
                         <Grid item xs={12} sm={6} md={3} key={card.title}>
-                            <Card sx={{ bgcolor: card.color, minHeight: 180, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                                <CardContent>
-                                    <Typography variant="h6" sx={{ fontWeight: 600 }}>{card.title}</Typography>
-                                    <Typography variant="body2" sx={{ mb: 2 }}>{card.description}</Typography>
-                                    <Button
-                                        component={RouterLink}
-                                        to={card.to}
-                                        variant="contained"
-                                        color="primary"
-                                        fullWidth
-                                    >
-                                        Ver detalhes
-                                    </Button>
-                                </CardContent>
+                            <Card
+                                elevation={3}
+                                sx={{
+                                    minHeight: 160,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    p: 2,
+                                    borderRadius: 3,
+                                    transition: 'transform 0.2s, box-shadow 0.2s',
+                                    '&:hover': {
+                                        transform: 'translateY(-4px) scale(1.03)',
+                                        boxShadow: 6,
+                                    },
+                                }}
+                            >
+                                <Box sx={{ mb: -1 }}>{card.icon}</Box>
+                                <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5, textAlign: 'center' }}>
+                                    {card.title}
+                                </Typography>
+                                <Typography variant="body2" sx={{ mb: 2, textAlign: 'center', color: 'text.secondary' }}>
+                                    {card.description}
+                                </Typography>
+                                <Button
+                                    component={RouterLink}
+                                    to={card.to}
+                                    variant="contained"
+                                    color="primary"
+                                    fullWidth
+                                    sx={{
+                                        borderRadius: 2,
+                                        fontWeight: 600,
+                                        textTransform: 'none',
+                                        boxShadow: 'none',
+                                    }}
+                                >
+                                    Ver detalhes
+                                </Button>
                             </Card>
                         </Grid>
                     ))}

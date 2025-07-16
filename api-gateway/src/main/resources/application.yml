@@ -16,8 +16,8 @@ spring:
               uri: lb://account
               predicates:
                 - Path=/account/**
-#              filters:
-#                - AuthenticationFilter
+              filters:
+                - AuthenticationFilter
 
             - id: auth
               uri: lb://auth
@@ -28,45 +28,45 @@ spring:
               uri: lb://transaction
               predicates:
                 - Path=/transaction/**
-#              filters:
-#                - AuthenticationFilter
+            #              filters:
+            #                - AuthenticationFilter
 
             - id: loan
               uri: lb://loan
               predicates:
                 - Path=/loan/**
-#              filters:
-#                - AuthenticationFilter
+            #              filters:
+            #                - AuthenticationFilter
 
             - id: customers
               uri: lb://customers
               predicates:
                 - Path=/customers/**
-#              filters:
-#                - AuthenticationFilter
+            #              filters:
+            #                - AuthenticationFilter
 
             - id: exchange
               uri: lb://exchange
               predicates:
                 - Path=/exchange/**
-#              filters:
-#                - AuthenticationFilter
-#              filters:
-#                - StripPrefix=1
+              filters:
+                - AuthenticationFilter
+            #              filters:
+            #                - StripPrefix=1
 
             - id: notification
               uri: lb://notification
               predicates:
                 - Path=/notification/**
-#              filters:
-#                - AuthenticationFilter
+            #              filters:
+            #                - AuthenticationFilter
 
             - id: card
               uri: lb://card
               predicates:
                 - Path=/card/**
-#              filters:
-#                - AuthenticationFilter
+            #              filters:
+            #                - AuthenticationFilter
 
             - id: statement-service
               uri: lb://statement-service

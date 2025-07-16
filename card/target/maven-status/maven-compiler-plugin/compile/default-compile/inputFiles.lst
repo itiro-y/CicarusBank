@@ -4,6 +4,7 @@ C:\Users\Aluno\IdeaProjects\CicarusBank\card\src\main\java\com\cicarus\card\conf
 C:\Users\Aluno\IdeaProjects\CicarusBank\card\src\main\java\com\cicarus\card\controller\CardController.java
 C:\Users\Aluno\IdeaProjects\CicarusBank\card\src\main\java\com\cicarus\card\dtos\CardDto.java
 C:\Users\Aluno\IdeaProjects\CicarusBank\card\src\main\java\com\cicarus\card\dtos\CardRequestDto.java
+C:\Users\Aluno\IdeaProjects\CicarusBank\card\src\main\java\com\cicarus\card\dtos\CardStatusRequestDto.java
 C:\Users\Aluno\IdeaProjects\CicarusBank\card\src\main\java\com\cicarus\card\model\Card.java
 C:\Users\Aluno\IdeaProjects\CicarusBank\card\src\main\java\com\cicarus\card\model\CardStatus.java
 C:\Users\Aluno\IdeaProjects\CicarusBank\card\src\main\java\com\cicarus\card\repository\CardRepository.java

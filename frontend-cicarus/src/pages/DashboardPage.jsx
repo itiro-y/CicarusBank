@@ -72,7 +72,7 @@ const QuickActions = () => {
     const navigate = useNavigate(); // 2. INICIALIZADO O HOOK
     const actions = [
         { label: 'Transferir', icon: <TrendingUp sx={{ fontSize: 28 }} /> },
-        { label: 'Pagar', icon: <ReceiptLong sx={{ fontSize: 28 }} /> },
+        { label: 'Pagar', icon: <ReceiptLong sx={{ fontSize: 28 }} />, path: '/payment' },
         { label: 'Pix', icon: <Pix sx={{ fontSize: 28 }} />, path: '/pix' }, // 3. ADICIONADO O CAMINHO (path)
         { label: 'Recarga', icon: <Smartphone sx={{ fontSize: 28 }} />, path: '/recharge' },
     ];

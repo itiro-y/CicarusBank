@@ -2,6 +2,7 @@ package com.cicarus.card.controller;
 
 import com.cicarus.card.dtos.CardDto;
 import com.cicarus.card.dtos.CardRequestDto;
+import com.cicarus.card.dtos.CardStatusRequestDto; // Adicionado
 import com.cicarus.card.service.CardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -54,5 +55,11 @@ public class CardController {
     @PutMapping("/block/{id}")
     public ResponseEntity<String> blockCard(@PathVariable Long id){
         return cardService.block(id);
+    }
+
+    @Operation(summary = "Altera o status de um cartão (ex: ACTIVE, BLOCKED, CANCELED)")
+    @PostMapping("/status")
+    public ResponseEntity<String> updateCardStatus(@RequestBody CardStatusRequestDto statusRequest) {
+        return cardService.updateStatus(statusRequest.cardId(), statusRequest.newStatus());
     }
 }

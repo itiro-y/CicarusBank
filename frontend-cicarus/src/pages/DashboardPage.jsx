@@ -71,7 +71,7 @@ const BalanceCard = ({ balance, loading }) => {
 const QuickActions = () => {
     const navigate = useNavigate(); // 2. INICIALIZADO O HOOK
     const actions = [
-        { label: 'Transferir', icon: <TrendingUp sx={{ fontSize: 28 }} /> },
+        { label: 'Transferir', icon: <TrendingUp sx={{ fontSize: 28 }} />, path: '/user-transactions' },
         { label: 'Pagar', icon: <ReceiptLong sx={{ fontSize: 28 }} />, path: '/payment' },
         { label: 'Pix', icon: <Pix sx={{ fontSize: 28 }} />, path: '/pix' }, // 3. ADICIONADO O CAMINHO (path)
         { label: 'Recarga', icon: <Smartphone sx={{ fontSize: 28 }} />, path: '/recharge' },
@@ -83,7 +83,6 @@ const QuickActions = () => {
                 {actions.map(action => (
                     <Box
                         key={action.label}
-                        // 4. ADICIONADO O EVENTO onClick PARA NAVEGAR
                         onClick={() => action.path && navigate(action.path)}
                         sx={{
                             display: 'flex',
@@ -243,7 +242,7 @@ const CardManagementActions = () => {
 
     const actions = [
         { label: "Ver Fatura", icon: <Article /> },
-        { label: "Ajustar Limite", icon: <Tune /> },
+        { label: "Ajustar Limite", icon: <Tune />, path: '/card-limit' },
         { label: "Bloquear Cartão", icon: <Lock /> },
         { label: "Cartão Virtual", icon: <AddCard />, path: '/virtual-card' },
     ];

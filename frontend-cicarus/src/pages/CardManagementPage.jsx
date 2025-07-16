@@ -15,6 +15,7 @@ import AddCardIcon from '@mui/icons-material/AddCard';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import BlockIcon from '@mui/icons-material/Block';
 import CancelIcon from '@mui/icons-material/Cancel';
+import TuneIcon from '@mui/icons-material/Tune';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -207,6 +208,9 @@ export default function CardManagementPage() {
                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
                     <Typography variant="h4" sx={{fontWeight: 'bold'}}>Meus Cartões</Typography>
                     <Stack direction="row" spacing={2}>
+                        <Button variant="contained" color="secondary" onClick={() => navigate('/card-limit')} startIcon={<TuneIcon />}>
+                            Ajustar Limites
+                        </Button>
                         <Button variant="outlined" onClick={() => navigate('/virtual-card')} startIcon={<AddCardIcon />}>
                             Criar Cartão Virtual
                         </Button>

@@ -48,9 +48,7 @@ export default function SignInPage() {
                             alignItems: 'center',
                             p: 4,
                             perspective: '1200px',
-                            // --- IMAGEM DE FUNDO APLICADA AQUI ---
-                            // Camada de gradiente escuro sobre a imagem para garantir legibilidade
-                            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://i.postimg.cc/htLYcWv6/5d92fd08-04d1-4c96-9e82-76f98693ecf2.jpg')`,
+                            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://i.ibb.co/mV0HpH6Z/Whisk-72734a80a8.jpg')`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
                         }}

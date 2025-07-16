@@ -17,6 +17,8 @@ import MobileRechargePage from './pages/MobileRechargePage.jsx';
 import BenefitsPage from './pages/BenefitsPage.jsx';
 import UserInvestmentsPage from "./pages/UserInvestmentsPage.jsx";
 import AdminInvestmentsPage from "./pages/AdminInvestmentsPage.jsx";
+// import InvestmentsPage from './pages/InvestmentsPage.jsx';
+import VirtualCardCreationPage from './pages/VirtualCardCreationPage.jsx';
 
 function App() {
     return (
@@ -46,6 +48,7 @@ function App() {
                     }
                 />
                 <Route path="/agencias" element={<NearbyAgenciesPage />} />
+                <Route path="/virtual-card" element={<VirtualCardCreationPage />} />
 
             </Routes>
         </AppTheme>

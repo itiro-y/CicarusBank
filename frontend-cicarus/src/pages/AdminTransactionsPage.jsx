@@ -8,29 +8,22 @@ import {
     NorthEast, SouthWest, ReceiptLong, CheckCircleOutline, HourglassTop,
     ErrorOutline, Check, Cancel, History, CleaningServices
 } from '@mui/icons-material';
-// NOVO: Ícone de reembolso importado da nova biblioteca
 import { RiRefund2Line } from "react-icons/ri";
-
 import AppAppBar from '../components/AppAppBar.jsx';
 import { Link } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
-// --- Componentes Auxiliares para Melhoria Visual ---
+// --- Componentes Auxiliares ---
 
 function StatusChip({ status }) {
     let color = 'default', label = status, icon = null;
     switch (status) {
-        case 'COMPLETED':
-            color = 'success'; label = 'Completa'; icon = <CheckCircleOutline />; break;
-        case 'PENDING':
-            color = 'warning'; label = 'Pendente'; icon = <HourglassTop />; break;
-        case 'FAILED':
-            color = 'error'; label = 'Falhou'; icon = <ErrorOutline />; break;
-        case 'REVERSED':
-            color = 'info'; label = 'Reembolsada'; icon = <History />; break;
-        case 'CANCELLED':
-            color = 'default'; label = 'Cancelada'; icon = <Cancel />; break;
+        case 'COMPLETED': color = 'success'; label = 'Completa'; icon = <CheckCircleOutline />; break;
+        case 'PENDING': color = 'warning'; label = 'Pendente'; icon = <HourglassTop />; break;
+        case 'FAILED': color = 'error'; label = 'Falhou'; icon = <ErrorOutline />; break;
+        case 'REVERSED': color = 'info'; label = 'Reembolsada'; icon = <History />; break;
+        case 'CANCELLED': color = 'default'; label = 'Cancelada'; icon = <Cancel />; break;
     }
     return <Chip icon={icon} label={label} color={color} size="small" variant="outlined" />;
 }
@@ -54,16 +47,23 @@ export default function AdminTransactionsPage() {
 
     const authHeader = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') || ''}` });
 
+    // LÓGICA DE BUSCA CORRIGIDA
     const fetchTransactions = async (currentFilters) => {
         setLoading(true);
-        let url = new URL(`${API_URL}/transaction`);
+        let endpoint = `${API_URL}/transaction`; // Endpoint padrão
 
-        if (currentFilters.accountId) url.searchParams.append('accountId', currentFilters.accountId);
-        if (currentFilters.status) url.searchParams.append('status', currentFilters.status);
+        const { accountId, status } = currentFilters;
+
+        // Constrói a URL com base nos filtros (usando parâmetros de rota)
+        if (accountId && status) {
+            endpoint = `${API_URL}/transaction/accounts-status/${accountId}/${status}`;
+        } else if (accountId) {
+            endpoint = `${API_URL}/transaction/accounts/${accountId}`;
+        } else if (status) {
+            endpoint = `${API_URL}/transaction/status/${status}`;
+        }
 
         try {
-            const endpoint = (url.search) ? url.toString() : `${API_URL}/transaction`;
-
             const res = await fetch(endpoint, { headers: authHeader() });
             if (!res.ok) throw new Error(`Erro ${res.status}: ${await res.text()}`);
 
@@ -119,9 +119,9 @@ export default function AdminTransactionsPage() {
     };
 
     async function handleExport(format) {
+        // A exportação pode precisar de ajuste dependendo de como a API espera os filtros
+        // Esta implementação assume que o serviço de exportação não aceita filtros
         const url = new URL(`${API_URL}/statement-service/export/${format}`);
-        if (filters.accountId) url.searchParams.append('accountId', filters.accountId);
-        if (filters.status) url.searchParams.append('status', filters.status);
 
         try {
             const res = await fetch(url.toString(), { headers: authHeader() });
@@ -141,7 +141,7 @@ export default function AdminTransactionsPage() {
     }
 
     useEffect(() => {
-        fetchTransactions(filters);
+        fetchTransactions({ accountId: '', status: '' }); // Carga inicial sem filtros
     }, []);
 
     return (
@@ -212,19 +212,12 @@ export default function AdminTransactionsPage() {
                                             <TableCell align="center">
                                                 {tx.transactionStatus === 'PENDING' && (
                                                     <>
-                                                        <IconButton color="success" onClick={() => handleAction(tx.id, 'approve')} title="Aprovar">
-                                                            <Check />
-                                                        </IconButton>
-                                                        <IconButton color="error" onClick={() => handleAction(tx.id, 'cancel')} title="Cancelar">
-                                                            <Cancel />
-                                                        </IconButton>
+                                                        <IconButton color="success" onClick={() => handleAction(tx.id, 'approve')} title="Aprovar"><Check /></IconButton>
+                                                        <IconButton color="error" onClick={() => handleAction(tx.id, 'cancel')} title="Cancelar"><Cancel /></IconButton>
                                                     </>
                                                 )}
                                                 {tx.transactionStatus === 'COMPLETED' && (
-                                                    // AQUI ESTÁ A ALTERAÇÃO DO ÍCONE
-                                                    <IconButton color="warning" onClick={() => handleAction(tx.id, 'reverse')} title="Reembolsar">
-                                                        <RiRefund2Line />
-                                                    </IconButton>
+                                                    <IconButton color="warning" onClick={() => handleAction(tx.id, 'reverse')} title="Reembolsar"><RiRefund2Line /></IconButton>
                                                 )}
                                             </TableCell>
                                         </TableRow>

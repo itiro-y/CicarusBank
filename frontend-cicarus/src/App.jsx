@@ -15,6 +15,8 @@ import NearbyAgenciesPage from './pages/NearbyAgenciesPage.jsx';
 import PixPage from './pages/PixPage.jsx';
 import MobileRechargePage from './pages/MobileRechargePage.jsx';
 import BenefitsPage from './pages/BenefitsPage.jsx';
+import UserInvestmentsPage from "./pages/UserInvestmentsPage.jsx";
+import AdminInvestmentsPage from "./pages/AdminInvestmentsPage.jsx";
 // import InvestmentsPage from './pages/InvestmentsPage.jsx';
 import VirtualCardCreationPage from './pages/VirtualCardCreationPage.jsx';
 import ConnectedDevicesPage from "./pages/ConnectedDevicesPage.jsx";
@@ -38,6 +40,8 @@ function App() {
                 <Route path="/recharge" element={<MobileRechargePage />} />
                 <Route path="/payment" element={<BillPaymentPage />} />
                 <Route path="/benefits" element={<BenefitsPage />} />
+                <Route path="/user-investments" element={<UserInvestmentsPage />} />
+                <Route path="/admin-investments" element={<AdminInvestmentsPage />} />
                 <Route path="/connected-devices" element={<ConnectedDevicesPage />} />
                 {/*<Route path="/investments" element={<InvestmentsPage />} />*/}
                 <Route

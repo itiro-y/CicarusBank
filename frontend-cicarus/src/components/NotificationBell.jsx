@@ -1,5 +1,5 @@
 import './setupGlobals';
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 import {
@@ -11,6 +11,8 @@ import {
     Notifications as NotificationsIcon, Close as CloseIcon, ArrowUpward as ArrowUpwardIcon,
     CheckCircle as CheckCircleIcon, Campaign as CampaignIcon, Security as SecurityIcon
 } from '@mui/icons-material';
+import { ListItemButton } from '@mui/material';
+import { format } from "date-fns";
 
 // --- Mock Data ---
 // const mockNotifications = [
@@ -93,6 +95,8 @@ export default function NotificationBell() {
     //Posteriormente capturar o userId dinamicamente
     const userId = 1;
 
+    const stompClientRef = useRef(null);
+
     // const [notifications, setNotifications] = useState(mockNotifications);
     const [notifications, setNotifications] = useState([]);
     const [anchorEl, setAnchorEl] = useState(null);
@@ -134,11 +138,16 @@ export default function NotificationBell() {
 
     // Conecta ao WebSocket e ouve notificações em tempo real
     const connectWebSocket = () => {
-        const socket = new SockJS(`${API_URL}/notification/ws?userId=${userId}`);
-        const stompClient = new Client({
+        const socket = new WebSocket(`${API_URL.replace('http', 'ws')}/notification/ws?userId=${userId}`);
+
+        let stompClient = new Client({
             webSocketFactory: () => socket,
+            connectHeaders: {
+                userId: String(userId)  // <- Aqui vai como header STOMP
+            },
             onConnect: () => {
                 stompClient.subscribe(`/user/queue/notifications`, (message) => {
+                    console.log("📥 Notificação recebida:", message.body);
                     const newNotification = JSON.parse(message.body);
                     setNotifications((prev) => [newNotification, ...prev]);
                 });
@@ -147,15 +156,68 @@ export default function NotificationBell() {
                 console.error("Erro no WebSocket:", frame);
             }
         });
+
+        // Adiciona logs de debug no console
+        stompClient.debug = function(str) {
+            console.log("[STOMP DEBUG]", str);
+        };
+
         stompClient.activate();
+        window.stompClient = stompClient;
     };
 
-    useEffect(() => {
-        fetchNotifications();
-        connectWebSocket();
-    }, [userId]);
+
+    // useEffect(() => {
+    //     fetchNotifications();
+    //     connectWebSocket();
+    // }, [userId]);
 
     useEffect(() => {
+        // Evita conexões duplicadas
+        if (stompClientRef.current) {
+            return;
+        }
+
+        const socket = new WebSocket(`${API_URL.replace('http', 'ws')}/notification/ws?userId=${userId}`);
+
+        const client = new Client({
+            webSocketFactory: () => socket,
+            connectHeaders: {
+                userId: String(userId)
+            },
+            onConnect: () => {
+                client.subscribe(`/user/queue/notifications`, (message) => {
+                    console.log("📥 Notificação recebida:", message.body);
+                    const newNotification = JSON.parse(message.body);
+                    setNotifications((prev) => [newNotification, ...prev]);
+                });
+            },
+            onStompError: (frame) => {
+                console.error("Erro no WebSocket:", frame);
+            },
+        });
+
+        client.debug = (str) => console.log("[STOMP DEBUG]", str);
+
+        client.activate();
+        stompClientRef.current = client;
+
+        // Cleanup na desmontagem
+        return () => {
+            if (stompClientRef.current && stompClientRef.current.active) {
+                stompClientRef.current.deactivate();
+                stompClientRef.current = null;
+            }
+        };
+    }, [userId]);
+
+
+
+    useEffect(() => {
+        if (!userId) return;
+        //Popula o componente com as informações já presentes no banco de dados
+        fetchNotifications();
+
         if (open) {
             const timeout = setTimeout(() => {
                 setNotifications(prev => prev.map(n => ({ ...n, read: true })));
@@ -235,35 +297,66 @@ export default function NotificationBell() {
                     <Typography variant="h6">Notificações</Typography>
                 </Box>
                 <Divider />
+
                 <List sx={{ p: 0, maxHeight: 400, overflowY: 'auto' }}>
                     {notifications.length > 0 ? notifications.map((notification) => (
-                        <ListItem
-                            button
-                            key={notification.id}
-                            onClick={() => handleNotificationClick(notification)}
-                            sx={{
-                                backgroundColor: !notification.read ? 'action.hover' : 'transparent',
-                                '&:hover': {
-                                    backgroundColor: 'action.selected'
-                                }
-                            }}
-                        >
-                            <ListItemIcon>
-                                <Avatar sx={{ bgcolor: 'background.paper' }}>
-                                    {getNotificationIcon(notification.type)}
-                                </Avatar>
-                            </ListItemIcon>
-                            <ListItemText
-                                primary={notification.title}
-                                secondary={notification.shortDescription}
-                                primaryTypographyProps={{ fontWeight: 'bold' }}
-                                secondaryTypographyProps={{ noWrap: true, textOverflow: 'ellipsis' }}
-                            />
-                            {!notification.read && <Box sx={{width: 8, height: 8, borderRadius: '50%', bgcolor: 'primary.main', ml: 1, flexShrink: 0}} />}
+                        <ListItem key={notification.id} disablePadding>
+                            <ListItemButton
+                                onClick={() => handleNotificationClick(notification)}
+                                sx={{
+                                    backgroundColor: !notification.read ? 'action.hover' : 'transparent',
+                                    '&:hover': {
+                                        backgroundColor: 'action.selected'
+                                    }
+                                }}
+                            >
+                                <ListItemIcon>
+                                    <Avatar sx={{ bgcolor: 'background.paper' }}>
+                                        {getNotificationIcon(notification.type)}
+                                    </Avatar>
+                                </ListItemIcon>
+                                <ListItem alignItems="flex-start">
+                                    <ListItemText
+                                        primary={notification.title}
+                                        secondary={
+                                            <>
+                                                {notification.message}
+                                                <br />
+                                                <Typography
+                                                    variant="caption"
+                                                    color="text.secondary"
+                                                    sx={{ mt: 0.5 }}
+                                                >
+                                                    {format(new Date(notification.timestamp), "dd/MM/yyyy HH:mm:ss")}
+                                                </Typography>
+                                            </>
+                                        }
+                                        primaryTypographyProps={{ fontWeight: 'bold' }}
+                                        secondaryTypographyProps={{ component: 'div' }}
+                                    />
+
+                                    {!notification.read && (
+                                        <Box
+                                            sx={{
+                                                width: 8,
+                                                height: 8,
+                                                borderRadius: '50%',
+                                                bgcolor: 'primary.main',
+                                                ml: 1,
+                                                flexShrink: 0
+                                            }}
+                                        />
+                                    )}
+                                </ListItem>
+
+                            </ListItemButton>
                         </ListItem>
                     )) : (
                         <ListItem>
-                            <ListItemText primary="Nenhuma notificação nova." sx={{ textAlign: 'center', color: 'text.secondary' }} />
+                            <ListItemText
+                                primary="Nenhuma notificação nova."
+                                sx={{ textAlign: 'center', color: 'text.secondary' }}
+                            />
                         </ListItem>
                     )}
                 </List>

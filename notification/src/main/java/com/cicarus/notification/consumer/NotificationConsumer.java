@@ -41,14 +41,6 @@ public class NotificationConsumer {
                 case "deposit":
                     DepositNotificationDto dto = objectMapper.treeToValue(root, DepositNotificationDto.class);
 
-                    //Encaminhamento para envio via email
-                    try {
-                        emailNotificationService.processNotification(dto);
-                    } catch (Exception e) {
-                        System.out.println("Erro ao enviar e-mail: {" + e.getMessage() +"}");
-                    }
-
-
                     // Enviar notificação WebSocket
                     try {
                         webSocketNotificationService.processNotification(dto);
@@ -56,17 +48,16 @@ public class NotificationConsumer {
                         System.out.println("Erro ao enviar notificação in-app: {" + e.getMessage() +"}");
                     }
 
-                    break;
-                case "tranference":
-                    TranferenceNotificationDto dto2 = objectMapper.treeToValue(root, TranferenceNotificationDto.class);
-
                     //Encaminhamento para envio via email
                     try {
-                        emailNotificationService.processNotification(dto2);
+                        emailNotificationService.processNotification(dto);
                     } catch (Exception e) {
                         System.out.println("Erro ao enviar e-mail: {" + e.getMessage() +"}");
                     }
 
+                    break;
+                case "tranference":
+                    TranferenceNotificationDto dto2 = objectMapper.treeToValue(root, TranferenceNotificationDto.class);
 
                     // Enviar notificação WebSocket
                     try {
@@ -75,23 +66,29 @@ public class NotificationConsumer {
                         System.out.println("Erro ao enviar notificação in-app: {" + e.getMessage() +"}");
                     }
 
-                    break;
-                case "withdrawal":
-                    WithdrawalNotificationDto dto3 = objectMapper.treeToValue(root, WithdrawalNotificationDto.class);
-
                     //Encaminhamento para envio via email
                     try {
-                        emailNotificationService.processNotification(dto3);
+                        emailNotificationService.processNotification(dto2);
                     } catch (Exception e) {
                         System.out.println("Erro ao enviar e-mail: {" + e.getMessage() +"}");
                     }
 
+                    break;
+                case "withdrawal":
+                    WithdrawalNotificationDto dto3 = objectMapper.treeToValue(root, WithdrawalNotificationDto.class);
 
                     // Enviar notificação WebSocket
                     try {
                         webSocketNotificationService.processNotification(dto3);
                     } catch (Exception e) {
                         System.out.println("Erro ao enviar notificação in-app: {" + e.getMessage() +"}");
+                    }
+
+                    //Encaminhamento para envio via email
+                    try {
+                        emailNotificationService.processNotification(dto3);
+                    } catch (Exception e) {
+                        System.out.println("Erro ao enviar e-mail: {" + e.getMessage() +"}");
                     }
 
                     break;

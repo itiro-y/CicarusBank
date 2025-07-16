@@ -63,20 +63,26 @@ public class WebSocketNotificationService {
     public void persistAndSend(NotificationMessageDto notificationdto) {
         //Persistir no banco
         NotificationModel notificationmodel = new NotificationModel(notificationdto);
+
+        System.out.println("Persistando novo notification e atribuindo ao novo dto \n");
         notificationRepository.save(notificationmodel);
 
+        notificationdto.setId(notificationmodel.getId());
+
         //Enviar
+        System.out.printf("A partir daqui, vai chamar o metodo que vai enviar a notificação via websocket. notificationDto: %s\n", notificationdto.toString());
         sendNotificationToUser(notificationdto.getUserId(), notificationdto);
     }
 
     public void sendNotificationToUser(Long userId, NotificationMessageDto dto) {
+
+        System.out.println("Enviando notificação para usuário ID {"+userId+"} no destino /queue/notifications\n");
         // Rota que o front deve se inscrever: /topic/notifications/{userId}
         messagingTemplate.convertAndSendToUser(
-                userId.toString(),             // identifica o usuário
-                "/queue/notification",       // destino que o usuário vai escutar
+                String.valueOf(dto.getUserId()),             // identifica o usuário
+                "/queue/notifications",       // destino que o usuário vai escutar
                 dto                            // mensagem
         );
-//        messagingTemplate.convertAndSend("/topic/notification/" + userId, dto);
     }
 
     public List<NotificationMessageDto> listAllByUserId(Long userId) {

@@ -1,6 +1,7 @@
 spring:
   application:
     name: notification
+
   kafka:
     bootstrap-servers: kafka:9092
     consumer:
@@ -65,3 +66,9 @@ springdoc:
 #jwt:
 #  secret: hzAS6BikJ_2Ft3fEye-lqwGviIeGbWFRG9mEnNDzQp4=
 #  expiration: 86400000 # 24 horas em ms
+
+#logging:
+#  level:
+#    org.springframework.web.socket: DEBUG
+#    org.springframework.messaging: DEBUG
+#    org.springframework.web.socket.messaging: DEBUG

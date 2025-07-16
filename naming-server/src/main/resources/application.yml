@@ -1,5 +1,5 @@
 server:
-  port: 8761
+  port: ${PORT:8761}
 spring:
   application:
     name: naming-server
@@ -8,4 +8,4 @@ eureka:
     register-with-eureka: false
     fetch-registry: false
   service-url:
-    defaultZone: http://localhost:8761/eureka/
+    defaultZone: https://naming-server-app.azurewebsites.net/eureka/

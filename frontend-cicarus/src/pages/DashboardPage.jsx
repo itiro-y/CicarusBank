@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import {
     Box, Container, Typography, Grid, Paper, IconButton,
     List, ListItem, ListItemAvatar, Avatar, ListItemText, Divider, Stack, Button, useTheme, Skeleton
@@ -68,18 +69,33 @@ const BalanceCard = ({ balance, loading }) => {
 };
 
 const QuickActions = () => {
+    const navigate = useNavigate(); // 2. INICIALIZADO O HOOK
     const actions = [
-        { label: 'Transferir', icon: <TrendingUp sx={{ fontSize: 28 }} /> },
-        { label: 'Pagar', icon: <ReceiptLong sx={{ fontSize: 28 }} /> },
-        { label: 'Pix', icon: <Pix sx={{ fontSize: 28 }} /> },
-        { label: 'Recarga', icon: <Smartphone sx={{ fontSize: 28 }} /> },
+        { label: 'Transferir', icon: <TrendingUp sx={{ fontSize: 28 }} />, path: '/user-transactions' },
+        { label: 'Pagar', icon: <ReceiptLong sx={{ fontSize: 28 }} />, path: '/payment' },
+        { label: 'Pix', icon: <Pix sx={{ fontSize: 28 }} />, path: '/pix' }, // 3. ADICIONADO O CAMINHO (path)
+        { label: 'Recarga', icon: <Smartphone sx={{ fontSize: 28 }} />, path: '/recharge' },
     ];
     return (
         <Paper elevation={0} sx={{ p: 2, borderRadius: '16px', backgroundColor: 'background.paper', border: '1px solid', borderColor: 'divider', height: '100%' }}>
             <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', mb: 2, px: 1 }}>Ações Rápidas</Typography>
             <Box sx={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center' }}>
                 {actions.map(action => (
-                    <Box key={action.label} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, cursor: 'pointer', p: 1, borderRadius: '12px', transition: 'background-color 0.2s', '&:hover': { backgroundColor: 'action.hover' } }}>
+                    <Box
+                        key={action.label}
+                        onClick={() => action.path && navigate(action.path)}
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: 1,
+                            cursor: 'pointer',
+                            p: 1,
+                            borderRadius: '12px',
+                            transition: 'background-color 0.2s',
+                            '&:hover': { backgroundColor: 'action.hover' }
+                        }}
+                    >
                         <Box sx={{ p: 2, borderRadius: '50%', backgroundColor: 'primary.main', color: 'primary.contrastText', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             {action.icon}
                         </Box>
@@ -222,17 +238,34 @@ const CreditCardComponent = () => {
 };
 
 const CardManagementActions = () => {
+    const navigate = useNavigate();
+
     const actions = [
         { label: "Ver Fatura", icon: <Article /> },
-        { label: "Ajustar Limite", icon: <Tune /> },
+        { label: "Ajustar Limite", icon: <Tune />, path: '/card-limit' },
         { label: "Bloquear Cartão", icon: <Lock /> },
-        { label: "Cartão Virtual", icon: <AddCard /> },
+        { label: "Cartão Virtual", icon: <AddCard />, path: '/virtual-card' },
     ];
+
     return (
         <Paper elevation={0} sx={{p:2, borderRadius: '16px', backgroundColor: 'background.paper', border: '1px solid', borderColor: 'divider', maxWidth: 400, mx: 'auto'}}>
             <Stack divider={<Divider flexItem />}>
                 {actions.map(action => (
-                    <Button key={action.label} startIcon={action.icon} sx={{ justifyContent: 'flex-start', p: 1.5, color: 'text.primary', textTransform: 'none' }}>
+                    <Button
+                        key={action.label}
+                        startIcon={action.icon}
+                        onClick={() => {
+                            if (action.path) {
+                                navigate(action.path);
+                            }
+                        }}
+                        sx={{
+                            justifyContent: 'flex-start',
+                            p: 1.5,
+                            color: 'text.primary',
+                            textTransform: 'none'
+                        }}
+                    >
                         {action.label}
                     </Button>
                 ))}

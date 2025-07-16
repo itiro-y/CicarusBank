@@ -2,6 +2,7 @@ package com.cicarus.card.service;
 
 import com.cicarus.card.dtos.CardDto;
 import com.cicarus.card.dtos.CardRequestDto;
+import com.cicarus.card.dtos.CardStatusRequestDto; // Adicionado
 import com.cicarus.card.model.Card;
 import com.cicarus.card.model.CardStatus;
 import com.cicarus.card.repository.CardRepository;
@@ -10,9 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,19 +24,19 @@ public class CardService {
 
     public List<CardDto> findAll(){
         return cardRepository.findAll().stream()
-                                       .map(this::toDto)
-                                       .collect(Collectors.toList());
+                .map(this::toDto)
+                .collect(Collectors.toList());
     }
 
     public CardDto findById(Long id){
         return cardRepository.findById(id).map(this::toDto)
-                                          .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Card not found: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Card not found: " + id));
     }
 
     public List<CardDto> findAllCustomersById(Long id){
         return cardRepository.findAllByCustomerId(id).stream()
-                                                     .map(this::toDto)
-                                                     .collect(Collectors.toList());
+                .map(this::toDto)
+                .collect(Collectors.toList());
     }
 
     public CardDto create(CardRequestDto cardRequestDto){
@@ -67,6 +65,17 @@ public class CardService {
         } else{
             return ResponseEntity.badRequest().body("Card of " + id + " not found");
         }
+    }
+
+    // NOVO MÉTODO ADICIONADO
+    public ResponseEntity<String> updateStatus(Long cardId, CardStatus newStatus) {
+        return cardRepository.findById(cardId)
+                .map(card -> {
+                    card.setStatus(newStatus);
+                    cardRepository.save(card);
+                    return ResponseEntity.ok("Status do cartão com ID " + cardId + " atualizado para " + newStatus);
+                })
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cartão com ID " + cardId + " não encontrado"));
     }
 
     private CardDto toDto(Card c) {
@@ -100,4 +109,3 @@ public class CardService {
         return c;
     }
 }
-

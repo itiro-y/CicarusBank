@@ -16,8 +16,8 @@ spring:
               uri: lb://account
               predicates:
                 - Path=/account/**
-            #              filters:
-            #                - AuthenticationFilter
+              filters:
+                - AuthenticationFilter
 
             - id: auth
               uri: lb://auth
@@ -49,8 +49,8 @@ spring:
               uri: lb://exchange
               predicates:
                 - Path=/exchange/**
-            #              filters:
-            #                - AuthenticationFilter
+              filters:
+                - AuthenticationFilter
             #              filters:
             #                - StripPrefix=1
 
@@ -94,8 +94,8 @@ springdoc:
         url: /statement-service/v3/api-docs
   override-server-url: true
 
-#jwt:
-#  secret: hzAS6BikJ_2Ft3fEye-lqwGviIeGbWFRG9mEnNDzQp4=
-#  expiration: 86400000 # 24 horas em ms
+jwt:
+  secret: hzAS6BikJ_2Ft3fEye-lqwGviIeGbWFRG9mEnNDzQp4=
+  expiration: 86400000 # 24 horas em ms
 
 

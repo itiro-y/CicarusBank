@@ -21,6 +21,7 @@ import AdminInvestmentsPage from "./pages/AdminInvestmentsPage.jsx";
 import VirtualCardCreationPage from './pages/VirtualCardCreationPage.jsx';
 import ConnectedDevicesPage from "./pages/ConnectedDevicesPage.jsx";
 import BillPaymentPage from "./pages/BillPaymentPage.jsx";
+import CardLimitPage from "./pages/CardLimitPage.jsx";
 
 function App() {
     return (
@@ -36,6 +37,7 @@ function App() {
                 <Route path="/loan" element={<LoanSimulationPage />} />
                 <Route path="/loan-tracking" element={<LoanTrackingPage />} />
                 <Route path="/user-card" element={<CardManagementPage />} />
+                <Route path="/card-limit" element={<CardLimitPage />} />
                 <Route path="/pix" element={<PixPage />} />
                 <Route path="/recharge" element={<MobileRechargePage />} />
                 <Route path="/payment" element={<BillPaymentPage />} />

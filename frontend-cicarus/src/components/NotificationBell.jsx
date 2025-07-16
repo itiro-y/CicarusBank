@@ -166,12 +166,6 @@ export default function NotificationBell() {
         window.stompClient = stompClient;
     };
 
-
-    // useEffect(() => {
-    //     fetchNotifications();
-    //     connectWebSocket();
-    // }, [userId]);
-
     useEffect(() => {
         // Evita conexões duplicadas
         if (stompClientRef.current) {

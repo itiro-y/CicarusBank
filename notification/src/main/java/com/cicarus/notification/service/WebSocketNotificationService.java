@@ -26,6 +26,7 @@ public class WebSocketNotificationService {
                 dto.getCustomerId(),
                 "Novo depósito em sua conta",
                 "Você recebeu R$" + dto.getAmount(),
+                dto.getCustomerName()+", você recebeu um depósito de R$" + dto.getAmount() +"Em sua conta.",
                 dto.getDateTime().toString(),
                 false
         );
@@ -39,6 +40,7 @@ public class WebSocketNotificationService {
                 dto.getCustomerId(),
                 "Transferência realizada",
                 "Você transferiu R$" + dto.getAmount() +" para "+ dto.getCustomerToName(),
+                dto.getCustomerName()+", você transferiu R$" + dto.getAmount() +" para "+ dto.getCustomerToName() +".",
                 dto.getDateTime().toString(),
                 false
         );
@@ -52,6 +54,7 @@ public class WebSocketNotificationService {
                 dto.getCustomerId(),
                 "Saque realizado em sua conta",
                 "Saque de R$" + dto.getAmount() +" realizado em sua conta",
+                "Saque de R$" + dto.getAmount() +" realizado em sua conta.",
                 dto.getDateTime().toString(),
                 false
         );

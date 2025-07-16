@@ -7,25 +7,28 @@ public class NotificationMessageDto {
     private Long userId;
     private String title;
     private String message;
+    private String fullDescription;
     private String timestamp;
     private boolean read;
 
     public NotificationMessageDto() {
     }
 
-    public NotificationMessageDto(Long userId, String title, String message, String timestamp, boolean read) {
+    public NotificationMessageDto(Long userId, String title, String message, String fullDescription, String timestamp, boolean read) {
         this.userId = userId;
         this.title = title;
         this.message = message;
+        this.fullDescription = fullDescription;
         this.timestamp = timestamp;
         this.read = read;
     }
 
-    public NotificationMessageDto(Long id, Long userId, String title, String message, String timestamp, boolean read) {
+    public NotificationMessageDto(Long id, Long userId, String title, String message, String fullDescription, String timestamp, boolean read) {
         this.id = id;
         this.userId = userId;
         this.title = title;
         this.message = message;
+        this.fullDescription = fullDescription;
         this.timestamp = timestamp;
         this.read = read;
     }
@@ -35,6 +38,7 @@ public class NotificationMessageDto {
         this.userId = notificationModel.getUserId();
         this.title = notificationModel.getTitle();
         this.message = notificationModel.getMessage();
+        this.fullDescription = notificationModel.getFullDescription();
         this.timestamp = notificationModel.getTimestamp();
         this.read = notificationModel.isRead();
     }
@@ -45,6 +49,7 @@ public class NotificationMessageDto {
                 entity.getId(),
                 entity.getTitle(),
                 entity.getMessage(),
+                entity.getFullDescription(),
                 entity.getTimestamp().toString(),
                 entity.isRead()
         );
@@ -98,6 +103,14 @@ public class NotificationMessageDto {
         this.read = read;
     }
 
+    public String getFullDescription() {
+        return fullDescription;
+    }
+
+    public void setFullDescription(String fullDescription) {
+        this.fullDescription = fullDescription;
+    }
+
     @Override
     public String toString() {
         return "NotificationMessageDto{" +
@@ -105,6 +118,7 @@ public class NotificationMessageDto {
                 ", userId=" + userId +
                 ", title='" + title + '\'' +
                 ", message='" + message + '\'' +
+                ", fullDescription='" + fullDescription + '\'' +
                 ", timestamp='" + timestamp + '\'' +
                 ", read=" + read +
                 '}';

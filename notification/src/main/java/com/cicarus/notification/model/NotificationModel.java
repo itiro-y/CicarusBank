@@ -13,6 +13,7 @@ public class NotificationModel {
     private Long userId;
     private String title;
     private String message;
+    private String fullDescription;
     private String timestamp;
 
     @Column(name = "read_flag")
@@ -21,10 +22,11 @@ public class NotificationModel {
     public NotificationModel() {
     }
 
-    public NotificationModel(Long userId, String title, String message, String timestamp) {
+    public NotificationModel(Long userId, String title, String message, String fullDescription, String timestamp) {
         this.userId = userId;
         this.title = title;
         this.message = message;
+        this.fullDescription = fullDescription;
         this.timestamp = timestamp;
         this.read = false;
     }
@@ -33,6 +35,7 @@ public class NotificationModel {
         this.userId = notificationMessageDto.getUserId();
         this.title = notificationMessageDto.getTitle();
         this.message = notificationMessageDto.getMessage();
+        this.fullDescription = notificationMessageDto.getFullDescription();
         this.timestamp = notificationMessageDto.getTimestamp();
         this.read = false;
     }
@@ -79,5 +82,13 @@ public class NotificationModel {
 
     public void setRead(boolean read) {
         this.read = read;
+    }
+
+    public String getFullDescription() {
+        return fullDescription;
+    }
+
+    public void setFullDescription(String fullDescription) {
+        this.fullDescription = fullDescription;
     }
 }

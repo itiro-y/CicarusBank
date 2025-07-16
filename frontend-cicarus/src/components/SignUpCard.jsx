@@ -143,7 +143,7 @@ function SignUpCard({ onSwitchToSignIn }) {
         }}>
             <Box component="form" noValidate>
                 <CardContent component={Stack} spacing={1} alignItems="center">
-                    <img src="https://i.postimg.cc/HntRVrDy/f85b6d78-659d-4b19-85b2-ed764895fa09-removebg-preview.png" alt="CicarusBank Logo" style={logoStyle} />
+                    <img src="https://i.postimg.cc/tTNVVxN9/Whisk-ebcbb91926.png" alt="CicarusBank Logo" style={logoStyle} />
                     <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold', color: 'text.primary', pt: 2 }}>Criar Sua Conta</Typography>
                     <Typography variant="body2" sx={{ color: 'text.secondary', pb: 2 }}>Etapa {step} de 2: {step === 1 ? 'Dados Pessoais' : 'Endereço'}</Typography>
                     <AnimatePresence mode="wait">

@@ -72,7 +72,7 @@ export default function SignInCard({ onSwitchToSignUp }) {
         }}>
             <Box component="form" onSubmit={handleSubmit} noValidate>
                 <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-                    <img src="https://i.postimg.cc/HntRVrDy/f85b6d78-659d-4b19-85b2-ed764895fa09-removebg-preview.png" alt="CicarusBank Logo" style={logoStyle} />
+                    <img src="https://i.postimg.cc/tTNVVxN9/Whisk-ebcbb91926.png" alt="CicarusBank Logo" style={logoStyle} />
                 </Box>
                 <Typography component="h1" variant="h4" sx={{ color: 'text.primary', fontWeight: 'bold', textAlign: 'center' }}>
                     Acesse sua conta

@@ -1,6 +1,6 @@
 package com.cicarus.notification.service;
 
-import com.cicarus.notification.model.Notification;
+import com.cicarus.notification.model.EmailModel;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -12,11 +12,11 @@ public class NotificationSender {
         this.emailSender = emailSender;
     }
 
-    public void send(Notification notification) {
-        switch (notification.getChannel()) {
-            case "EMAIL" -> emailSender.sendEmail(notification);
-            case "SMS" -> System.out.println("📲 SMS enviado: " + notification.getMessage());
-            case "PUSH" -> System.out.println("🔔 PUSH enviado: " + notification.getMessage());
+    public void send(EmailModel emailModel) {
+        switch (emailModel.getChannel()) {
+            case "EMAIL" -> emailSender.sendEmail(emailModel);
+            case "SMS" -> System.out.println("📲 SMS enviado: " + emailModel.getMessage());
+            case "PUSH" -> System.out.println("🔔 PUSH enviado: " + emailModel.getMessage());
         }
     }
 }

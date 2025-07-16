@@ -4,11 +4,11 @@ import com.sicarus.dto.AuthRequest;
 import com.sicarus.dto.AuthResponse;
 import com.sicarus.model.User;
 import com.sicarus.repository.UserRepository;
-import com.sicarus.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class AuthService {
@@ -17,7 +17,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    @Autowired
+
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        JwtUtil jwtUtil) {
@@ -38,4 +38,5 @@ public class AuthService {
         String token = jwtUtil.generateToken(user.getUsername(), user.getRoles());
         return new AuthResponse(token);
     }
+
 }

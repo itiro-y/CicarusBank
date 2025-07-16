@@ -95,6 +95,7 @@ springdoc:
   override-server-url: true
 
 #jwt:
+#  secret: mySecretKey
 #  secret: hzAS6BikJ_2Ft3fEye-lqwGviIeGbWFRG9mEnNDzQp4=
 #  expiration: 86400000 # 24 horas em ms
 

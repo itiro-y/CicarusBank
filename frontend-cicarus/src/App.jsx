@@ -17,6 +17,8 @@ import MobileRechargePage from './pages/MobileRechargePage.jsx';
 import BenefitsPage from './pages/BenefitsPage.jsx';
 // import InvestmentsPage from './pages/InvestmentsPage.jsx';
 import VirtualCardCreationPage from './pages/VirtualCardCreationPage.jsx';
+import ConnectedDevicesPage from "./pages/ConnectedDevicesPage.jsx";
+import BillPaymentPage from "./pages/BillPaymentPage.jsx";
 
 function App() {
     return (
@@ -33,8 +35,10 @@ function App() {
                 <Route path="/loan-tracking" element={<LoanTrackingPage />} />
                 <Route path="/user-card" element={<CardManagementPage />} />
                 <Route path="/pix" element={<PixPage />} />
-                <Route path="/recharge" element={<MobileRechargePage />} /> 
+                <Route path="/recharge" element={<MobileRechargePage />} />
+                <Route path="/payment" element={<BillPaymentPage />} />
                 <Route path="/benefits" element={<BenefitsPage />} />
+                <Route path="/connected-devices" element={<ConnectedDevicesPage />} />
                 {/*<Route path="/investments" element={<InvestmentsPage />} />*/}
                 <Route
                     path="/admin/dashboard"

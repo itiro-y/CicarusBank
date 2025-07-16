@@ -10,6 +10,7 @@ import {
     CreditCard, AccountBalance, Home, VpnKey, PhoneAndroid, Business, Close
 } from '@mui/icons-material';
 import AppAppBar from '../components/AppAppBar.jsx';
+import { useNavigate } from "react-router-dom";
 
 // ------------------ MOCK ------------------
 const initialProfile = {
@@ -197,21 +198,30 @@ const AccountInfo = ({ profile }) => (
     </InfoWidget>
 );
 
-const SecurityActions = () => (
-    <InfoWidget title="Segurança">
-        <Stack spacing={2}>
-            <Button variant="contained" startIcon={<Lock />} color="primary" sx={{ justifyContent: 'flex-start', py: 1.5 }}>
-                Alterar Senha de Acesso
-            </Button>
-            <Button variant="outlined" startIcon={<Shield />} sx={{ justifyContent: 'flex-start', py: 1.5 }}>
-                Gerenciar Dispositivos Conectados
-            </Button>
-            <Button variant="outlined" startIcon={<PhoneAndroid />} sx={{ justifyContent: 'flex-start', py: 1.5 }}>
-                Validar iSafe Token
-            </Button>
-        </Stack>
-    </InfoWidget>
-);
+const SecurityActions = () => {
+    const navigate = useNavigate();
+
+    return (
+        <InfoWidget title="Segurança">
+            <Stack spacing={2}>
+                <Button variant="contained" startIcon={<Lock />} color="primary" sx={{ justifyContent: 'flex-start', py: 1.5 }}>
+                    Alterar Senha de Acesso
+                </Button>
+                <Button
+                    variant="outlined"
+                    startIcon={<Shield />}
+                    sx={{ justifyContent: 'flex-start', py: 1.5 }}
+                    onClick={() => navigate('/connected-devices')}
+                >
+                    Gerenciar Dispositivos Conectados
+                </Button>
+                <Button variant="outlined" startIcon={<PhoneAndroid />} sx={{ justifyContent: 'flex-start', py: 1.5 }}>
+                    Validar iSafe Token
+                </Button>
+            </Stack>
+        </InfoWidget>
+    );
+};
 
 
 // ------------------ PÁGINA PRINCIPAL ------------------

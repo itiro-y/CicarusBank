@@ -1,36 +1,36 @@
 package com.cicarus.notification.dto;
 
-public class NotificationDto {
+public class EmailDto {
     private Long customerId;
     private String channel;
     private String message;
     private String recipientEmail;
 
-    public NotificationDto() {
+    public EmailDto() {
     }
 
-    public NotificationDto(Long customerId, String channel, String message, String recipientEmail) {
+    public EmailDto(Long customerId, String channel, String message, String recipientEmail) {
         this.customerId = customerId;
         this.channel = channel;
         this.message = message;
         this.recipientEmail = recipientEmail;
     }
 
-    public NotificationDto(DepositNotificationDto dto) {
+    public EmailDto(DepositNotificationDto dto) {
         this.customerId = dto.getCustomerId();
         this.channel = dto.getChannel();
         this.message = dto.getBody();
         this.recipientEmail = dto.getRecipientEmail();
     }
 
-    public NotificationDto(TranferenceNotificationDto dto) {
+    public EmailDto(TranferenceNotificationDto dto) {
         this.customerId = dto.getCustomerId();
         this.channel = dto.getChannel();
         this.message = dto.getBody();
         this.recipientEmail = dto.getRecipientEmail();
     }
 
-    public NotificationDto(WithdrawalNotificationDto dto) {
+    public EmailDto(WithdrawalNotificationDto dto) {
         this.customerId = dto.getCustomerId();
         this.channel = dto.getChannel();
         this.message = dto.getBody();

@@ -16,8 +16,10 @@
     "@mui/material": "^7.2.0",
     "@mui/x-data-grid": "^8.8.0",
     "@react-google-maps/api": "^2.20.7",
+    "@stomp/stompjs": "^7.1.1",
     "@vis.gl/react-google-maps": "^1.5.4",
     "axios": "^1.10.0",
+    "date-fns": "^4.1.0",
     "framer-motion": "^12.23.1",
     "mapbox-gl": "^3.13.0",
     "react": "^19.1.0",
@@ -30,6 +32,7 @@
     "react-slick": "^0.30.3",
     "recharts": "^3.1.0",
     "slick-carousel": "^1.8.1",
+    "sockjs-client": "^1.5.1",
     "sweetalert2": "^11.22.2"
   },
   "devDependencies": {

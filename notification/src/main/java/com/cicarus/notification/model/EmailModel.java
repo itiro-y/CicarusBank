@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import java.time.Instant;
 
 @Entity
-public class Notification {
+public class EmailModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,11 +22,11 @@ public class Notification {
     private String recipientEmail;
 
     // 1. Construtor sem argumentos (necessário para o JPA)
-    public Notification() {
+    public EmailModel() {
     }
 
     // 2. Construtor com todos os argumentos (útil para testes)
-    public Notification(Long id, Long customerId, String channel, String message, Instant sentAt, String recipientEmail) {
+    public EmailModel(Long id, Long customerId, String channel, String message, Instant sentAt, String recipientEmail) {
         this.id = id;
         this.customerId = customerId;
         this.channel = channel;
@@ -35,7 +35,7 @@ public class Notification {
         this.recipientEmail = recipientEmail;
     }
   
-    public Notification(Long customerId, String channel, String message, String recipientEmail, Instant sentAt) {
+    public EmailModel(Long customerId, String channel, String message, String recipientEmail, Instant sentAt) {
         this.customerId = customerId;
         this.channel = channel;
         this.message = message;
@@ -130,14 +130,14 @@ public class Notification {
             return this;
         }
 
-        public Notification build() {
-            Notification notification = new Notification();
-            notification.setCustomerId(this.customerId);
-            notification.setChannel(this.channel);
-            notification.setMessage(this.message);
-            notification.setSentAt(this.sentAt);
-            notification.setRecipientEmail(this.recipientEmail);
-            return notification;
+        public EmailModel build() {
+            EmailModel emailModel = new EmailModel();
+            emailModel.setCustomerId(this.customerId);
+            emailModel.setChannel(this.channel);
+            emailModel.setMessage(this.message);
+            emailModel.setSentAt(this.sentAt);
+            emailModel.setRecipientEmail(this.recipientEmail);
+            return emailModel;
         }
     }
 }

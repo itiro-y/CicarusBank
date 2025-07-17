@@ -82,6 +82,20 @@ spring:
 #              filters:
 #                - AuthenticationFilter
 
+            - id: investment-crypto
+              uri: lb://investment
+              predicates:
+                - Path=/crypto/**
+#              filters:
+#                - AuthenticationFilter
+
+            - id: investment-stock
+              uri: lb://investment
+              predicates:
+                - Path=/stock/**
+#              filters:
+#                - AuthenticationFilter
+
 springdoc:
   swagger-ui:
     urls:

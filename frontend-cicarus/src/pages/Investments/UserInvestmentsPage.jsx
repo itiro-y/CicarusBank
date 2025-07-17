@@ -265,14 +265,18 @@ export default function UserInvestmentsPage() {
                                             ? undefined
                                             : card.title === 'Fundo Imobiliário'
                                                 ? undefined
-                                                : RouterLink
+                                                : card.title === 'Ações'
+                                                    ? RouterLink
+                                                    : RouterLink
                                     }
                                     to={
                                         card.title === 'Renda Fixa'
                                             ? undefined
                                             : card.title === 'Fundo Imobiliário'
                                                 ? undefined
-                                                : card.to
+                                                : card.title === 'Ações'
+                                                    ? '/investments/acoes'
+                                                    : card.to
                                     }
                                     variant="contained"
                                     color="primary"

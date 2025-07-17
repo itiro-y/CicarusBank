@@ -23,6 +23,7 @@ import ConnectedDevicesPage from "./pages/Profile/ConnectedDevicesPage.jsx";
 import BillPaymentPage from "./pages/Dashboard/BillPaymentPage.jsx";
 import CryptoInvestmentsPage from "./pages/Investments/CryptoInvestmentsPage.jsx";
 import CardLimitPage from "./pages/Cards/CardLimitPage.jsx";
+import StockInvestmentsPage from "./pages/Investments/StockInvestmentsPage.jsx";
 
 function App() {
     return (
@@ -46,7 +47,7 @@ function App() {
                 <Route path="/user-investments" element={<UserInvestmentsPage />} />
                 <Route path="/admin-investments" element={<AdminInvestmentsPage />} />
                 <Route path="/connected-devices" element={<ConnectedDevicesPage />} />
-                {/*<Route path="/investments" element={<InvestmentsPage />} />*/}
+                <Route path="/investments/acoes" element={<StockInvestmentsPage />} />
                 <Route
                     path="/admin/dashboard"
                     element={

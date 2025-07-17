@@ -4,20 +4,20 @@ import com.cicarus.investment.dtos.crypto.CryptoDto;
 import com.cicarus.investment.dtos.crypto.CryptoRequestDto;
 import com.cicarus.investment.service.CryptoService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("crypto")
+@Tag(name = "Crypto Microservice")
 public class CryptoController {
     private CryptoService cryptoService;
 
     public CryptoController(CryptoService cryptoService) {
         this.cryptoService = cryptoService;
     }
-
-
 
     @Operation(summary = "Get that returns a list of all investments")
     @GetMapping

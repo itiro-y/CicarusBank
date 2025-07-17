@@ -9,7 +9,7 @@ import ExchangePage from './pages/ExchangePage.jsx';
 import CardManagementPage from "./pages/CardManagementPage.jsx";
 import LoanSimulationPage from "./pages/LoanSimulationPage.jsx";
 import LoanTrackingPage from "./pages/LoanTrackingPage.jsx";
-import AdminDashboardPage from './pages/AdminDashboardPage.jsx';
+import AdminDashboard from './pages/AdminDashboard.jsx';
 import AdminRoute from './components/AdminRoute.jsx';
 import NearbyAgenciesPage from './pages/NearbyAgenciesPage.jsx';
 import PixPage from './pages/PixPage.jsx';
@@ -50,7 +50,7 @@ function App() {
                     path="/admin/dashboard"
                     element={
                         <AdminRoute>
-                            <AdminDashboardPage />
+                            <AdminDashboard />
                         </AdminRoute>
                     }
                 />

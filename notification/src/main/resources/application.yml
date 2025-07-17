@@ -1,8 +1,9 @@
 spring:
   application:
     name: notification
+
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: kafka:9092
     consumer:
       group-id: notification
       auto-offset-reset: earliest
@@ -17,7 +18,7 @@ spring:
     password: 123
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     show-sql: true
 
   mail:
@@ -65,3 +66,9 @@ springdoc:
 #jwt:
 #  secret: hzAS6BikJ_2Ft3fEye-lqwGviIeGbWFRG9mEnNDzQp4=
 #  expiration: 86400000 # 24 horas em ms
+
+#logging:
+#  level:
+#    org.springframework.web.socket: DEBUG
+#    org.springframework.messaging: DEBUG
+#    org.springframework.web.socket.messaging: DEBUG

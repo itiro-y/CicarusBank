@@ -79,3 +79,4 @@ graph TD
     naming_server --> card_service
     naming_server --> statement_service
 ```
+docker-compose up mysql-auth mysql-customer mysql-emailModel mysql-statement mysql-currency mysql-account mysql-transaction mysql-loan mysql-card --build -d

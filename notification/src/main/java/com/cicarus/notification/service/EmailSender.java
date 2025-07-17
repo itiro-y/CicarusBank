@@ -1,7 +1,6 @@
 package com.cicarus.notification.service;
 
-import com.cicarus.notification.dto.NotificationDto;
-import com.cicarus.notification.model.Notification;
+import com.cicarus.notification.model.EmailModel;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.core.io.ClassPathResource;
@@ -21,16 +20,16 @@ public class EmailSender {
     }
 
 
-    public void sendEmail(Notification notification) {
+    public void sendEmail(EmailModel emailModel) {
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 
             helper.setFrom("cicarusbank@gmail.com"); // substitua pelo seu
-            helper.setTo(notification.getRecipientEmail());
+            helper.setTo(emailModel.getRecipientEmail());
             helper.setSubject("Notificação do Cicarus Bank");
 
-            String corpoEmailComBr = notification.getMessage().replace("\n", "<br>");
+            String corpoEmailComBr = emailModel.getMessage().replace("\n", "<br>");
 
             // Corpo do e-mail com assinatura visual
             String body = String.format("""
@@ -49,7 +48,7 @@ public class EmailSender {
             helper.addInline("cicarus-signature", image);
 
             mailSender.send(mimeMessage);
-            System.out.println("📧 E-mail com assinatura visual enviado para " + notification.getRecipientEmail());
+            System.out.println("📧 E-mail com assinatura visual enviado para " + emailModel.getRecipientEmail());
 
         } catch (MessagingException e) {
             throw new RuntimeException("Erro ao enviar e-mail", e);

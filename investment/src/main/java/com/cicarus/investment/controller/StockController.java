@@ -5,6 +5,7 @@ import com.cicarus.investment.dtos.crypto.CryptoRequestDto;
 import com.cicarus.investment.dtos.stock.StockDto;
 import com.cicarus.investment.dtos.stock.StockRequestDto;
 import com.cicarus.investment.service.StockService;
+import com.cicarus.investment.service.account.AccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +18,11 @@ import java.util.List;
 @Tag(name = "Stock Microservice")
 public class StockController {
     private StockService stockService;
+    private AccountService accountService;
 
-    public StockController(StockService stockService) {
+    public StockController(StockService stockService, AccountService accountService) {
         this.stockService = stockService;
+        this.accountService = accountService;
     }
 
     @Operation(summary = "Get that returns a list of all stocks")
@@ -43,6 +46,8 @@ public class StockController {
     @Operation(summary = "Post that creates a new Stock based on a StockRequestDto JSON")
     @PostMapping()
     public StockDto createInvestment(@RequestBody StockRequestDto stockRequestDto) {
+        // Check if the user has enough USD in their account to make the purchase, and if he does, withdraw the amount
+        accountService.withdrawUSD(stockRequestDto.accountId(), stockRequestDto.currentPrice().multiply(stockRequestDto.volume()));
         return stockService.create(stockRequestDto);
     }
 

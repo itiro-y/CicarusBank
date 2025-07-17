@@ -5,6 +5,7 @@ import com.cicarus.investment.dtos.crypto.CryptoRequestDto;
 import com.cicarus.investment.dtos.investment.InvestmentDto;
 import com.cicarus.investment.model.investment.InvestmentType;
 import com.cicarus.investment.service.CryptoService;
+import com.cicarus.investment.service.account.AccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +18,11 @@ import java.util.List;
 @Tag(name = "Crypto Microservice")
 public class CryptoController {
     private CryptoService cryptoService;
+    private AccountService accountService;
 
-    public CryptoController(CryptoService cryptoService) {
+    public CryptoController(CryptoService cryptoService, AccountService accountService) {
         this.cryptoService = cryptoService;
+        this.accountService = accountService;
     }
 
     @Operation(summary = "Get that returns a list of all investments")
@@ -43,6 +46,8 @@ public class CryptoController {
     @Operation(summary = "Post that creates a new Investment based on a InvestmentRequestDto JSON")
     @PostMapping()
     public CryptoDto createInvestment(@RequestBody CryptoRequestDto cryptoRequestDto) {
+        // Check if the user has enough USD in their account to make the purchase, and if he does, withdraw the amount
+        accountService.withdrawUSD(cryptoRequestDto.accountId(), cryptoRequestDto.amountInvested());
         return cryptoService.create(cryptoRequestDto);
     }
 

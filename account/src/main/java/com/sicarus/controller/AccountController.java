@@ -209,4 +209,20 @@ public class AccountController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found for account ID: " + request.getAccountId());
         }
     }
+
+    @PutMapping("/account/withdrwaUSD/{accountId}/{amount}")
+    public Account withdrwaUSD(@PathVariable Long accountId, @PathVariable BigDecimal amount) {
+        Optional<Account> optionalAccount = accountRepository.findById(accountId);
+
+        if (optionalAccount.isPresent()) {
+            Account account = optionalAccount.get();
+            if (account.getUsdWallet().compareTo(amount) < 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Saldo insuficiente em USD");
+            }
+            account.setUsdWallet(account.getUsdWallet().subtract(amount));
+            return accountRepository.save(account);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta não encontrada para o ID: " + accountId);
+        }
+    }
 }

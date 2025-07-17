@@ -14,7 +14,7 @@ INSERT INTO crypto (
           1,
           'BITCOIN',
           'ACTIVE',
-          0.50,
+          1000.00,
           0.60,
           1.20,
           '2025-01-10 00:00:00'
@@ -23,7 +23,7 @@ INSERT INTO crypto (
           2,
           'ETHEREUM',
           'ACTIVE',
-          2.00,
+          1000.00,
           2.10,
           1.05,
           '2025-02-15 00:00:00'

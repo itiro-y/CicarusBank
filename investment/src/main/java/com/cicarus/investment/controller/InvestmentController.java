@@ -2,11 +2,13 @@ package com.cicarus.investment.controller;
 
 import com.cicarus.investment.dtos.investment.InvestmentDto;
 import com.cicarus.investment.dtos.investment.InvestmentRequestDto;
+import com.cicarus.investment.model.investment.InvestmentType;
 import com.cicarus.investment.service.InvestmentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -42,5 +44,33 @@ public class InvestmentController {
     @PostMapping()
     public InvestmentDto createInvestment(@RequestBody InvestmentRequestDto investmentRequestDto) {
         return investmentService.create(investmentRequestDto);
+    }
+
+    @Operation(summary = "Get that returns a sum of of a user's investment type RENDA_FIXA")
+    @GetMapping("/renda-fixa/sum/{accountId}")
+    public BigDecimal getUsersInvestmentRendaFixa(@PathVariable Long accountId) {
+        BigDecimal sum = BigDecimal.ZERO;
+        List<InvestmentDto> investments = investmentService.findAllByAccountId(accountId);
+
+        for( InvestmentDto investment : investments) {
+            if(investment.type().equals(InvestmentType.RENDA_FIXA)) {
+                sum = sum.add(investment.amountInvested());
+            }
+        }
+        return sum;
+    }
+
+    @Operation(summary = "Get that returns a sum of of a user's investment type FUNDO_IMOBILIARIO")
+    @GetMapping("/fundo-imobiliario/sum/{accountId}")
+    public BigDecimal getUsersInvestmentFundoImobiliario(@PathVariable Long accountId) {
+        BigDecimal sum = BigDecimal.ZERO;
+        List<InvestmentDto> investments = investmentService.findAllByAccountId(accountId);
+
+        for( InvestmentDto investment : investments) {
+            if (investment.type().equals(InvestmentType.FUNDO_IMOBILIARIO)) {
+                sum = sum.add(investment.amountInvested());
+            }
+        }
+        return sum;
     }
 }

@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -45,4 +46,15 @@ public class StockController {
         return stockService.create(stockRequestDto);
     }
 
+    @Operation(summary = "Get that returns a sum of of a user's investment in stocks")
+    @GetMapping("/sum/{accountId}")
+    public BigDecimal getUsersInvestmentStocks(@PathVariable Long accountId) {
+        BigDecimal sum = BigDecimal.ZERO;
+        List<StockDto> stockDtoList = stockService.findAllByAccountId(accountId);
+
+        for( StockDto stock : stockDtoList) {
+            sum = sum.add((stock.currentPrice().multiply(stock.volume())));
+        }
+        return sum;
+    }
 }

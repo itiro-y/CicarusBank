@@ -2,11 +2,14 @@ package com.cicarus.investment.controller;
 
 import com.cicarus.investment.dtos.crypto.CryptoDto;
 import com.cicarus.investment.dtos.crypto.CryptoRequestDto;
+import com.cicarus.investment.dtos.investment.InvestmentDto;
+import com.cicarus.investment.model.investment.InvestmentType;
 import com.cicarus.investment.service.CryptoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -41,5 +44,17 @@ public class CryptoController {
     @PostMapping()
     public CryptoDto createInvestment(@RequestBody CryptoRequestDto cryptoRequestDto) {
         return cryptoService.create(cryptoRequestDto);
+    }
+
+    @Operation(summary = "Get that returns a sum of of a user's investment in cryptocurrency")
+    @GetMapping("/sum/{accountId}")
+    public BigDecimal getUsersInvestmentCrypto(@PathVariable Long accountId) {
+        BigDecimal sum = BigDecimal.ZERO;
+        List<CryptoDto> cryptoDtoList = cryptoService.findAllByAccountId(accountId);
+
+        for( CryptoDto crypto : cryptoDtoList) {
+            sum = sum.add(crypto.amountInvested());
+        }
+        return sum;
     }
 }

@@ -10,6 +10,8 @@ import EmojiObjectsIcon from '@mui/icons-material/EmojiObjects';
 import CurrencyBitcoinIcon from '@mui/icons-material/CurrencyBitcoin';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import ShieldIcon from '@mui/icons-material/Shield';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import Chip from '@mui/material/Chip';
 
 // Lista de moedas para exibir
 const CRYPTOS = [
@@ -39,6 +41,11 @@ export default function CryptoInvestmentsPage() {
     const [simCrypto, setSimCrypto] = useState('BTCUSDT');
     const [simValue, setSimValue] = useState('');
     const [simResult, setSimResult] = useState(null);
+    const [buyCrypto, setBuyCrypto] = useState('BTCUSDT');
+    const [buyValue, setBuyValue] = useState('');
+    const [buyResult, setBuyResult] = useState(null);
+    const [buyLoading, setBuyLoading] = useState(false);
+    const [buyError, setBuyError] = useState(null);
 
     useEffect(() => {
         fetchPrices();
@@ -108,6 +115,30 @@ export default function CryptoInvestmentsPage() {
         setSimResult({ qty, price });
     }
 
+    // Função para simular compra (substitua por POST futuramente)
+    async function handleBuy() {
+        setBuyError(null);
+        setBuyResult(null);
+        if (!buyValue || isNaN(buyValue) || Number(buyValue) <= 0) {
+            setBuyError('Informe um valor válido.');
+            return;
+        }
+        const price = prices[buyCrypto];
+        if (!price) {
+            setBuyError('Preço da moeda indisponível.');
+            return;
+        }
+        setBuyLoading(true);
+        // Simulação de POST (substitua por chamada real futuramente)
+        setTimeout(() => {
+            setBuyResult({
+                qty: Number(buyValue) / Number(price),
+                price,
+            });
+            setBuyLoading(false);
+        }, 800);
+    }
+
     // Estatísticas rápidas do mercado
     const totalMarketCap = Object.values(prices).reduce((acc, price, idx) => {
         // Simulação: soma dos preços (não é market cap real)
@@ -142,7 +173,7 @@ export default function CryptoInvestmentsPage() {
                         </Typography>
                     </Box>
                 </Paper>
-                <Toolbar/>
+                <Toolbar />
                 <Box
                     sx={{
                         display: 'flex',
@@ -174,61 +205,302 @@ export default function CryptoInvestmentsPage() {
                         ) : error ? (
                             <Typography color="error">{error}</Typography>
                         ) : (
-                            <Grid container spacing={3}>
-                                {CRYPTOS.map(crypto => {
-                                    const price = prices[crypto.symbol];
-                                    const change = changes[crypto.symbol];
-                                    const isPositive = Number(change) >= 0;
-                                    const hist = history[crypto.symbol] || [];
-
-                                    return (
-                                        <Grid item xs={12} sm={6} md={4} key={crypto.symbol}>
-                                            <Card sx={{
-                                                p: 2,
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                alignItems: 'center',
-                                                boxShadow: 4,
-                                                borderRadius: 3,
-                                                transition: 'transform 0.2s, box-shadow 0.2s',
-                                                '&:hover': {
-                                                    transform: 'translateY(-4px) scale(1.03)',
-                                                    boxShadow: 8,
-                                                },
-                                            }}>
-                                                <img src={crypto.icon} alt={crypto.name} style={{ width: 48, height: 48, marginBottom: 8 }} />
-                                                <Typography variant="h6" sx={{ fontWeight: 600 }}>{crypto.name}</Typography>
-                                                <Typography variant="body2" sx={{ mb: 1, color: 'text.secondary' }}>
-                                                    {crypto.symbol}
-                                                </Typography>
-                                                <Typography variant="h5" sx={{ mb: 1, fontWeight: 700 }}>
-                                                    US$ {Number(price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                                </Typography>
-                                                <Typography variant="body2" sx={{ mb: 2, color: isPositive ? 'success.main' : 'error.main', fontWeight: 600 }}>
-                                                    {isPositive ? '+' : ''}{Number(change).toFixed(2)}% (24h)
-                                                </Typography>
-                                                <Box sx={{ width: '100%', height: 40, mb: 1 }}>
-                                                    <ResponsiveContainer width="100%" height={40}>
-                                                        <LineChart data={hist} margin={{ left: 0, right: 0, top: 5, bottom: 5 }}>
-                                                            <Line type="monotone" dataKey="price" stroke="#1976d2" strokeWidth={2} dot={false} />
-                                                        </LineChart>
-                                                    </ResponsiveContainer>
-                                                </Box>
-                                                <Button variant="contained" color="primary" fullWidth>
-                                                    Investir
-                                                </Button>
-                                            </Card>
-                                        </Grid>
-                                    );
-                                })}
-                            </Grid>
+                            <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+                                <Grid
+                                    container
+                                    spacing={2}
+                                    sx={{
+                                        maxWidth: 1200,
+                                        mx: 'auto',
+                                        alignItems: 'stretch',
+                                        justifyContent: 'center',
+                                    }}
+                                >
+                                    {CRYPTOS.map(crypto => {
+                                        const price = prices[crypto.symbol];
+                                        const change = changes[crypto.symbol];
+                                        const isPositive = Number(change) >= 0;
+                                        const hist = history[crypto.symbol] || [];
+                                        return (
+                                            <Grid
+                                                item
+                                                xs={12}
+                                                sm={6}
+                                                md={4}
+                                                lg={3}
+                                                key={crypto.symbol}
+                                                sx={{
+                                                    display: 'flex',
+                                                    alignItems: 'stretch',
+                                                }}
+                                            >
+                                                <Card
+                                                    sx={{
+                                                        p: 1.5,
+                                                        display: 'flex',
+                                                        flexDirection: 'row',
+                                                        alignItems: 'center',
+                                                        gap: 2,
+                                                        boxShadow: 2,
+                                                        borderRadius: 3,
+                                                        minHeight: 90,
+                                                        width: '100%',
+                                                        transition: 'transform 0.18s, box-shadow 0.18s',
+                                                        '&:hover': {
+                                                            transform: 'translateY(-2px) scale(1.025)',
+                                                            boxShadow: 6,
+                                                        },
+                                                    }}
+                                                >
+                                                    <img
+                                                        src={crypto.icon}
+                                                        alt={crypto.name}
+                                                        style={{ width: 36, height: 36, marginRight: 8 }}
+                                                    />
+                                                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                                                        <Typography variant="subtitle1" sx={{ fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                            {crypto.name}
+                                                        </Typography>
+                                                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: 12 }}>
+                                                            {crypto.symbol}
+                                                        </Typography>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                                                            <Chip
+                                                                label={`US$ ${price ? Number(price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--'}`}
+                                                                size="small"
+                                                                sx={{
+                                                                    bgcolor: 'grey.100',
+                                                                    fontWeight: 700,
+                                                                    fontSize: 13,
+                                                                }}
+                                                            />
+                                                            <Chip
+                                                                label={`${isPositive ? '+' : ''}${Number(change).toFixed(2)}%`}
+                                                                size="small"
+                                                                sx={{
+                                                                    bgcolor: isPositive ? 'success.lighter' : 'error.lighter',
+                                                                    color: isPositive ? 'success.main' : 'error.main',
+                                                                    fontWeight: 700,
+                                                                    fontSize: 13,
+                                                                }}
+                                                            />
+                                                        </Box>
+                                                    </Box>
+                                                    <Box sx={{ width: 60, height: 32 }}>
+                                                        <ResponsiveContainer width="100%" height="100%">
+                                                            <LineChart data={hist}>
+                                                                <Line
+                                                                    type="monotone"
+                                                                    dataKey="price"
+                                                                    stroke={isPositive ? "#2e7d32" : "#d32f2f"}
+                                                                    strokeWidth={2}
+                                                                    dot={false}
+                                                                />
+                                                            </LineChart>
+                                                        </ResponsiveContainer>
+                                                    </Box>
+                                                </Card>
+                                            </Grid>
+                                        );
+                                    })}
+                                </Grid>
+                            </Box>
                         )}
-
+                        {/* Nova seção de compra refinada */}
+                        <Card
+                            elevation={8}
+                            sx={{
+                                mt: 7,
+                                mb: 4,
+                                maxWidth: 520,
+                                mx: 'auto',
+                                borderRadius: 4,
+                                p: { xs: 2, sm: 4 },
+                                bgcolor: 'background.paper',
+                                boxShadow: '0 8px 32px 0 rgba(25, 118, 210, 0.10)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                position: 'relative',
+                                overflow: 'visible'
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    position: 'absolute',
+                                    top: -48,
+                                    left: '50%',
+                                    transform: 'translateX(-50%)',
+                                    bgcolor: 'background.paper',
+                                    borderRadius: '50%',
+                                    boxShadow: 3,
+                                    width: 80,
+                                    height: 80,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    zIndex: 2,
+                                }}
+                            >
+                                <img
+                                    src={CRYPTOS.find(c => c.symbol === buyCrypto)?.icon}
+                                    alt={CRYPTOS.find(c => c.symbol === buyCrypto)?.name}
+                                    style={{ width: 56, height: 56 }}
+                                />
+                            </Box>
+                            <Typography variant="h6" sx={{ fontWeight: 700, mt: 6, mb: 1, textAlign: 'center' }}>
+                                Comprar {CRYPTOS.find(c => c.symbol === buyCrypto)?.name}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 2, textAlign: 'center' }}>
+                                Escolha a criptomoeda, informe o valor em dólar e veja instantaneamente quanto você pode adquirir.
+                            </Typography>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                                <CurrencyBitcoinIcon color="primary" sx={{ fontSize: 28 }} />
+                                <Typography variant="subtitle2" color="text.secondary">
+                                    Preço atual:
+                                </Typography>
+                                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                                    US$ {prices[buyCrypto] ? Number(prices[buyCrypto]).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--'}
+                                </Typography>
+                            </Box>
+                            <TextField
+                                select
+                                label="Criptomoeda"
+                                value={buyCrypto}
+                                onChange={e => setBuyCrypto(e.target.value)}
+                                fullWidth
+                                sx={{ mb: 2 }}
+                                InputProps={{
+                                    startAdornment: (
+                                        <img
+                                            src={CRYPTOS.find(c => c.symbol === buyCrypto)?.icon}
+                                            alt={CRYPTOS.find(c => c.symbol === buyCrypto)?.name}
+                                            style={{ width: 24, height: 24, marginRight: 8 }}
+                                        />
+                                    )
+                                }}
+                            >
+                                {CRYPTOS.map(c => (
+                                    <MenuItem key={c.symbol} value={c.symbol}>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            <img src={c.icon} alt={c.name} style={{ width: 20, height: 20 }} />
+                                            {c.name}
+                                        </Box>
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+                            <TextField
+                                label="Valor a investir (US$)"
+                                value={buyValue}
+                                onChange={e => setBuyValue(e.target.value)}
+                                type="number"
+                                fullWidth
+                                sx={{ mb: 2 }}
+                                InputProps={{
+                                    startAdornment: (
+                                        <MonetizationOnIcon color="action" sx={{ mr: 1 }} />
+                                    )
+                                }}
+                            />
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                fullWidth
+                                onClick={handleBuy}
+                                disabled={buyLoading}
+                                sx={{
+                                    fontWeight: 700,
+                                    borderRadius: 2,
+                                    py: 1.2,
+                                    fontSize: 18,
+                                    boxShadow: '0 2px 8px 0 rgba(25, 118, 210, 0.10)'
+                                }}
+                            >
+                                {buyLoading ? 'Processando...' : `Comprar ${CRYPTOS.find(c => c.symbol === buyCrypto)?.name}`}
+                            </Button>
+                            {buyError && (
+                                <Typography color="error" sx={{ mt: 1 }}>{buyError}</Typography>
+                            )}
+                            {buyResult && (
+                                <Paper
+                                    elevation={0}
+                                    sx={{
+                                        mt: 3,
+                                        p: 2,
+                                        bgcolor: 'success.lighter',
+                                        borderRadius: 2,
+                                        textAlign: 'center',
+                                        width: '100%',
+                                    }}
+                                >
+                                    <Typography variant="subtitle1" sx={{ fontWeight: 700, color: 'success.main' }}>
+                                        Compra simulada!
+                                    </Typography>
+                                    <Typography>
+                                        Você compraria <b>{buyResult.qty.toFixed(6)}</b> {buyCrypto.replace('USDT','')} a US$ {Number(buyResult.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} cada.
+                                    </Typography>
+                                </Paper>
+                            )}
+                        </Card>
                     </>
                 )}
                 {tab === 1 && (
-                    <Paper sx={{ p: 4, maxWidth: 400, mx: 'auto', mt: 4 }}>
-                        <Typography variant="h5" sx={{ mb: 2 }}>Simulação de Investimento</Typography>
+                    <Card
+                        elevation={8}
+                        sx={{
+                            p: { xs: 2, sm: 4 },
+                            maxWidth: 520,
+                            mx: 'auto',
+                            mt: 7,
+                            mb: 4,
+                            borderRadius: 4,
+                            bgcolor: 'background.paper',
+                            boxShadow: '0 8px 32px 0 rgba(25, 118, 210, 0.10)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            position: 'relative',
+                            overflow: 'visible'
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                position: 'absolute',
+                                top: -48,
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                                bgcolor: 'background.paper',
+                                borderRadius: '50%',
+                                boxShadow: 3,
+                                width: 80,
+                                height: 80,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                zIndex: 2,
+                            }}
+                        >
+                            <img
+                                src={CRYPTOS.find(c => c.symbol === simCrypto)?.icon}
+                                alt={CRYPTOS.find(c => c.symbol === simCrypto)?.name}
+                                style={{ width: 56, height: 56 }}
+                            />
+                        </Box>
+                        <Typography variant="h6" sx={{ fontWeight: 700, mt: 6, mb: 1, textAlign: 'center' }}>
+                            Simular Compra de {CRYPTOS.find(c => c.symbol === simCrypto)?.name}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2, textAlign: 'center' }}>
+                            Escolha a criptomoeda, informe o valor em dólar e veja instantaneamente quanto você poderia adquirir.
+                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                            <CurrencyBitcoinIcon color="primary" sx={{ fontSize: 28 }} />
+                            <Typography variant="subtitle2" color="text.secondary">
+                                Preço atual:
+                            </Typography>
+                            <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                                US$ {prices[simCrypto] ? Number(prices[simCrypto]).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--'}
+                            </Typography>
+                        </Box>
                         <TextField
                             select
                             label="Criptomoeda"
@@ -236,9 +508,23 @@ export default function CryptoInvestmentsPage() {
                             onChange={e => setSimCrypto(e.target.value)}
                             fullWidth
                             sx={{ mb: 2 }}
+                            InputProps={{
+                                startAdornment: (
+                                    <img
+                                        src={CRYPTOS.find(c => c.symbol === simCrypto)?.icon}
+                                        alt={CRYPTOS.find(c => c.symbol === simCrypto)?.name}
+                                        style={{ width: 24, height: 24, marginRight: 8 }}
+                                    />
+                                )
+                            }}
                         >
                             {CRYPTOS.map(c => (
-                                <MenuItem key={c.symbol} value={c.symbol}>{c.name}</MenuItem>
+                                <MenuItem key={c.symbol} value={c.symbol}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <img src={c.icon} alt={c.name} style={{ width: 20, height: 20 }} />
+                                        {c.name}
+                                    </Box>
+                                </MenuItem>
                             ))}
                         </TextField>
                         <TextField
@@ -248,14 +534,46 @@ export default function CryptoInvestmentsPage() {
                             type="number"
                             fullWidth
                             sx={{ mb: 2 }}
+                            InputProps={{
+                                startAdornment: (
+                                    <MonetizationOnIcon color="action" sx={{ mr: 1 }} />
+                                )
+                            }}
                         />
-                        <Button variant="contained" color="primary" fullWidth onClick={handleSimulate} sx={{ mb: 2 }}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            fullWidth
+                            onClick={handleSimulate}
+                            sx={{
+                                fontWeight: 700,
+                                borderRadius: 2,
+                                py: 1.2,
+                                fontSize: 18,
+                                boxShadow: '0 2px 8px 0 rgba(25, 118, 210, 0.10)'
+                            }}
+                        >
                             Simular
                         </Button>
                         {simResult && (
-                            <Box sx={{ mt: 2 }}>
-                                <Typography>Você compraria <b>{simResult.qty.toFixed(6)}</b> {simCrypto.replace('USDT','')} a US$ {Number(simResult.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} cada.</Typography>
-                            </Box>
+                            <Paper
+                                elevation={0}
+                                sx={{
+                                    mt: 3,
+                                    p: 2,
+                                    bgcolor: 'info.lighter',
+                                    borderRadius: 2,
+                                    textAlign: 'center',
+                                    width: '100%',
+                                }}
+                            >
+                                <Typography variant="subtitle1" sx={{ fontWeight: 700, color: 'info.main' }}>
+                                    Resultado da Simulação
+                                </Typography>
+                                <Typography>
+                                    Você compraria <b>{simResult.qty.toFixed(6)}</b> {simCrypto.replace('USDT','')} a US$ {Number(simResult.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} cada.
+                                </Typography>
+                            </Paper>
                         )}
                         {/* Dica de simulação */}
                         <Box sx={{ mt: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -264,7 +582,7 @@ export default function CryptoInvestmentsPage() {
                                 Simule diferentes valores para ver quantas moedas você pode adquirir.
                             </Typography>
                         </Box>
-                    </Paper>
+                    </Card>
                 )}
             </Container>
         </Box>

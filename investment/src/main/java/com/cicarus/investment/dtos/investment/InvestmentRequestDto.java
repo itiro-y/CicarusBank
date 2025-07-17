@@ -15,8 +15,7 @@ public record InvestmentRequestDto(
         @NotEmpty @Positive BigDecimal amountInvested,
         @NotEmpty BigDecimal currentValue,
         @NotEmpty @DecimalMin("0.0") BigDecimal expectedReturnRate,
-        @NotNull @PastOrPresent Date startDate,
-        @NotNull @FutureOrPresent Date endDate,
+        @FutureOrPresent Date endDate,
         @NotEmpty Boolean autoRenew
 ) {}
 

@@ -6,6 +6,7 @@ import com.cicarus.investment.model.crypto.Crypto;
 import com.cicarus.investment.repository.CryptoRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,7 +57,7 @@ public class CryptoService {
         crypto.setAmountInvested(request.amountInvested());
         crypto.setCurrentValue(request.currentValue());
         crypto.setCryptoMultiplier(request.cryptoMultiplier());
-        crypto.setStartDate(request.startDate());
+        crypto.setStartDate(new Date());
         return crypto;
     }
 }

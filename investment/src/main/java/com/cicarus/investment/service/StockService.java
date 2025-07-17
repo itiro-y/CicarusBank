@@ -6,6 +6,7 @@ import com.cicarus.investment.model.stock.Stock;
 import com.cicarus.investment.repository.StockRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,7 +43,7 @@ public class StockService {
         stock.setCurrency(request.currency());
         stock.setSetor(request.setor());
         stock.setCurrentPrice(request.currentPrice());
-        stock.setTradeTime(request.tradeTime());
+        stock.setTradeTime(new Date());
         stock.setVolume(request.volume());
         stock.setMarketCap(request.marketCap());
         stock.setPeRatio(request.peRatio());

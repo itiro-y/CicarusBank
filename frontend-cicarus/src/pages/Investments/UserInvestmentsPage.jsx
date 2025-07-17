@@ -37,6 +37,8 @@ const historico = [
     { mes: 'Dez', valor: 14000 },
 ];
 
+
+
 function InvestmentTable({ investments, loading }) {
     if (loading) return <CircularProgress />;
     return (
@@ -154,6 +156,88 @@ export default function UserInvestmentsPage() {
     const [successFundoDialog, setSuccessFundoDialog] = useState(false);
 
     const theme = useTheme();
+    const authHeader = () => {
+        const token = localStorage.getItem('token') || '';
+        return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+    };
+
+
+    async function handleRendaFixaDeposit() {
+        const payload = {
+            accountId: accountId,
+            type: "RENDA_FIXA",
+            status: "ATIVO",
+            amountInvested: depositValue,
+            currentValue: depositValue,
+            expectedReturnRate: 0.065,
+            endDate: null,
+            autoRenew: true
+        };
+
+        try {
+            const response = await fetch(`${API_URL}/investment`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...authHeader() // adiciona Authorization: Bearer <token>
+                },
+                body: JSON.stringify(payload)
+            });
+            await fetchInvestments()
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error("Erro ao depositar renda fixa:", errorData);
+            } else {
+                const result = await response.json();
+                console.log("Depósito realizado com sucesso:", result);
+            }
+        } catch (error) {
+            console.error("Erro na requisição de renda fixa:", error);
+        } finally {
+            setOpenRendaFixa(false);
+            setSuccessDialog(true);
+            setDepositValue('');
+        }
+    }
+
+    async function handleFundoImobDeposit() {
+        const payload = {
+            accountId: accountId,
+            type: "FUNDO_IMOBILIARIO",
+            status: "ATIVO",
+            amountInvested: fundoValue,
+            currentValue: fundoValue,
+            expectedReturnRate: 0.09,
+            endDate: null,
+            autoRenew: true
+        };
+
+        try {
+            const response = await fetch(`${API_URL}/investment`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...authHeader() // adiciona Authorization: Bearer <token>
+                },
+                body: JSON.stringify(payload)
+            });
+            await fetchInvestments()
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error("Erro ao depositar renda fixa:", errorData);
+            } else {
+                const result = await response.json();
+                console.log("Depósito realizado com sucesso:", result);
+            }
+        } catch (error) {
+            console.error("Erro na requisição de renda fixa:", error);
+        } finally {
+            setOpenFundoImob(false);
+            setSuccessFundoDialog(true);
+            setFundoValue('');
+        }
+    }
+
 
     // Atualize os cards para incluir ícones e descrições
     const cards = [
@@ -183,10 +267,6 @@ export default function UserInvestmentsPage() {
         },
     ];
 
-    const authHeader = () => {
-        const token = localStorage.getItem('token') || '';
-        return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
-    };
 
     useEffect(() => {
         fetchInvestments();
@@ -203,20 +283,6 @@ export default function UserInvestmentsPage() {
         } finally {
             setLoading(false);
         }
-    }
-
-    // Função para simular depósito renda fixa
-    function handleRendaFixaDeposit() {
-        setOpenRendaFixa(false);
-        setSuccessDialog(true);
-        setDepositValue('');
-    }
-
-    // Função para simular aplicação fundo imobiliário
-    function handleFundoImobDeposit() {
-        setOpenFundoImob(false);
-        setSuccessFundoDialog(true);
-        setFundoValue('');
     }
 
     return (
@@ -261,13 +327,9 @@ export default function UserInvestmentsPage() {
                                 </Typography>
                                 <Button
                                     component={
-                                        card.title === 'Renda Fixa'
-                                            ? undefined
-                                            : card.title === 'Fundo Imobiliário'
-                                                ? undefined
-                                                : card.title === 'Ações'
-                                                    ? RouterLink
-                                                    : RouterLink
+                                        card.title === 'Renda Fixa' ? undefined : card.title === 'Fundo Imobiliário'
+                                                                    ? undefined : card.title === 'Ações'
+                                                                    ? RouterLink : RouterLink
                                     }
                                     to={
                                         card.title === 'Renda Fixa'

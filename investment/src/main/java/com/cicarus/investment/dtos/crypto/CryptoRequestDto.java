@@ -27,9 +27,5 @@ public record CryptoRequestDto(
         BigDecimal currentValue,
 
         @NotNull
-        BigDecimal cryptoMultiplier,
-
-        @NotNull
-        @PastOrPresent
-        Date startDate
+        BigDecimal cryptoMultiplier
 ) {}

@@ -15,7 +15,6 @@ public record StockRequestDto(
         @NotNull StockCurrencyType currency,
         @NotBlank String setor,
         @NotNull BigDecimal currentPrice,
-        @NotNull @PastOrPresent Date tradeTime,
         @NotNull BigDecimal volume,
         @NotNull BigDecimal marketCap,
         @NotNull BigDecimal peRatio,

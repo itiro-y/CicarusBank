@@ -14,6 +14,11 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import HomeWorkIcon from '@mui/icons-material/HomeWork';
 import CurrencyBitcoinIcon from '@mui/icons-material/CurrencyBitcoin';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import TextField from '@mui/material/TextField';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 const accountId = 1;
@@ -113,6 +118,15 @@ function EvolutionGraph(){
 export default function UserInvestmentsPage() {
     const [investments, setInvestments] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [openRendaFixa, setOpenRendaFixa] = useState(false);
+    const [depositValue, setDepositValue] = useState('');
+    const [successDialog, setSuccessDialog] = useState(false);
+
+    // Novo estado para Fundo Imobiliário
+    const [openFundoImob, setOpenFundoImob] = useState(false);
+    const [fundoValue, setFundoValue] = useState('');
+    const [successFundoDialog, setSuccessFundoDialog] = useState(false);
+
     const theme = useTheme();
 
     // Atualize os cards para incluir ícones e descrições
@@ -165,6 +179,20 @@ export default function UserInvestmentsPage() {
         }
     }
 
+    // Função para simular depósito renda fixa
+    function handleRendaFixaDeposit() {
+        setOpenRendaFixa(false);
+        setSuccessDialog(true);
+        setDepositValue('');
+    }
+
+    // Função para simular aplicação fundo imobiliário
+    function handleFundoImobDeposit() {
+        setOpenFundoImob(false);
+        setSuccessFundoDialog(true);
+        setFundoValue('');
+    }
+
     return (
         <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
             <AppAppBar title="Meus Investimentos" />
@@ -206,8 +234,20 @@ export default function UserInvestmentsPage() {
                                     {card.description}
                                 </Typography>
                                 <Button
-                                    component={RouterLink}
-                                    to={card.to}
+                                    component={
+                                        card.title === 'Renda Fixa'
+                                            ? undefined
+                                            : card.title === 'Fundo Imobiliário'
+                                                ? undefined
+                                                : RouterLink
+                                    }
+                                    to={
+                                        card.title === 'Renda Fixa'
+                                            ? undefined
+                                            : card.title === 'Fundo Imobiliário'
+                                                ? undefined
+                                                : card.to
+                                    }
                                     variant="contained"
                                     color="primary"
                                     fullWidth
@@ -217,6 +257,13 @@ export default function UserInvestmentsPage() {
                                         textTransform: 'none',
                                         boxShadow: 'none',
                                     }}
+                                    onClick={
+                                        card.title === 'Renda Fixa'
+                                            ? () => setOpenRendaFixa(true)
+                                            : card.title === 'Fundo Imobiliário'
+                                                ? () => setOpenFundoImob(true)
+                                                : undefined
+                                    }
                                 >
                                     Ver detalhes
                                 </Button>
@@ -224,6 +271,104 @@ export default function UserInvestmentsPage() {
                         </Grid>
                     ))}
                 </Grid>
+
+                {/* Dialog para Renda Fixa */}
+                <Dialog open={openRendaFixa} onClose={() => setOpenRendaFixa(false)}>
+                    <DialogTitle>Depósito em Renda Fixa (Poupança Cicarus Bank)</DialogTitle>
+                    <DialogContent>
+                        <Typography sx={{ mb: 2 }}>
+                            <b>Rendimento:</b> 0,65% ao mês (aprox. 8% ao ano) <br />
+                            <b>Liquidez:</b> Resgate a qualquer momento após 30 dias.<br />
+                            <b>Garantia:</b> Fundo Garantidor de Créditos (FGC) até R$ 250.000,00.
+                        </Typography>
+                        <TextField
+                            label="Valor para depositar (R$)"
+                            type="number"
+                            fullWidth
+                            value={depositValue}
+                            onChange={e => setDepositValue(e.target.value)}
+                            sx={{ mt: 1 }}
+                        />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setOpenRendaFixa(false)} color="inherit">
+                            Cancelar
+                        </Button>
+                        <Button
+                            onClick={handleRendaFixaDeposit}
+                            color="primary"
+                            variant="contained"
+                            disabled={!depositValue || Number(depositValue) <= 0}
+                        >
+                            Depositar
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
+                {/* Dialog de sucesso Renda Fixa */}
+                <Dialog open={successDialog} onClose={() => setSuccessDialog(false)}>
+                    <DialogTitle>Depósito realizado!</DialogTitle>
+                    <DialogContent>
+                        <Typography>
+                            Seu depósito em Renda Fixa foi realizado com sucesso!
+                        </Typography>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setSuccessDialog(false)} color="primary" autoFocus>
+                            Fechar
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
+                {/* Dialog para Fundo Imobiliário */}
+                <Dialog open={openFundoImob} onClose={() => setOpenFundoImob(false)}>
+                    <DialogTitle>Aplicação em Fundo Imobiliário</DialogTitle>
+                    <DialogContent>
+                        <Typography sx={{ mb: 2 }}>
+                            <b>Rendimento médio:</b> 0,9% ao mês (aprox. 11% ao ano) <br />
+                            <b>Liquidez:</b> Resgate em D+30.<br />
+                            <b>Dividendos:</b> Pagos mensalmente direto na sua conta.<br />
+                            <b>Risco:</b> Moderado. O valor pode oscilar conforme o mercado imobiliário.
+                        </Typography>
+                        <TextField
+                            label="Valor para aplicar (R$)"
+                            type="number"
+                            fullWidth
+                            value={fundoValue}
+                            onChange={e => setFundoValue(e.target.value)}
+                            sx={{ mt: 1 }}
+                        />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setOpenFundoImob(false)} color="inherit">
+                            Cancelar
+                        </Button>
+                        <Button
+                            onClick={handleFundoImobDeposit}
+                            color="primary"
+                            variant="contained"
+                            disabled={!fundoValue || Number(fundoValue) <= 0}
+                        >
+                            Aplicar
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
+                {/* Dialog de sucesso Fundo Imobiliário */}
+                <Dialog open={successFundoDialog} onClose={() => setSuccessFundoDialog(false)}>
+                    <DialogTitle>Aplicação realizada!</DialogTitle>
+                    <DialogContent>
+                        <Typography>
+                            Sua aplicação em Fundo Imobiliário foi realizada com sucesso!
+                        </Typography>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setSuccessFundoDialog(false)} color="primary" autoFocus>
+                            Fechar
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
                 <Typography variant="h6" sx={{ mb: 2 }}>Histórico de Evolução</Typography>
                 <Paper sx={{ p: 2, mb: 4 }}>
                     <ResponsiveContainer width="100%" height={250}>
@@ -239,5 +384,4 @@ export default function UserInvestmentsPage() {
             </Container>
         </Box>
     );
-
 }

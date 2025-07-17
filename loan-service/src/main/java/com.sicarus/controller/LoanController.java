@@ -1,6 +1,7 @@
 package com.sicarus.controller;
 
 import com.sicarus.dto.*;
+import com.sicarus.model.LoanStatus;
 import com.sicarus.service.LoanService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +37,11 @@ public class LoanController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/status/pending")
+    public ResponseEntity<List<FullLoanResponse>> getPendingLoans() {
+        return ResponseEntity.ok(loanService.listLoansByStatus(LoanStatus.PENDING));
+    }
+
     @GetMapping("/anyLoan/{customerId}")
     public ResponseEntity<Boolean> anyLoanForCustomer(@PathVariable Long customerId) {
         return ResponseEntity.ok(loanService.anyLoanForCustomer(customerId));
@@ -59,6 +65,11 @@ public class LoanController {
     ) {
         loanService.pagarParcela(loanId, installmentNumber, userId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<FullLoanResponse>> getAllLoans() {
+        return ResponseEntity.ok(loanService.listAllLoans());
     }
 
     @GetMapping("/ping")

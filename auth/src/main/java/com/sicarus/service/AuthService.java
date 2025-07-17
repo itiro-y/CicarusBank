@@ -1,5 +1,6 @@
 package com.sicarus.service;
 
+import com.sicarus.client.CustomerServiceClient;
 import com.sicarus.dto.AuthRequest;
 import com.sicarus.dto.AuthResponse;
 import com.sicarus.dto.UserCreateRequest;
@@ -18,14 +19,17 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final CustomerServiceClient customerServiceClient;
 
 
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
-                       JwtUtil jwtUtil) {
+                       JwtUtil jwtUtil,
+                       CustomerServiceClient customerServiceClient) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+        this.customerServiceClient = customerServiceClient;
     }
 
     public AuthResponse authenticate(AuthRequest request) {
@@ -35,6 +39,7 @@ public class AuthService {
         if (!passwordEncoder.matches(request.getPassword(), user.getHashPassword())) {
             throw new BadCredentialsException("Senha inválida.");
         }
+
 
         // gera o token com o JwtUtil atualizado
         String token = jwtUtil.generateToken(user.getUsername(), user.getRoles());
@@ -49,7 +54,7 @@ public class AuthService {
         User user = new User();
         user.setUsername(request.getUsername());
         user.setHashPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRoles(UserRoles.ROLE_USER); 
+        user.setRoles(UserRoles.ROLE_USER);
 
         userRepository.save(user);
     }

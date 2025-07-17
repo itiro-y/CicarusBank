@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Map;
 import java.util.function.Function;
 
 @Component
@@ -26,7 +27,9 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(String username, UserRoles roles) {
+    public String generateToken(String username,
+                                UserRoles roles) {
+//            , Map<String, Object> claims) {
         return Jwts.builder()
                 .setSubject(username)
                 .claim("roles", roles)

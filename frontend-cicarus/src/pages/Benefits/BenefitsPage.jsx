@@ -4,7 +4,7 @@ import axios from 'axios';
 import {
     Box, Container, Typography, Paper, CircularProgress, Alert, Stack
 } from '@mui/material';
-import AppAppBar from '../components/AppAppBar'; // Certifique-se de que o caminho está correto
+import AppAppBar from '../../components/AppAppBar.jsx'; // Certifique-se de que o caminho está correto
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8765'; // URL base do seu API Gateway
 

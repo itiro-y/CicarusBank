@@ -12,9 +12,9 @@ import {
 import { SiVisa, SiMastercard, SiAmericanexpress } from 'react-icons/si';
 import { FaCreditCard } from 'react-icons/fa';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import AppAppBar from '../components/AppAppBar.jsx';
-import ChatAssistant from '../components/ChatAssistant.jsx';
-import PromotionalCarousel from '../components/PromotionalCarousel.jsx';
+import AppAppBar from '../../components/AppAppBar.jsx';
+import ChatAssistant from '../../components/ChatAssistant.jsx';
+import PromotionalCarousel from '../../components/PromotionalCarousel.jsx';
 import {useEffect, useState} from "react";
 
 // --- DADOS MOCK E API URL ---

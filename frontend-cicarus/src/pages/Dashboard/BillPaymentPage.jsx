@@ -10,7 +10,7 @@ import {
     DocumentScanner // Alterado de Barcode para DocumentScanner
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import AppAppBar from '../components/AppAppBar.jsx';
+import AppAppBar from '../../components/AppAppBar.jsx';
 
 // --- DADOS MOCK ---
 const mockBills = [

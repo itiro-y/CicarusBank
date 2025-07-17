@@ -5,8 +5,8 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import AppAppBar from '../components/AppAppBar';
-import CreditCard from '../components/CreditCard';
+import AppAppBar from '../../components/AppAppBar.jsx';
+import CreditCard from '../../components/CreditCard.jsx';
 
 // Ícones
 import AddCardIcon from '@mui/icons-material/AddCard';

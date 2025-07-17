@@ -9,7 +9,7 @@ import {
 import {
     ArrowBack, CheckCircle, Smartphone, ArrowForward, PhoneIphone
 } from '@mui/icons-material';
-import AppAppBar from '../components/AppAppBar.jsx';
+import AppAppBar from '../../components/AppAppBar.jsx';
 
 // --- DADOS MOCK ---
 const operators = [

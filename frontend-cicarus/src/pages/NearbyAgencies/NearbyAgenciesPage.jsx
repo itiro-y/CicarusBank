@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Box, Container, Typography, Paper, useTheme, Card, CardMedia, CardContent } from '@mui/material';
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
-import AppAppBar from '../components/AppAppBar.jsx';
+import AppAppBar from '../../components/AppAppBar.jsx';
 
 const Maps_API_KEY = "AIzaSyDQYOUaVv3zqjsRAn7A_2A5B3rJ22JHV7E";
 

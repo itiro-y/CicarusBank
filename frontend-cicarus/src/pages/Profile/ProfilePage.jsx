@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import {
     Box, Container, Typography, Grid, Paper, Avatar, Divider, Stack,
@@ -9,9 +9,9 @@ import {
     Person, Mail, CalendarToday, LocationOn, Edit, Lock, Shield,
     CreditCard, AccountBalance, Home, VpnKey, PhoneAndroid, Business, Close
 } from '@mui/icons-material';
-import AppAppBar from '../components/AppAppBar.jsx';
-import { useUser } from '../context/UserContext.jsx';
+import AppAppBar from '../../components/AppAppBar.jsx';
 import { useNavigate } from "react-router-dom";
+import { useUser } from '../context/UserContext.jsx';
 
 // ------------------ MOCK ------------------
 const initialProfile = {

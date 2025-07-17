@@ -20,7 +20,7 @@ public class CustomerService {
     private final AccountClient accountClient;
 
     public CustomerService(AccountClient accountClient,
-                           CustomerRepository repository){
+                           CustomerRepository repository) {
         this.accountClient = accountClient;
         this.repository = repository;
     }
@@ -43,16 +43,15 @@ public class CustomerService {
 
     public CustomerResponse getById(Long id) {
         Customer customer = repository.findById(id).orElseThrow(() -> new RuntimeException("Customer not found"));
-
         CustomerResponse response = new CustomerResponse();
-        BeanUtils.copyProperties(customer,response);
+        BeanUtils.copyProperties(customer, response);
         return response;
     }
 
     public List<CustomerResponse> getAll() {
         return repository.findAll().stream().map(customer -> {
             CustomerResponse resp = new CustomerResponse();
-            BeanUtils.copyProperties(customer,resp);
+            BeanUtils.copyProperties(customer, resp);
             return resp;
         }).toList();
     }

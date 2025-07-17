@@ -1,9 +1,7 @@
 package com.cicarus.investment.controller;
 
-import com.cicarus.investment.dtos.CryptoDto;
-import com.cicarus.investment.dtos.CryptoRequestDto;
-import com.cicarus.investment.dtos.InvestmentDto;
-import com.cicarus.investment.dtos.InvestmentRequestDto;
+import com.cicarus.investment.dtos.crypto.CryptoDto;
+import com.cicarus.investment.dtos.crypto.CryptoRequestDto;
 import com.cicarus.investment.service.CryptoService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.web.bind.annotation.*;

@@ -1,7 +1,7 @@
-package com.cicarus.investment.dtos;
+package com.cicarus.investment.dtos.investment;
 
-import com.cicarus.investment.model.InvestmentStatus;
-import com.cicarus.investment.model.InvestmentType;
+import com.cicarus.investment.model.investment.InvestmentStatus;
+import com.cicarus.investment.model.investment.InvestmentType;
 
 import java.math.BigDecimal;
 import java.util.Date;

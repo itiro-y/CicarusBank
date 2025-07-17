@@ -1,8 +1,7 @@
 package com.cicarus.investment.controller;
 
-import com.cicarus.investment.dtos.InvestmentDto;
-import com.cicarus.investment.dtos.InvestmentRequestDto;
-import com.cicarus.investment.model.Investment;
+import com.cicarus.investment.dtos.investment.InvestmentDto;
+import com.cicarus.investment.dtos.investment.InvestmentRequestDto;
 import com.cicarus.investment.service.InvestmentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

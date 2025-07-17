@@ -1,11 +1,8 @@
 package com.cicarus.investment.service;
 
-import com.cicarus.investment.dtos.CryptoDto;
-import com.cicarus.investment.dtos.CryptoRequestDto;
-import com.cicarus.investment.dtos.InvestmentDto;
-import com.cicarus.investment.dtos.InvestmentRequestDto;
-import com.cicarus.investment.model.Crypto;
-import com.cicarus.investment.model.Investment;
+import com.cicarus.investment.dtos.crypto.CryptoDto;
+import com.cicarus.investment.dtos.crypto.CryptoRequestDto;
+import com.cicarus.investment.model.crypto.Crypto;
 import com.cicarus.investment.repository.CryptoRepository;
 import org.springframework.stereotype.Service;
 

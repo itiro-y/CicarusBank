@@ -1,7 +1,7 @@
-package com.cicarus.investment.dtos;
+package com.cicarus.investment.dtos.crypto;
 
-import com.cicarus.investment.model.CryptoStatus;
-import com.cicarus.investment.model.CryptoType;
+import com.cicarus.investment.model.crypto.CryptoStatus;
+import com.cicarus.investment.model.crypto.CryptoType;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;

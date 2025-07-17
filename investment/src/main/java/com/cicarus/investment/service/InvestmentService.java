@@ -1,8 +1,8 @@
 package com.cicarus.investment.service;
 
-import com.cicarus.investment.dtos.InvestmentDto;
-import com.cicarus.investment.dtos.InvestmentRequestDto;
-import com.cicarus.investment.model.Investment;
+import com.cicarus.investment.dtos.investment.InvestmentDto;
+import com.cicarus.investment.dtos.investment.InvestmentRequestDto;
+import com.cicarus.investment.model.investment.Investment;
 import com.cicarus.investment.repository.InvestmentRepository;
 import org.springframework.stereotype.Service;
 

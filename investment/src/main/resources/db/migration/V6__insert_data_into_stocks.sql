@@ -1,0 +1,16 @@
+INSERT INTO stocks (
+    account_id,
+    symbol,
+    company_name,
+    currency,
+    setor,
+    current_price,
+    trade_time,
+    volume,
+    market_cap,
+    pe_ratio,
+    dividend_yield
+) VALUES
+      (1, 'AAPL', 'Apple Inc.',               'USD', 'Technology', 172.30, '2025-07-17',  50000000, 2800000000000.00, 25.1400, 0.0056),
+      (2, 'PBR',  'Petróleo Brasileiro S.A.', 'BRL', 'Energy',     32.50,  '2025-07-17',  15000000,  500000000000.00,  8.7500, 0.0850),
+      (3, 'GOOG', 'Alphabet Inc.',             'USD', 'Technology',2800.00, '2025-07-17',   1200000, 1800000000000.00, 30.2700, 0.0000);

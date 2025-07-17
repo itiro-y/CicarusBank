@@ -1,6 +1,6 @@
 package com.cicarus.investment.repository;
 
-import com.cicarus.investment.model.Crypto;
+import com.cicarus.investment.model.crypto.Crypto;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

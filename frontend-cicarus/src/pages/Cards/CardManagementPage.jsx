@@ -6,8 +6,8 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2'; // Importar o SweetAlert2
-import AppAppBar from '../components/AppAppBar.jsx';
-import CreditCard from '../components/CreditCard.jsx';
+import AppAppBar from '../../components/AppAppBar.jsx';
+import CreditCard from '../../components/CreditCard.jsx';
 
 // Ícones
 import LockIcon from '@mui/icons-material/Lock';

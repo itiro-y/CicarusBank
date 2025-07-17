@@ -4,7 +4,7 @@ import {
     CircularProgress, Grid, Toolbar, useTheme, Alert
 } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
-import AppAppBar from '../components/AppAppBar.jsx';
+import AppAppBar from '../../components/AppAppBar.jsx';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { SiVisa, SiMastercard } from 'react-icons/si';

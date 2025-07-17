@@ -9,7 +9,7 @@ import {
     Person, Mail, CalendarToday, LocationOn, Edit, Lock, Shield,
     CreditCard, AccountBalance, Home, VpnKey, PhoneAndroid, Business, Close
 } from '@mui/icons-material';
-import AppAppBar from '../components/AppAppBar.jsx';
+import AppAppBar from '../../components/AppAppBar.jsx';
 import { useNavigate } from "react-router-dom";
 
 // ------------------ MOCK ------------------

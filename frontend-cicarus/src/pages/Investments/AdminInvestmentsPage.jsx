@@ -4,7 +4,7 @@ import {
     TableContainer, Table, TableHead, TableBody, TableRow, TableCell,
     Toolbar, CircularProgress
 } from '@mui/material';
-import AppAppBar from '../components/AppAppBar.jsx';
+import AppAppBar from '../../components/AppAppBar.jsx';
 import { Link } from 'react-router-dom';
 
 const API_URL = import.meta.env.VITE_API_URL || '';

@@ -9,7 +9,7 @@ import {
     ErrorOutline, Check, Cancel, History, CleaningServices
 } from '@mui/icons-material';
 import { RiRefund2Line } from "react-icons/ri";
-import AppAppBar from '../components/AppAppBar.jsx';
+import AppAppBar from '../../components/AppAppBar.jsx';
 import { Link } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL || '';

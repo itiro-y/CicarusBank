@@ -9,7 +9,7 @@ import {
     DesktopWindows, Smartphone, TabletMac, Delete, HelpOutline, ArrowBack
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import AppAppBar from '../components/AppAppBar.jsx';
+import AppAppBar from '../../components/AppAppBar.jsx';
 import Swal from 'sweetalert2';
 
 // --- DADOS MOCK ---

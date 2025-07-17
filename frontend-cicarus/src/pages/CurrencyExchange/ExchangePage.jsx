@@ -5,7 +5,7 @@ import {
     Box, Container, Typography, Grid, Paper, CircularProgress, Alert, TextField, Button, InputAdornment, useTheme
 } from '@mui/material';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import AppAppBar from '../components/AppAppBar.jsx';
+import AppAppBar from '../../components/AppAppBar.jsx';
 import Swal from 'sweetalert2';
 
 const API_URL = import.meta.env.VITE_API_URL || '';

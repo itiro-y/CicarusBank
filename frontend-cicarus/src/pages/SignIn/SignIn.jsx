@@ -2,11 +2,11 @@ import * as React from 'react';
 import { Box, CssBaseline, Stack } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 
-import AppTheme from '../theme/AppTheme.jsx';
-import Content from '../components/Content.jsx';
-import SignInCard from '../components/SignInCard.jsx';
-import SignUpCard from '../components/SignUpCard.jsx';
-import ColorModeIconDropdown from '../theme/ColorModeIconDropdown.jsx';
+import AppTheme from '../../theme/AppTheme.jsx';
+import Content from '../../components/Content.jsx';
+import SignInCard from '../../components/SignInCard.jsx';
+import SignUpCard from '../../components/SignUpCard.jsx';
+import ColorModeIconDropdown from '../../theme/ColorModeIconDropdown.jsx';
 
 export default function SignInPage() {
     const [showSignUp, setShowSignUp] = React.useState(false);

@@ -5,7 +5,7 @@ import {
     Chip, Tabs, Tab, CircularProgress, Alert, LinearProgress
 } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
-import AppAppBar from '../components/AppAppBar';
+import AppAppBar from '../../components/AppAppBar.jsx';
 import Swal from 'sweetalert2';
 
 // Ícones

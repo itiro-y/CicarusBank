@@ -20,7 +20,7 @@ import {
     Key as KeyIcon
 } from '@mui/icons-material';
 import { FaPix } from "react-icons/fa6";
-import AppAppBar from '../components/AppAppBar.jsx';
+import AppAppBar from '../../components/AppAppBar.jsx';
 import Swal from 'sweetalert2';
 
 // --- DADOS E TIPOS ---

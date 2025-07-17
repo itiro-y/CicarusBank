@@ -8,7 +8,7 @@ import AppAppBar from '../../components/AppAppBar.jsx';
 import { Link } from 'react-router-dom';
 import InvestmentCarouselInvestments from "../../components/PromotionalCarouselInvestments.jsx";
 import { Link as RouterLink } from 'react-router-dom';
-import {Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from "recharts";
+import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid, Area, AreaChart, Legend } from "recharts";
 import { useTheme } from '@mui/material/styles';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
@@ -101,18 +101,44 @@ function SummaryCard(){
     )
 }
 
-function EvolutionGraph(){
+function EvolutionGraph() {
     const theme = useTheme();
-    return(
-        <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={historico}>
-                <XAxis dataKey="mes"/>
-                <YAxis/>
-                <Tooltip/>
-                <Line type="monotone" dataKey="valor" stroke={theme.palette.primary.main}/>
-            </LineChart>
+    return (
+        <ResponsiveContainer width="100%" height={250}>
+            <AreaChart data={historico} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                <defs>
+                    <linearGradient id="colorValor" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={theme.palette.primary.main} stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor={theme.palette.primary.main} stopOpacity={0.05}/>
+                    </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} />
+                <XAxis dataKey="mes" tick={{ fill: theme.palette.text.secondary }} />
+                <YAxis tick={{ fill: theme.palette.text.secondary }} />
+                <Tooltip
+                    contentStyle={{
+                        background: theme.palette.background.paper,
+                        border: `1px solid ${theme.palette.divider}`,
+                        color: theme.palette.text.primary,
+                        borderRadius: 8,
+                        boxShadow: theme.shadows[2],
+                    }}
+                    labelStyle={{ color: theme.palette.text.secondary }}
+                />
+                <Area
+                    type="monotone"
+                    dataKey="valor"
+                    stroke={theme.palette.primary.main}
+                    fillOpacity={1}
+                    fill="url(#colorValor)"
+                    strokeWidth={3}
+                    dot={{ r: 4, stroke: theme.palette.background.paper, strokeWidth: 2 }}
+                    activeDot={{ r: 6 }}
+                />
+                <Legend />
+            </AreaChart>
         </ResponsiveContainer>
-    )
+    );
 }
 
 export default function UserInvestmentsPage() {
@@ -369,17 +395,13 @@ export default function UserInvestmentsPage() {
                     </DialogActions>
                 </Dialog>
 
-                <Typography variant="h6" sx={{ mb: 2 }}>Histórico de Evolução</Typography>
+                <Typography variant="h6" sx={{ mb: 2 }}>Evolução de seus Investimentos</Typography>
                 <Paper sx={{ p: 2, mb: 4 }}>
-                    <ResponsiveContainer width="100%" height={250}>
-                        <LineChart data={historico}>
-                            <XAxis dataKey="mes" />
-                            <YAxis />
-                            <Tooltip />
-                            <Line type="monotone" dataKey="valor" stroke={theme.palette.primary.main} strokeWidth={2} />
-                        </LineChart>
-                    </ResponsiveContainer>
+                    <EvolutionGraph />
                 </Paper>
+                <Typography variant="h6" sx={{ mb: 2 }}>
+                    Histórico de Investimentos
+                </Typography>
                 <InvestmentTable investments={investments} loading={loading} />
             </Container>
         </Box>

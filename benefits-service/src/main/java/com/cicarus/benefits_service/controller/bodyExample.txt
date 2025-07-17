@@ -1,0 +1,68 @@
+POST    -> Cria um novo tipo de benefício disponível no sistema
+//localhost:8800/benefits/create
+{
+    "name": "Spotify grátis",
+    "description": "Spotify grátis por 3 meses",
+    "type": "SERVICE",
+    "value": "21.90",
+    "validUntil": "2025-10-16",
+    "active": "false"
+}
+
+-------------------------------------------------------------------------------
+
+GET  -> Retorna os detalhes de um benefício específico com base no seu ID
+//localhost:8800/benefits/{id}
+
+-------------------------------------------------------------------------------
+
+GET   -> Retorna uma lista de todos os benefícios registrados no sistema
+//localhost:8800/benefits/list/all
+
+-------------------------------------------------------------------------------
+
+GET    -> Retorna uma lista de benefícios que estão atualmente ativos no sistema
+//localhost:8800/benefits/list/active
+
+-------------------------------------------------------------------------------
+
+PUT    -> Atualiza as informações de um benefício com base no seu ID
+//localhost:8800/benefits/{id}
+Mesmo body do create, só mudar o que deseja alterar.
+
+-------------------------------------------------------------------------------
+
+DELETE -> Remove um benefício do sistema com base no seu ID
+//localhost:8800/benefits/{id}
+
+-------------------------------------------------------------------------------
+
+POST   -> Associa e ativa um benefício para um cliente específico
+//localhost:8800/benefits/customer-activate
+{
+    "customerId": "4",
+    "benefitId" : "1",
+    "expirationDate": "2027-01-01",
+    "activated": "true"
+}
+
+-------------------------------------------------------------------------------
+
+PUT  -> Desativa um benefício que um cliente possui, sem removê-lo completamente
+//localhost:8800/benefits/customer-deactivate/{customerBenefitId}
+Sem body
+
+-------------------------------------------------------------------------------
+
+GET   -> Retorna todos os benefícios (ativos e inativos) associados a um cliente.
+//localhost:8800/benefits/customer/{customerId}
+
+ -------------------------------------------------------------------------------
+
+GET   -> Retorna apenas os benefícios atualmente ativos para um cliente
+//localhost:8800/benefits/customer/{customerId}/active
+
+
+
+
+

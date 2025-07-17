@@ -1,6 +1,6 @@
 package com.cicarus.notification.config;
 
-import com.cicarus.notification.dto.NotificationDto;
+import com.cicarus.notification.dto.EmailDto;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +18,7 @@ public class KafkaConsumerConfig {
     private String bootstrapServers;
 
     @Bean
-    public ConsumerFactory<String, NotificationDto> consumerFactory() {
+    public ConsumerFactory<String, EmailDto> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "notification"); // Nome do grupo do consumer
@@ -27,7 +27,7 @@ public class KafkaConsumerConfig {
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
 
         // Configura o deserializador para NotificationDto
-        JsonDeserializer<NotificationDto> deserializer = new JsonDeserializer<>(NotificationDto.class);
+        JsonDeserializer<EmailDto> deserializer = new JsonDeserializer<>(EmailDto.class);
         deserializer.setRemoveTypeHeaders(false);
         deserializer.addTrustedPackages("*"); // Permite qualquer pacote
         deserializer.setUseTypeMapperForKey(true);
@@ -36,8 +36,8 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, NotificationDto> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, NotificationDto> factory =
+    public ConcurrentKafkaListenerContainerFactory<String, EmailDto> kafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, EmailDto> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         return factory;

@@ -9,7 +9,7 @@ services:
       - KAFKA_CFG_PROCESS_ROLES=broker,controller
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
       - KAFKA_KRAFT_CLUSTER_ID=bWaC6KXWRsWTvYO6RfOvlw
@@ -72,6 +72,17 @@ services:
     volumes:
       - customer-data:/var/lib/mysql
 
+  mysql-benefits:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_DATABASE: benefits_db
+    ports:
+        - "3316:3306"
+    volumes:
+        - benefits-data:/var/lib/mysql
+
   mysql-loan:
     image: mysql:8.0
     restart: always
@@ -115,6 +126,17 @@ services:
       - "3315:3306" # Notification DB on host port 3313
     volumes:
       - statement-data:/var/lib/mysql
+
+  mysql-investment:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_DATABASE: investment_db
+    ports:
+      - "3317:3306" # Notification DB on host port 3313
+    volumes:
+      - investment-data:/var/lib/mysql
 
   naming-server:
     build:
@@ -172,6 +194,18 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
     depends_on:
       - mysql-customer
+      - naming-server
+
+  benefits-service:
+    build:
+      context: ./benefits-service
+    ports:
+      - "8800:8800"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-benefits:3306/benefits_db
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
+    depends_on:
+      - mysql-benefits
       - naming-server
 
   loan-service:
@@ -244,17 +278,29 @@ services:
       - mysql-card
       - naming-server
 
-#  statement-service:
-#    build:
-#      context: ./statement-service
-#    ports:
-#      - "8700:8700"
-#    environment:
-#      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-statement:3306/statement_db
-#      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
-#    depends_on:
-#      - mysql-statement
-#      - naming-server
+  statement-service:
+    build:
+      context: ./statement-service
+    ports:
+      - "8700:8700"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-statement:3306/statement_db
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
+    depends_on:
+      - mysql-statement
+      - naming-server
+
+  investment:
+    build:
+      context: ./investment
+    ports:
+      - "8900:8900"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-investment:3306/investment_db
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
+    depends_on:
+      - mysql-investment
+      - naming-server
 
 volumes:
   auth-data:
@@ -267,3 +313,5 @@ volumes:
   kafka_data:
   card-data:
   statement-data:
+  investment-data:
+  benefits-data:

@@ -26,39 +26,51 @@ export default function SignInCard({ onSwitchToSignUp }) {
     filter: theme.palette.mode === "dark" ? "brightness(0) invert(1)" : "none",
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const username = data.get("username");
-    const password = data.get("password");
+const handleSubmit = async (event) => {
+  event.preventDefault();
+  const data = new FormData(event.currentTarget);
+  const username = data.get("username");
+  const password = data.get("password");
 
-    //         if (username === 'admin' && password === 'admin123') {
-    //             Swal.fire({
-    //                 title: 'Login Efetuado!',
-    //                 text: 'Seja bem-vindo de volta.',
-    //                 icon: 'success',
-    //                 timer: 2000,
-    //                 showConfirmButton: false,
-    //                 background: theme.palette.background.paper,
-    //                 color: theme.palette.text.primary,
-    //                 timerProgressBar: true,
-    //                 didClose: () => {
-    //                     navigate('/dashboard');
-    //                 }
-    //             });
-    //         } else {
-    //             Swal.fire({
-    //                 title: 'Erro!',
-    //                 text: 'Usuário ou senha inválidos.',
-    //                 icon: 'error',
-    //                 confirmButtonText: 'Tentar Novamente',
-    //                 background: theme.palette.background.paper,
-    //                 color: theme.palette.text.primary,
-    //                 confirmButtonColor: theme.palette.primary.main,
-    //             });
-    //         }
-  };
+  try {
+    const response = await fetch("http://localhost:8765/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
 
+    if (!response.ok) {
+      throw new Error("Usuário ou senha inválidos.");
+    }
+
+    const result = await response.json();
+    localStorage.setItem("token", result.token);
+
+    Swal.fire({
+      title: "Login Efetuado!",
+      text: "Seja bem-vindo de volta.",
+      icon: "success",
+      timer: 2000,
+      showConfirmButton: false,
+      background: theme.palette.background.paper,
+      color: theme.palette.text.primary,
+      timerProgressBar: true,
+      didClose: () => {
+        navigate("/dashboard");
+      },
+    });
+  } catch (error) {
+    Swal.fire({
+      title: "Erro!",
+      text: error.message,
+      icon: "error",
+      confirmButtonText: "Tentar Novamente",
+      background: theme.palette.background.paper,
+      color: theme.palette.text.primary,
+      confirmButtonColor: theme.palette.primary.main,
+    });
+  }
+};
   const handleForgotPasswordOpen = () => setOpen(true);
   const handleForgotPasswordClose = () => setOpen(false);
 

@@ -15,8 +15,9 @@ import AppAppBar from '../components/AppAppBar.jsx';
 import ChatAssistant from '../components/ChatAssistant.jsx';
 import PromotionalCarousel from '../components/PromotionalCarousel.jsx';
 
+import { useUser } from '../context/UserContext.jsx';
+
 // --- DADOS MOCK E API URL ---
-const userData = { name: "Admin", avatar: "https://i.pravatar.cc/150?u=admin" };
 const accountData = { balance: 15840.75 };
 const recentTransactions = [
     { id: 1, type: "Compra Online", store: "Amazon", amount: -150.00, icon: <ArrowDownward color="error" /> },
@@ -30,17 +31,23 @@ const balanceHistory = [
 const API_URL = import.meta.env.VITE_API_URL || '';
 
 // --- COMPONENTES DO DASHBOARD ---
-const WelcomeHeader = () => (
-    <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-            <Avatar src={userData.avatar} sx={{ width: 56, height: 56, mr: 2, border: '2px solid', borderColor: 'primary.main' }} />
-            <div>
-                <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>Bom dia, {userData.name}!</Typography>
-                <Typography variant="body1" sx={{ color: 'text.secondary' }}>Bem-vindo de volta ao seu painel CicarusBank.</Typography>
-            </div>
-        </Box>
-    </motion.div>
-);
+const WelcomeHeader = () => {
+    const { user } = useUser();
+    const userName = user ? user.name : "Usuário";
+    const userAvatar = user ? user.avatar : "https://i.pravatar.cc/150?u=default";
+
+    return (
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <Avatar src={userAvatar} sx={{ width: 56, height: 56, mr: 2, border: '2px solid', borderColor: 'primary.main' }} />
+                <div>
+                    <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>Bom dia, {userName}!</Typography>
+                    <Typography variant="body1" sx={{ color: 'text.secondary' }}>Bem-vindo de volta ao seu painel CicarusBank.</Typography>
+                </div>
+            </Box>
+        </motion.div>
+    );
+};
 
 const BalanceCard = () => {
     const [showBalance, setShowBalance] = React.useState(true);

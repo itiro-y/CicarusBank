@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import {
     Box, Container, Typography, Grid, Paper, Avatar, Divider, Stack,
@@ -10,11 +10,12 @@ import {
     CreditCard, AccountBalance, Home, VpnKey, PhoneAndroid, Business, Close
 } from '@mui/icons-material';
 import AppAppBar from '../components/AppAppBar.jsx';
+import { useUser } from '../context/UserContext.jsx';
 
 // ------------------ MOCK ------------------
 const initialProfile = {
     id: 'CICARUS-8B7A',
-    name: "Admin Cicarus",
+    name: "Admin Cicarus", // This will be overridden by context
     document: "123.456.789-00",
     email: "admin.cicarus@cicarusbank.com",
     birthDate: "01/01/1990",
@@ -118,36 +119,42 @@ const InfoListItem = ({ icon, primary, secondary }) => (
     </ListItem>
 );
 
-const ProfileHeader = ({ profile, onEdit }) => (
-    <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-    >
-        <Paper elevation={0} sx={{
-            p: 3, borderRadius: '16px', bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider',
-            display: 'flex', alignItems: 'center', gap: 3
-        }}>
-            <Avatar src={profile.avatar} sx={{ width: 80, height: 80, border: '3px solid', borderColor: 'primary.main' }} />
-            <Box>
-                <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
-                    {profile.name}
-                </Typography>
-                <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-                    ID do Cliente: {profile.id}
-                </Typography>
-            </Box>
-            <Button
-                variant="outlined"
-                startIcon={<Edit />}
-                onClick={onEdit}
-                sx={{ ml: 'auto' }}
-            >
-                Editar Perfil
-            </Button>
-        </Paper>
-    </motion.div>
-);
+const ProfileHeader = ({ profile, onEdit }) => {
+    const { user } = useUser();
+    const userName = user ? user.name : profile.name;
+    const userAvatar = user ? user.avatar : profile.avatar;
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+        >
+            <Paper elevation={0} sx={{
+                p: 3, borderRadius: '16px', bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider',
+                display: 'flex', alignItems: 'center', gap: 3
+            }}>
+                <Avatar src={userAvatar} sx={{ width: 80, height: 80, border: '3px solid', borderColor: 'primary.main' }} />
+                <Box>
+                    <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
+                        {userName}
+                    </Typography>
+                    <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                        ID do Cliente: {profile.id}
+                    </Typography>
+                </Box>
+                <Button
+                    variant="outlined"
+                    startIcon={<Edit />}
+                    onClick={onEdit}
+                    sx={{ ml: 'auto' }}
+                >
+                    Editar Perfil
+                </Button>
+            </Paper>
+        </motion.div>
+    );
+};
 
 const InfoWidget = ({ title, children }) => (
     <Paper elevation={0} sx={{

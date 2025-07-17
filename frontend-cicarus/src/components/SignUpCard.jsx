@@ -106,7 +106,8 @@ function SignUpCard({ onSwitchToSignIn }) {
             address: { street, city, state, zipCode: unmaskedZipCode, country: formData.country }
         };
         try {
-            const response = await fetch('http://localhost:8300/customers/create', {
+//             const response = await fetch('http://localhost:8300/customers/create', {
+            const response = await fetch('http://localhost:8765/customers/create', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),

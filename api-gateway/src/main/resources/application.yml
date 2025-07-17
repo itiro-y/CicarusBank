@@ -75,6 +75,13 @@ spring:
 #              filters:
 #                - AuthenticationFilter
 
+            - id: investment
+              uri: lb://investment
+              predicates:
+                - Path=/investment/**
+#              filters:
+#                - AuthenticationFilter
+
 springdoc:
   swagger-ui:
     urls:
@@ -92,6 +99,8 @@ springdoc:
         url: /card/v3/api-docs
       - name: statement-service
         url: /statement-service/v3/api-docs
+      - name: investment
+        url: /investment/v3/api-docs
   override-server-url: true
 
 #jwt:

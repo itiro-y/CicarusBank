@@ -12,6 +12,18 @@ spring:
     gateway:
       server:
         webflux:
+          globalcors:
+            corsConfigurations:
+              '[/**]':
+                allowedOrigins: "http://172.203.234.78:3000"
+                allowedMethods:
+                  - GET
+                  - POST
+                  - PUT
+                  - DELETE
+                  - OPTIONS
+                allowedHeaders: "*"
+                allowCredentials: true
           routes:
             - id: account
               uri: lb://account

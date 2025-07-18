@@ -6,33 +6,50 @@ import {
     Typography,
     Paper,
     CircularProgress,
-    Alert,
     Stack,
     Chip,
     Grid,
+    Button,
+    Snackbar, // Importe Snackbar
 } from '@mui/material';
+import MuiAlert from '@mui/material/Alert'; // Importe Alert de um caminho diferente para ser usado com Snackbar
 import { useTheme } from '@mui/material/styles';
 import AppAppBar from "../../components/AppAppBar";
-import { CardGiftcard, MonetizationOn, Event } from '@mui/icons-material';
+import { CardGiftcard, MonetizationOn, Event, CheckCircleOutline } from '@mui/icons-material';
+
+// Função auxiliar para o Alert dentro do Snackbar
+const Alert = React.forwardRef(function Alert(props, ref) {
+    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 export default function BenefitsPage() {
     const [benefits, setBenefits] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [pageError, setPageError] = useState(null); // Renomeado para evitar conflito com 'error' do snackbar
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
 
-    const API_URL = 'http://localhost:8800';
+    const API_URL = 'http://localhost:8800'; // Ajuste conforme sua configuração
 
     useEffect(() => {
         const fetchBenefits = async () => {
             try {
                 setLoading(true);
+                setPageError(null);
                 const response = await axios.get(`${API_URL}/benefits/list/all`);
                 setBenefits(response.data);
             } catch (err) {
                 console.error("Erro ao buscar benefícios:", err);
-                setError("Não foi possível carregar os benefícios.");
+                setPageError("Não foi possível carregar os benefícios.");
+                if (err.response) {
+                    if (err.response.status === 401 || err.response.status === 403) {
+                        setPageError("Sessão expirada ou não autenticado. Por favor, faça login novamente.");
+                    }
+                }
             } finally {
                 setLoading(false);
             }
@@ -41,16 +58,61 @@ export default function BenefitsPage() {
         fetchBenefits();
     }, []);
 
+    const handleOpenSnackbar = (message, severity) => {
+        setSnackbarMessage(message);
+        setSnackbarSeverity(severity);
+        setSnackbarOpen(true);
+    };
+
+    const handleCloseSnackbar = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setSnackbarOpen(false);
+    };
+
+    const handleActivateBenefit = async (benefitToActivate) => {
+        try {
+            const updatedBenefitData = {
+                id: benefitToActivate.id,
+                name: benefitToActivate.name,
+                description: benefitToActivate.description,
+                type: benefitToActivate.type,
+                value: benefitToActivate.value,
+                validUntil: benefitToActivate.validUntil,
+                active: true,
+            };
+
+            const response = await axios.put(`${API_URL}/benefits/${benefitToActivate.id}`, updatedBenefitData);
+
+            setBenefits(prevBenefits =>
+                prevBenefits.map(b =>
+                    b.id === benefitToActivate.id ? { ...b, active: response.data.active } : b
+                )
+            );
+            handleOpenSnackbar(`Benefício "${response.data.name}" resgatado com sucesso!`, 'success');
+        } catch (err) {
+            console.error("Erro ao resgatar benefício:", err);
+            let errorMessage = "Não foi possível resgatar o benefício. Tente novamente mais tarde.";
+            if (err.response) {
+                if (err.response.status === 401 || err.response.status === 403) {
+                    errorMessage = "Você não está autorizado a resgatar este benefício. Faça login ou verifique suas permissões.";
+                } else if (err.response.status === 404) {
+                    errorMessage = "Benefício não encontrado.";
+                }
+            }
+            handleOpenSnackbar(errorMessage, 'error');
+        }
+    };
+
     const getTypeColor = (type) => {
         switch (type) {
-            case 'SERVICE':
-                return 'primary';
-            case 'DISCOUNT':
-                return 'success';
-            case 'BONUS':
-                return 'secondary';
-            default:
-                return 'default';
+            case 'SERVICE': return 'primary';
+            case 'DISCOUNT': return 'success';
+            case 'BONUS': return 'secondary';
+            case 'INSURANCE': return 'error';
+            case 'CASHBACK': return 'info';
+            default: return 'default';
         }
     };
 
@@ -58,17 +120,30 @@ export default function BenefitsPage() {
         <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
             <AppAppBar title="Benefícios Disponíveis Para Todos" />
             <Container maxWidth="md" sx={{ py: 4, pt: 16 }}>
-                <Typography variant="h4" gutterBottom sx={{ mb: 4 }}>
+                <Typography variant="h4" gutterBottom sx={{ mb: 4 }} color={isDark ? 'white' : 'black'}>
                     Benefícios Disponíveis Para Todos
                 </Typography>
 
-                {loading && <CircularProgress color="primary" />}
-                {error && <Alert severity="error">{error}</Alert>}
-                {!loading && !error && benefits.length === 0 && (
-                    <Typography variant="body1">Nenhum benefício encontrado.</Typography>
+                {loading && (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+                        <CircularProgress />
+                        <Typography sx={{ ml: 2 }} color={isDark ? 'text.secondary' : 'text.secondary'}>Carregando benefícios...</Typography>
+                    </Box>
                 )}
 
-                {!loading && !error && (
+                {pageError && (
+                    <MuiAlert severity="error" sx={{ mt: 4 }}>
+                        {pageError}
+                    </MuiAlert>
+                )}
+
+                {!loading && !pageError && benefits.length === 0 && (
+                    <Typography variant="h6" sx={{ textAlign: 'center', mt: 4 }} color={isDark ? 'text.secondary' : 'text.secondary'}>
+                        Nenhum benefício padrão encontrado no momento.
+                    </Typography>
+                )}
+
+                {!loading && !pageError && (
                     <Stack spacing={3}>
                         {benefits.map((benefit) => (
                             <Paper
@@ -93,16 +168,16 @@ export default function BenefitsPage() {
                                 }}
                             >
                                 <Stack spacing={1}>
-                                    <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', fontWeight: 'bold' }}>
+                                    <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', fontWeight: 'bold' }} color={isDark ? 'text.primary' : 'text.primary'}>
                                         <CardGiftcard sx={{ mr: 1, color: 'orange' }} />
                                         {benefit.name}
                                     </Typography>
 
-                                    <Typography variant="body2" sx={{ mb: 1 }}>
+                                    <Typography variant="body2" sx={{ mb: 1 }} color={isDark ? 'text.secondary' : 'text.secondary'}>
                                         {benefit.description}
                                     </Typography>
 
-                                    <Grid container spacing={1}>
+                                    <Grid container spacing={1} alignItems="center" justifyContent="space-between">
                                         <Grid item>
                                             <Chip
                                                 label={benefit.type}
@@ -127,12 +202,33 @@ export default function BenefitsPage() {
                                             <Grid item>
                                                 <Chip
                                                     icon={<Event />}
-                                                    label={`Válido até: ${new Date(benefit.validUntil).toLocaleDateString()}`}
+                                                    label={`Válido até: ${new Date(benefit.validUntil).toLocaleDateString('pt-BR')}`}
                                                     size="small"
                                                     variant="outlined"
                                                 />
                                             </Grid>
                                         )}
+
+                                        <Grid item>
+                                            {benefit.active ? (
+                                                <Chip
+                                                    icon={<CheckCircleOutline />}
+                                                    label="Resgatado"
+                                                    color="success"
+                                                    variant="filled"
+                                                />
+                                            ) : (
+                                                <Button
+                                                    variant="contained"
+                                                    color="primary"
+                                                    size="small"
+                                                    onClick={() => handleActivateBenefit(benefit)}
+                                                    sx={{ mt: { xs: 1, sm: 0 } }}
+                                                >
+                                                    Resgatar Benefício
+                                                </Button>
+                                            )}
+                                        </Grid>
                                     </Grid>
                                 </Stack>
                             </Paper>
@@ -140,6 +236,18 @@ export default function BenefitsPage() {
                     </Stack>
                 )}
             </Container>
+
+            {/* Snackbar para mensagens de sucesso/erro */}
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={6000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 }

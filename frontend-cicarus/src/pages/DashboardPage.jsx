@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react'; // Add this import
 import {
     Box, Container, Typography, Grid, Paper, IconButton,
     List, ListItem, ListItemAvatar, Avatar, ListItemText, Divider, Stack, Button, useTheme, Skeleton
@@ -32,17 +33,60 @@ const API_URL = import.meta.env.VITE_API_URL || '';
 
 // --- COMPONENTES DO DASHBOARD ---
 const WelcomeHeader = () => {
+    const [customerData, setCustomerData] = useState(null);
+    const [loading, setLoading] = useState(true);
     const { user } = useUser();
-    const userName = user ? user.name : "Usuário";
-    const userAvatar = user ? user.avatar : "https://i.pravatar.cc/150?u=default";
+
+    useEffect(() => {
+        const fetchCustomerData = async () => {
+            try {
+                setLoading(true);
+                const email = user?.name;
+                if (!email) return;
+
+                const response = await fetch(`${API_URL}/customers/profile/${email}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (!response.ok) throw new Error('Failed to fetch customer data');
+
+                const data = await response.json();
+                setCustomerData(data);
+            } catch (error) {
+                console.error('Error fetching customer data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchCustomerData();
+    }, [user]);
+
+    if (loading) {
+        return (
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <Skeleton variant="circular" width={56} height={56} sx={{ mr: 2 }} />
+                <div>
+                    <Skeleton variant="text" width={200} height={32} />
+                    <Skeleton variant="text" width={300} height={24} />
+                </div>
+            </Box>
+        );
+    }
 
     return (
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                <Avatar src={userAvatar} sx={{ width: 56, height: 56, mr: 2, border: '2px solid', borderColor: 'primary.main' }} />
+                <Avatar sx={{ width: 56, height: 56, mr: 2, border: '2px solid', borderColor: 'primary.main' }} />
                 <div>
-                    <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>Bom dia, {userName}!</Typography>
-                    <Typography variant="body1" sx={{ color: 'text.secondary' }}>Bem-vindo de volta ao seu painel CicarusBank.</Typography>
+                    <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
+                        Bom dia, {customerData?.name || 'Usuário'}!
+                    </Typography>
+                    <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                        Bem-vindo de volta ao seu painel CicarusBank.
+                    </Typography>
                 </div>
             </Box>
         </motion.div>

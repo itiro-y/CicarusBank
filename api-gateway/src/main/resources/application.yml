@@ -16,8 +16,8 @@ spring:
               uri: lb://account
               predicates:
                 - Path=/account/**
-#              filters:
-#                - AuthenticationFilter
+              filters:
+                - JwtAuthenticationFilter
 
             - id: auth
               uri: lb://auth
@@ -28,45 +28,45 @@ spring:
               uri: lb://transaction
               predicates:
                 - Path=/transaction/**
-#              filters:
-#                - AuthenticationFilter
+              filters:
+                - JwtAuthenticationFilter
 
             - id: loan
               uri: lb://loan
               predicates:
                 - Path=/loan/**
-#              filters:
-#                - AuthenticationFilter
+              filters:
+                - JwtAuthenticationFilter
 
             - id: customers
               uri: lb://customers
               predicates:
                 - Path=/customers/**
-#              filters:
-#                - AuthenticationFilter
+              filters:
+                - JwtAuthenticationFilter
 
             - id: exchange
               uri: lb://exchange
               predicates:
                 - Path=/exchange/**
-#              filters:
-#                - AuthenticationFilter
-#              filters:
-#                - StripPrefix=1
+              filters:
+                - JwtAuthenticationFilter
+            #              filters:
+            #                - StripPrefix=1
 
             - id: notification
               uri: lb://notification
               predicates:
                 - Path=/notification/**
-#              filters:
-#                - AuthenticationFilter
+              filters:
+                - JwtAuthenticationFilter
 
             - id: card
               uri: lb://card
               predicates:
                 - Path=/card/**
-#              filters:
-#                - AuthenticationFilter
+              filters:
+                - JwtAuthenticationFilter
 
             - id: statement-service
               uri: lb://statement-service
@@ -105,6 +105,9 @@ springdoc:
 
 #jwt:
 #  secret: hzAS6BikJ_2Ft3fEye-lqwGviIeGbWFRG9mEnNDzQp4=
+#  secret: hzAS6BikJ_2Ft3fEye-lqwGviIeGbWFRG9mEnNDzQp4=
 #  expiration: 86400000 # 24 horas em ms
 
+jwt:
+  secret: hzAS6BikJ_2Ft3fEye-lqwGviIeGbWFRG9mEnNDzQp4=
 

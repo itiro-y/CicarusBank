@@ -1,85 +1,91 @@
-import * as React from 'react';
-import { styled, alpha, useTheme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Button from '@mui/material/Button';
-import { Link, useNavigate } from 'react-router-dom';
-import IconButton from '@mui/material/IconButton';
-import Container from '@mui/material/Container';
-import Divider from '@mui/material/Divider';
-import MenuItem from '@mui/material/MenuItem';
-import Drawer from '@mui/material/Drawer';
-import MenuIcon from '@mui/icons-material/Menu';
-import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
-import ColorModeIconDropdown from '../theme/ColorModeIconDropdown.jsx';
-import Swal from 'sweetalert2'; // Importação do SweetAlert2
-import NotificationBell from './NotificationBell.jsx';
+import * as React from "react";
+import { styled, alpha, useTheme } from "@mui/material/styles";
+import Box from "@mui/material/Box";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import Button from "@mui/material/Button";
+import { Link, useNavigate } from "react-router-dom";
+import IconButton from "@mui/material/IconButton";
+import Container from "@mui/material/Container";
+import Divider from "@mui/material/Divider";
+import MenuItem from "@mui/material/MenuItem";
+import Drawer from "@mui/material/Drawer";
+import MenuIcon from "@mui/icons-material/Menu";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import ColorModeIconDropdown from "../theme/ColorModeIconDropdown.jsx";
+import Swal from "sweetalert2"; // Importação do SweetAlert2
+import NotificationBell from "./NotificationBell.jsx";
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    flexShrink: 0,
-    borderRadius: `calc(${theme.shape.borderRadius}px + 8px)`,
-    backdropFilter: 'blur(24px)',
-    border: '1px solid',
-    borderColor: (theme.vars || theme).palette.divider,
-    backgroundColor: theme.vars
-        ? `rgba(${theme.vars.palette.background.defaultChannel} / 0.4)`
-        : alpha(theme.palette.background.default, 0.4),
-    boxShadow: (theme.vars || theme).shadows[1],
-    padding: '8px 12px',
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  flexShrink: 0,
+  borderRadius: `calc(${theme.shape.borderRadius}px + 8px)`,
+  backdropFilter: "blur(24px)",
+  border: "1px solid",
+  borderColor: (theme.vars || theme).palette.divider,
+  backgroundColor: theme.vars
+    ? `rgba(${theme.vars.palette.background.defaultChannel} / 0.4)`
+    : alpha(theme.palette.background.default, 0.4),
+  boxShadow: (theme.vars || theme).shadows[1],
+  padding: "8px 12px",
 }));
 
 export default function AppAppBar() {
-    const [open, setOpen] = React.useState(false);
-    const navigate = useNavigate();
-    const theme = useTheme();
+  const [open, setOpen] = React.useState(false);
+  const navigate = useNavigate();
+  const theme = useTheme();
 
-    const toggleDrawer = (newOpen) => () => {
-        setOpen(newOpen);
-    };
+  const toggleDrawer = (newOpen) => () => {
+    setOpen(newOpen);
+  };
 
-    const handleLogout = () => {
-        if (open) {
-            setOpen(false);
-        }
 
+  const handleLogout = () => {
+
+    if (open) {
+      setOpen(false);
+    }
+
+    Swal.fire({
+      title: "Você tem certeza?",
+      text: "Sua sessão atual será encerrada.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sim, sair!",
+      cancelButtonText: "Cancelar",
+      reverseButtons: true,
+      // Estilos para o popup se adaptar ao tema
+      background: theme.palette.background.paper,
+      color: theme.palette.text.primary,
+      confirmButtonColor: theme.palette.error.main,
+      cancelButtonColor: theme.palette.grey[500],
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Se o usuário confirmar, mostra o popup de "deslogando"
+        let timerInterval;
         Swal.fire({
-            title: 'Você tem certeza?',
-            text: "Sua sessão atual será encerrada.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Sim, sair!',
-            cancelButtonText: 'Cancelar',
-            reverseButtons: true,
-            background: theme.palette.background.paper,
-            color: theme.palette.text.primary,
-            confirmButtonColor: theme.palette.error.main,
-            cancelButtonColor: theme.palette.grey[500],
-        }).then((result) => {
-            if (result.isConfirmed) {
-                let timerInterval;
-                Swal.fire({
-                    title: 'Deslogando...',
-                    html: 'Você será redirecionado em breve.',
-                    timer: 1500,
-                    timerProgressBar: true,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    },
-                    willClose: () => {
-                        clearInterval(timerInterval);
-                    },
-                    background: theme.palette.background.paper,
-                    color: theme.palette.text.primary,
-                }).then(() => {
-                    navigate('/');
-                });
-            }
+          title: "Deslogando...",
+          html: "Você será redirecionado em breve.",
+          timer: 1500, // 1.5 segundos
+          timerProgressBar: true,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+          willClose: () => {
+            clearInterval(timerInterval);
+          },
+          // Estilos para o popup de loading
+          background: theme.palette.background.paper,
+          color: theme.palette.text.primary,
+        }).then(() => {
+          // Após o timer, redireciona para a página de login
+          navigate("/");
         });
-    };
+      }
+    });
+  };
 
     return (
         <AppBar

@@ -4,12 +4,25 @@ meta {
   seq: 1
 }
 
-get {
-  url: http://localhost:8765/customers/ping
-  body: none
-  auth: bearer
+post {
+  url: http://localhost:8765/customers/create
+  body: json
+  auth: none
 }
 
-auth:bearer {
-  token: 
+body:json {
+       {
+         "name": "John Doe",
+         "document": "123.456.789-00",
+         "email": "john.doe@example.com",
+         "password": "securepassword123",
+         "birthDate": "1990-01-15",
+         "address": {
+           "street": "123 Main St",
+           "city": "Anytown",
+          "state": "CA",
+          "zipCode": "90210"
+        }
+      }
+  
 }

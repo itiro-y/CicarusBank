@@ -71,10 +71,7 @@ public class BenefitController {
     @Operation(summary = "Lista todos os benefícios padrão/públicos", description = "Retorna uma lista de todos os benefícios disponíveis para todos os usuários, sem necessidade de autenticação específica de cliente.")
     @GetMapping("/standard")
     public ResponseEntity<List<BenefitResponse>> getStandardBenefits() {
-        // Chamamos o método que lista apenas os benefícios ativos,
-        // pois assumimos que "ativos" são os "padrão para todos".
-        // Se a lógica de "padrão" for diferente (ex: uma nova coluna `is_standard`),
-        // o service precisaria de um novo método para isso.
+
         return ResponseEntity.ok(service.getActiveBenefits());
     }
 

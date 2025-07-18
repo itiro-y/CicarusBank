@@ -1,36 +1,38 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import {
-    Box, Container, Typography, Paper, CircularProgress, Alert, Stack
+    Box,
+    Container,
+    Typography,
+    Paper,
+    CircularProgress,
+    Alert,
+    Stack,
+    Chip,
+    Grid,
 } from '@mui/material';
-import AppAppBar from "../../components/AppAppBar"; // Caminho relativo, conforme conversamos
+import { useTheme } from '@mui/material/styles';
+import AppAppBar from "../../components/AppAppBar";
+import { CardGiftcard, MonetizationOn, Event } from '@mui/icons-material';
 
 export default function BenefitsPage() {
     const [benefits, setBenefits] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const theme = useTheme();
+    const isDark = theme.palette.mode === 'dark';
 
-    // Mantenha a declaração da URL AQUI, dentro do escopo do componente ou globalmente no módulo
-    // Se você usa Vite, 'import.meta.env.VITE_API_URL' é a forma correta
     const API_URL = 'http://localhost:8800';
 
     useEffect(() => {
         const fetchBenefits = async () => {
             try {
                 setLoading(true);
-                setError(null);
-
-                // A requisição deve estar DENTRO desta função assíncrona
                 const response = await axios.get(`${API_URL}/benefits/list/all`);
-
                 setBenefits(response.data);
             } catch (err) {
-                console.error("Erro ao buscar benefícios padrão:", err);
-                setError("Não foi possível carregar os benefícios padrão. Tente novamente mais tarde.");
-                if (err.response) {
-                    console.error("Dados do erro:", err.response.data);
-                    console.error("Status do erro:", err.response.status);
-                }
+                console.error("Erro ao buscar benefícios:", err);
+                setError("Não foi possível carregar os benefícios.");
             } finally {
                 setLoading(false);
             }
@@ -39,72 +41,100 @@ export default function BenefitsPage() {
         fetchBenefits();
     }, []);
 
+    const getTypeColor = (type) => {
+        switch (type) {
+            case 'SERVICE':
+                return 'primary';
+            case 'DISCOUNT':
+                return 'success';
+            case 'BONUS':
+                return 'secondary';
+            default:
+                return 'default';
+        }
+    };
+
     return (
         <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-            <AppAppBar title="Benefícios Padrão" />
+            <AppAppBar title="Benefícios Disponíveis Para Todos" />
             <Container maxWidth="md" sx={{ py: 4, pt: 16 }}>
-                <Typography variant="h4" gutterBottom sx={{ color: 'white', mb: 4 }}>
+                <Typography variant="h4" gutterBottom sx={{ mb: 4 }}>
                     Benefícios Disponíveis Para Todos
                 </Typography>
 
-                {loading && (
-                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-                        <CircularProgress />
-                        <Typography sx={{ ml: 2, color: 'text.secondary' }}>Carregando benefícios...</Typography>
-                    </Box>
-                )}
-
-                {error && (
-                    <Alert severity="error" sx={{ mt: 4 }}>
-                        {error}
-                    </Alert>
-                )}
-
+                {loading && <CircularProgress color="primary" />}
+                {error && <Alert severity="error">{error}</Alert>}
                 {!loading && !error && benefits.length === 0 && (
-                    <Typography variant="h6" sx={{ color: 'text.secondary', textAlign: 'center', mt: 4 }}>
-                        Nenhum benefício padrão encontrado no momento.
-                    </Typography>
+                    <Typography variant="body1">Nenhum benefício encontrado.</Typography>
                 )}
 
-                {!loading && !error && benefits.length > 0 && (
+                {!loading && !error && (
                     <Stack spacing={3}>
                         {benefits.map((benefit) => (
                             <Paper
                                 key={benefit.id}
-                                elevation={3}
+                                elevation={4}
                                 sx={{
                                     p: 3,
-                                    borderRadius: '12px',
-                                    bgcolor: '#282d34',
-                                    color: 'white',
-                                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                                    transition: 'transform 0.2s',
+                                    borderRadius: '16px',
+                                    background: isDark
+                                        ? 'linear-gradient(135deg, #2e2e2e, #4b4b4b)'
+                                        : 'linear-gradient(135deg, #f5f5f5, #dcdcdc)',
+                                    color: isDark ? 'white' : 'black',
+                                    border: isDark
+                                        ? '1px solid rgba(255, 255, 255, 0.08)'
+                                        : '1px solid rgba(0, 0, 0, 0.05)',
+                                    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                                    transition: 'all 0.3s ease-in-out',
                                     '&:hover': {
-                                        transform: 'translateY(-5px)',
-                                    }
+                                        transform: 'translateY(-4px)',
+                                        boxShadow: '0 6px 20px rgba(0,0,0,0.3)',
+                                    },
                                 }}
                             >
-                                <Typography variant="h5" sx={{ mb: 1, color: '#f57c00' }}>
-                                    {benefit.name}
-                                </Typography>
-                                <Typography variant="body1" sx={{ mb: 2, color: 'text.secondary' }}>
-                                    {benefit.description}
-                                </Typography>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                        Tipo: <Typography component="span" variant="body2" sx={{ color: 'white', fontWeight: 'bold' }}>{benefit.type}</Typography>
+                                <Stack spacing={1}>
+                                    <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', fontWeight: 'bold' }}>
+                                        <CardGiftcard sx={{ mr: 1, color: 'orange' }} />
+                                        {benefit.name}
                                     </Typography>
-                                    {benefit.value && (
-                                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                            Valor: <Typography component="span" variant="body2" sx={{ color: 'white', fontWeight: 'bold' }}>{benefit.value.toFixed(2)}</Typography>
-                                        </Typography>
-                                    )}
-                                    {benefit.validUntil && (
-                                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                            Válido até: <Typography component="span" variant="body2" sx={{ color: 'white', fontWeight: 'bold' }}>{new Date(benefit.validUntil).toLocaleDateString()}</Typography>
-                                        </Typography>
-                                    )}
-                                </Box>
+
+                                    <Typography variant="body2" sx={{ mb: 1 }}>
+                                        {benefit.description}
+                                    </Typography>
+
+                                    <Grid container spacing={1}>
+                                        <Grid item>
+                                            <Chip
+                                                label={benefit.type}
+                                                color={getTypeColor(benefit.type)}
+                                                size="small"
+                                                variant="outlined"
+                                            />
+                                        </Grid>
+
+                                        {benefit.value !== null && (
+                                            <Grid item>
+                                                <Chip
+                                                    icon={<MonetizationOn />}
+                                                    label={`R$ ${Number(benefit.value).toFixed(2)}`}
+                                                    size="small"
+                                                    variant="outlined"
+                                                />
+                                            </Grid>
+                                        )}
+
+                                        {benefit.validUntil && (
+                                            <Grid item>
+                                                <Chip
+                                                    icon={<Event />}
+                                                    label={`Válido até: ${new Date(benefit.validUntil).toLocaleDateString()}`}
+                                                    size="small"
+                                                    variant="outlined"
+                                                />
+                                            </Grid>
+                                        )}
+                                    </Grid>
+                                </Stack>
                             </Paper>
                         ))}
                     </Stack>

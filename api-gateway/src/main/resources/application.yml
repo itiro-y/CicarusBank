@@ -82,6 +82,12 @@ spring:
 #              filters:
 #                - AuthenticationFilter
 
+            - id: benefits
+              uri: lb://benefits
+              predicates:
+                - Path=/benefits/**
+
+
 springdoc:
   swagger-ui:
     urls:
@@ -101,6 +107,8 @@ springdoc:
         url: /statement-service/v3/api-docs
       - name: investment
         url: /investment/v3/api-docs
+      - name: benefits
+        url: /benefits/v3/api-docs
   override-server-url: true
 
 #jwt:

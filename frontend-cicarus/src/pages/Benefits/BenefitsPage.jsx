@@ -3,16 +3,16 @@ import axios from 'axios';
 import {
     Box, Container, Typography, Paper, CircularProgress, Alert, Stack
 } from '@mui/material';
-import AppAppBar from "../../components/AppAppBar";
-
-// A URL base do seu API Gateway, se estiver usando um.
-// Se o frontend se comunica diretamente com o benefits-service, use a porta do benefits-service (ex: http://localhost:8800)
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8765'; // Ajuste conforme sua configuração
+import AppAppBar from "../../components/AppAppBar"; // Caminho relativo, conforme conversamos
 
 export default function BenefitsPage() {
     const [benefits, setBenefits] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // Mantenha a declaração da URL AQUI, dentro do escopo do componente ou globalmente no módulo
+    // Se você usa Vite, 'import.meta.env.VITE_API_URL' é a forma correta
+    const API_URL = 'http://localhost:8800';
 
     useEffect(() => {
         const fetchBenefits = async () => {
@@ -20,7 +20,8 @@ export default function BenefitsPage() {
                 setLoading(true);
                 setError(null);
 
-                const response = await axios.get(`${API_URL}/benefits/standard`); // AJUSTE AQUI SE SEU API GATEWAY TEM UM PREFIXO DIFERENTE
+                // A requisição deve estar DENTRO desta função assíncrona
+                const response = await axios.get(`${API_URL}/benefits/list/all`);
 
                 setBenefits(response.data);
             } catch (err) {

@@ -27,3 +27,4 @@
 hs_err_pid*
 replay_pid*
 /frontend-cicarus/package-lock.json
+target/

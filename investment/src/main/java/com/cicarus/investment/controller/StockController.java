@@ -7,6 +7,7 @@ import com.cicarus.investment.dtos.stock.StockDto;
 import com.cicarus.investment.dtos.stock.StockRequestDto;
 import com.cicarus.investment.model.investment.InvestmentStatus;
 import com.cicarus.investment.model.investment.InvestmentType;
+import com.cicarus.investment.model.transaction.TransactionType;
 import com.cicarus.investment.service.InvestmentService;
 import com.cicarus.investment.service.StockService;
 import com.cicarus.investment.service.account.AccountService;
@@ -52,7 +53,7 @@ public class StockController {
 
     @Operation(summary = "Post that creates a new Stock based on a StockRequestDto JSON")
     @PostMapping()
-    public StockDto createInvestment(@RequestBody StockRequestDto stockRequestDto) {
+    public List<StockDto> createInvestment(@RequestBody StockRequestDto stockRequestDto) {
         System.out.println(stockRequestDto.accountId());
 
         InvestmentRequestDto investmentRequestDto = new InvestmentRequestDto(
@@ -70,7 +71,7 @@ public class StockController {
 
         investmentService.create(investmentRequestDto);
 
-        return stockService.create(stockRequestDto);
+        return stockService.create(stockRequestDto, stockRequestDto.volume());
     }
 
     @Operation(summary = "Get that returns a sum of of a user's investment in stocks")
@@ -83,5 +84,17 @@ public class StockController {
             sum = sum.add((stock.currentPrice().multiply(stock.volume())));
         }
         return sum;
+    }
+
+    @Operation(summary = "Delete that remosves a stock based on its symbol and accountId")
+    @DeleteMapping("sell/{symbol}/{accountId}")
+    public void deleteStock(@PathVariable String symbol, @PathVariable Long accountId) {
+        StockDto stockDto = stockService.findBySymbolAndAccountId(symbol, accountId);
+
+        if (stockDto != null) {
+            BigDecimal totalValue = stockDto.currentPrice();
+            accountService.depositUSD(accountId, totalValue);
+            stockService.delete(stockDto.id());
+        }
     }
 }

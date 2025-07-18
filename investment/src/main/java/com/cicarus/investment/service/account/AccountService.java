@@ -4,7 +4,6 @@ import com.cicarus.investment.clients.AccountClient;
 import com.cicarus.investment.model.account.AccountDto;
 import com.cicarus.investment.model.transaction.TransactionType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.math.BigDecimal;
 
@@ -18,6 +17,10 @@ public class AccountService {
 
     public AccountDto withdrawUSD(Long accountId, BigDecimal amount) {
          return accountClient.withdrwaUSD(accountId, amount);
+    }
+
+    public AccountDto depositUSD(Long accountId, BigDecimal amount) {
+        return accountClient.depositUSD(accountId, amount);
     }
 
     public AccountDto alterarSaldo(Long id, BigDecimal amount, TransactionType transactionType){

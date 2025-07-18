@@ -62,7 +62,7 @@ export default function StockInvestmentsPage() {
     const [simValue, setSimValue] = useState('');
     const [simResult, setSimResult] = useState(null);
     const [buyStock, setBuyStock] = useState('AAPL');
-    const [buyValue, setBuyValue] = useState('');
+    const [buyVolume, setbuyVolume] = useState('');
     const [buyResult, setBuyResult] = useState(null);
     const [buyLoading, setBuyLoading] = useState(false);
     const [buyError, setBuyError] = useState(null);
@@ -122,12 +122,49 @@ export default function StockInvestmentsPage() {
         setSimResult({ qty, price });
     }
 
+    async function handleSell(symbol) {
+        try {
+            const response = await fetch(`${API_URL}/stock/sell/${symbol}/${accountId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...authHeader()
+                }
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                try {
+                    const data = JSON.parse(errorText);
+                    throw new Error(data.message || 'Erro ao vender ação.');
+                } catch {
+                    throw new Error('Erro ao vender ação.');
+                }
+            }
+
+            // Apenas tente ler o corpo se houver
+            let result = null;
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                result = await response.json();
+                console.log('Venda realizada com sucesso:', result);
+            } else {
+                console.log('Venda realizada com sucesso (sem corpo).');
+            }
+
+            await fetchWallet();
+
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
 
     async function handleBuy() {
         setBuyError(null);
         setBuyResult(null);
 
-        if (!buyValue || isNaN(buyValue) || Number(buyValue) <= 0) {
+        if (!buyVolume || isNaN(buyVolume) || Number(buyVolume) <= 0) {
             setBuyError('Informe um valor válido.');
             return;
         }
@@ -152,7 +189,7 @@ export default function StockInvestmentsPage() {
                 currency: overviewData.Currency || 'USD',
                 setor: overviewData.Sector || '',
                 currentPrice: Number(price),
-                volume: buyValue,
+                volume: buyVolume,
                 marketCap: Number(overviewData.MarketCapitalization) || 0,
                 peRatio: Number(overviewData.PERatio) || 0,
                 dividendYield: Number(overviewData.DividendYield) || 0
@@ -177,6 +214,8 @@ export default function StockInvestmentsPage() {
                 qty: result.qty,
                 price: result.price
             });
+            fetchAll();
+            fetchWallet();
         } catch (error) {
             console.error(error);
             setBuyError(error.message || 'Erro inesperado.');
@@ -189,7 +228,6 @@ export default function StockInvestmentsPage() {
         return STOCKS.find(s => s.symbol === symbol) || { name: symbol, icon: '' };
     }
 
-    // Estatísticas rápidas
     const bestPerformer = Object.entries(changes).sort((a, b) => Number(b[1]) - Number(a[1]))[0];
     const worstPerformer = Object.entries(changes).sort((a, b) => Number(a[1]) - Number(b[1]))[0];
 
@@ -367,7 +405,7 @@ export default function StockInvestmentsPage() {
                                 />
                             </Box>
                             <Typography variant="h6" sx={{ fontWeight: 700, mt: 1, mb: 1, textAlign: 'center' }}>
-                                Comprar {STOCKS.find(s => s.symbol === buyStock)?.name}
+                                Comprar Ações da {STOCKS.find(s => s.symbol === buyStock)?.name}
                             </Typography>
                             <Typography variant="body2" color="text.secondary" sx={{ mb: 2, textAlign: 'center' }}>
                                 Escolha a ação, informe o valor em dólar e veja instantaneamente quantas ações pode adquirir.
@@ -399,8 +437,8 @@ export default function StockInvestmentsPage() {
                             </TextField>
                             <TextField
                                 label="Quantidade de Ações (un.)"
-                                value={buyValue}
-                                onChange={e => setBuyValue(e.target.value)}
+                                value={buyVolume}
+                                onChange={e => setbuyVolume(e.target.value)}
                                 type="number"
                                 fullWidth
                                 sx={{ mb: 2 }}
@@ -444,7 +482,7 @@ export default function StockInvestmentsPage() {
                                         Compra Realizada
                                     </Typography>
                                     <Typography>
-                                        Você comprou <b>{buyValue}</b> {buyStock} a US$ {Number(prices[buyStock]).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} cada.
+                                        Você comprou <b>{buyVolume}</b> {buyStock} a US$ {Number(prices[buyStock]).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} cada.
                                     </Typography>
                                 </Paper>
                             )}
@@ -522,7 +560,7 @@ export default function StockInvestmentsPage() {
                                                     {symbol}
                                                 </Typography>
                                             </Box>
-                                            <Box sx={{ textAlign: 'right' }}>
+                                            <Box sx={{ textAlign: 'right', flex: 1 }}>
                                                 <Typography variant="body2" sx={{ fontWeight: 700, color: theme.palette.text.primary }}>
                                                     {amount} {symbol}
                                                 </Typography>
@@ -530,6 +568,14 @@ export default function StockInvestmentsPage() {
                                                     {value !== null ? `US$ ${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '--'}
                                                 </Typography>
                                             </Box>
+                                            <Button
+                                                variant="outlined"
+                                                color="error"
+                                                size="small"
+                                                onClick={() => handleSell(symbol)}
+                                            >
+                                                Vender
+                                            </Button>
                                         </Box>
                                     );
                                 })}

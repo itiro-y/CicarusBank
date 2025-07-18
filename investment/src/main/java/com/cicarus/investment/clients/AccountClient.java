@@ -14,6 +14,9 @@ public interface AccountClient {
     @PutMapping("/account/withdrwaUSD/{accountId}/{amount}")
     AccountDto withdrwaUSD(@PathVariable Long accountId, @PathVariable BigDecimal amount);
 
+    @PutMapping("/account/depositUSD/{accountId}/{amount}")
+    AccountDto depositUSD(@PathVariable Long accountId, @PathVariable BigDecimal amount);
+
     @PutMapping("/account/{id}/{amount}/{transactionType}")
     AccountDto alterarSaldo(
             @PathVariable Long id,

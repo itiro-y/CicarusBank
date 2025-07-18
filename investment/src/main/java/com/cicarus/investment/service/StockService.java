@@ -4,10 +4,14 @@ import com.cicarus.investment.dtos.stock.StockDto;
 import com.cicarus.investment.dtos.stock.StockRequestDto;
 import com.cicarus.investment.model.stock.Stock;
 import com.cicarus.investment.repository.StockRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,14 +30,28 @@ public class StockService {
         return stockRepository.findById(id).map(this::toDto).orElse(null);
     }
 
-    public StockDto create(StockRequestDto requestDto){
-        Stock investment = toEntity(requestDto);
-        Stock saved = stockRepository.save(investment);
-        return toDto(saved);
+    public List<StockDto> create(StockRequestDto requestDto, BigDecimal volume) {
+        List<StockDto> results = new ArrayList<>();
+        for (int i = 0; i < volume.intValue(); i++) {
+            Stock stock = toEntity(requestDto);
+            Stock saved = stockRepository.save(stock);
+            results.add(toDto(saved));
+        }
+        return results;
     }
 
     public List<StockDto> findAllByAccountId(Long accountId){
         return stockRepository.findAllByAccountId(accountId).stream().map(this::toDto).collect(Collectors.toList());
+    }
+
+
+    public StockDto findBySymbolAndAccountId(String symbol, Long accountId) {
+        StockDto stock = toDto(stockRepository.findFirstBySymbolAndAccountId(symbol, accountId).get());
+        return stock;
+    }
+
+    public void delete(Long id) {
+        stockRepository.deleteById(id);
     }
 
     public Stock toEntity(StockRequestDto request) {

@@ -225,4 +225,17 @@ public class AccountController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta não encontrada para o ID: " + accountId);
         }
     }
+
+    @PutMapping("/account/depositUSD/{accountId}/{amount}")
+    public Account depositUSD(@PathVariable Long accountId, @PathVariable BigDecimal amount){
+        Optional<Account> optionalAccount = accountRepository.findById(accountId);
+
+        if (optionalAccount.isPresent()) {
+            Account account = optionalAccount.get();
+            account.setUsdWallet(account.getUsdWallet().add(amount));
+            return accountRepository.save(account);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta não encontrada para o ID: " + accountId);
+        }
+    }
 }

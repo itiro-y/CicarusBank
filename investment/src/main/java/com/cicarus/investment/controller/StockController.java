@@ -62,7 +62,7 @@ public class StockController {
                 InvestmentType.ACOES,
                 InvestmentStatus.ATIVO,
                 stockRequestDto.currentPrice().multiply(stockRequestDto.volume()),
-                stockRequestDto.currentPrice(),
+                stockRequestDto.currentPrice().multiply(stockRequestDto.volume()),
                 BigDecimal.ZERO,
                 null,
                 true

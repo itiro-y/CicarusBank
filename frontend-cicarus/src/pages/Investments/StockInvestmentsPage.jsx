@@ -67,14 +67,31 @@ export default function StockInvestmentsPage() {
     const [buyLoading, setBuyLoading] = useState(false);
     const [buyError, setBuyError] = useState(null);
     const [selectedChartStock, setSelectedChartStock] = useState('AAPL');
-
+    const [usdWallet, setUsdWallet] = useState(0);
     const [wallet, setWallet] = useState([]);
     const theme = useTheme();
 
     useEffect(() => {
         fetchAll();
         fetchWallet();
+        fetchUsdWallet()
     }, []);
+
+    async function fetchUsdWallet(){
+        try {
+            const response = await fetch(`${API_URL}/account/${accountId}`, {
+                headers: authHeader()
+            });
+            if (!response.ok) {
+                throw new Error('Erro ao buscar saldo em USD');
+            }
+            const data = await response.json();
+            setUsdWallet(data.usdWallet || 0)
+        } catch (error) {
+            console.error('Erro ao buscar saldo em USD:', error);
+            return 0;
+        }
+    }
 
     async function fetchWallet() {
         try {
@@ -151,7 +168,7 @@ export default function StockInvestmentsPage() {
             } else {
                 console.log('Venda realizada com sucesso (sem corpo).');
             }
-
+            await fetchUsdWallet();
             await fetchWallet();
 
         } catch (error) {
@@ -214,8 +231,8 @@ export default function StockInvestmentsPage() {
                 qty: result.qty,
                 price: result.price
             });
-            fetchAll();
-            fetchWallet();
+            await fetchWallet();
+            await fetchUsdWallet()
         } catch (error) {
             console.error(error);
             setBuyError(error.message || 'Erro inesperado.');
@@ -227,9 +244,6 @@ export default function StockInvestmentsPage() {
     function getStockInfo(symbol) {
         return STOCKS.find(s => s.symbol === symbol) || { name: symbol, icon: '' };
     }
-
-    const bestPerformer = Object.entries(changes).sort((a, b) => Number(b[1]) - Number(a[1]))[0];
-    const worstPerformer = Object.entries(changes).sort((a, b) => Number(a[1]) - Number(b[1]))[0];
 
     const chartHistory = history[selectedChartStock] || [];
     const chartChange = chartHistory.length > 1
@@ -256,15 +270,15 @@ export default function StockInvestmentsPage() {
                             alignItems: 'center',
                             justifyContent: 'space-between',
                             mb: 4,
-                            mt: 4
+                            mt: 5
                         }}
                     >
                         <Tabs value={tab} onChange={handleTabChange}>
-                            <Tab label="Compre Ações" />
-                            <Tab label="Minha Carteira" />
+                            <Tab label="Compre Ações" sx={{fontWeight:500}}/>
+                            <Tab label="Minha Carteira" sx={{fontWeight:500}} />
                         </Tabs>
                         <Button
-                            variant="outlined"
+                            variant="contained"
                             component={Link}
                             to="/user-investments"
                         >
@@ -404,17 +418,24 @@ export default function StockInvestmentsPage() {
                                     style={{ width: 56, height: 56 }}
                                 />
                             </Box>
-                            <Typography variant="h6" sx={{ fontWeight: 700, mt: 1, mb: 1, textAlign: 'center' }}>
+                            <Typography variant="h6" sx={{ fontWeight: 700, mt: 1, mb: -1, textAlign: 'center' }}>
                                 Comprar Ações da {STOCKS.find(s => s.symbol === buyStock)?.name}
                             </Typography>
                             <Typography variant="body2" color="text.secondary" sx={{ mb: 2, textAlign: 'center' }}>
                                 Escolha a ação, informe o valor em dólar e veja instantaneamente quantas ações pode adquirir.
                             </Typography>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 2 }}>
                                 <Typography variant="subtitle2" color="text.secondary">
-                                    Preço atual:
+                                    Seu saldo em USD:
                                 </Typography>
-                                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                                <Typography variant="h6" sx={{ fontWeight: 600, mr:4 }}>
+                                    US$ {Number(usdWallet).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                </Typography>
+
+                                <Typography variant="subtitle2" color="text.secondary">
+                                    Preço da ação:
+                                </Typography>
+                                <Typography variant="h6" sx={{ fontWeight: 600 }}>
                                     US$ {prices[buyStock] ? Number(prices[buyStock]).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--'}
                                 </Typography>
                             </Box>
@@ -495,7 +516,7 @@ export default function StockInvestmentsPage() {
                                 p: { xs: 2, sm: 4 },
                                 maxWidth: 520,
                                 mx: 'auto',
-                                mt: 10,
+                                mt: 4,
                                 mb: 1,
                                 borderRadius: 4,
                                 bgcolor: theme.palette.mode === 'dark' ? theme.palette.grey[900] : 'background.paper',
@@ -506,10 +527,20 @@ export default function StockInvestmentsPage() {
                                 position: 'relative',
                                 overflow: 'visible'
                             }}
-                        >
-                            <Typography variant="h5" sx={{ fontWeight: 700, mb: 0, textAlign: 'center', color: theme.palette.text.primary }}>
-                                Minha Carteira
-                            </Typography>
+                        >   <Box>
+
+                                <Typography variant="h4" sx={{ fontWeight: 700, mb: 0, textAlign: 'center', color: theme.palette.text.primary }}>
+                                    Minha Carteira
+                                </Typography>
+                            </Box>
+                            <Box sx={{mr: 48, mt: 2, mb: 2}}>
+                                <Typography variant="subtitle2" color="text.secondary">
+                                    Seu saldo em USD:
+                                </Typography>
+                                <Typography variant="h7" sx={{ fontWeight: 600, mr:4 }}>
+                                    US$ {Number(usdWallet).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                </Typography>
+                            </Box>
                             {wallet.length === 0 && (
                                 <Typography color="text.secondary" sx={{ mb: 2 }}>
                                     Você ainda não possui ações na carteira.

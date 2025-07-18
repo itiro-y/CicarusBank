@@ -173,7 +173,7 @@ export default function UserInvestmentsPage() {
         return(
             <Box sx={{ mt: 3, mb: 4}}>
                 <Typography variant="h6" gutterBottom>
-                    Resumo dos Saldos Investidos
+                    Resumo de Seus Investimentos
                 </Typography>
                 <Grid container spacing={2} sx={{mt: 3, justifyContent: 'center', textAlign: 'center' }}>
                     <Grid item xs={12} sm={6} md={3}>
@@ -507,6 +507,14 @@ export default function UserInvestmentsPage() {
 
                 <ResumoSaldosInvestidos />
 
+                <Paper sx={{ p: 2, mb: 4 }}>
+                    <EvolutionGraph />
+                </Paper>
+                <Typography variant="h6" sx={{ mb: 2 }}>
+                    Histórico de Investimentos
+                </Typography>
+                <InvestmentTable investments={investments} loading={loading} />
+
                 {/* Dialog para Renda Fixa */}
                 <Dialog open={openRendaFixa} onClose={() => setOpenRendaFixa(false)}>
                     <DialogTitle>Depósito em Renda Fixa (Poupança Cicarus Bank)</DialogTitle>
@@ -603,15 +611,6 @@ export default function UserInvestmentsPage() {
                         </Button>
                     </DialogActions>
                 </Dialog>
-
-                <Typography variant="h6" sx={{ mb: 2 }}>Evolução de seus Investimentos</Typography>
-                <Paper sx={{ p: 2, mb: 4 }}>
-                    <EvolutionGraph />
-                </Paper>
-                <Typography variant="h6" sx={{ mb: 2 }}>
-                    Histórico de Investimentos
-                </Typography>
-                <InvestmentTable investments={investments} loading={loading} />
             </Container>
         </Box>
     );

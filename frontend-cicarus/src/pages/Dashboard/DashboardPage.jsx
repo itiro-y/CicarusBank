@@ -183,12 +183,17 @@ const CreditCardComponent = () => {
     const [isLoading, setIsLoading] = React.useState(true);
     const [error, setError] = React.useState(null);
 
+    const authHeader = () => {
+        const token = localStorage.getItem('token') || '';
+        return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+    };
+
     React.useEffect(() => {
         const fetchPrimaryCard = async () => {
             try {
                 setIsLoading(true);
                 setError(null);
-                const res = await fetch(`${API_URL}/card/list/1`);
+                const res = await fetch(`${API_URL}/card/list/1`, { headers: authHeader() });
                 if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
                 const allCards = await res.json();
                 if (allCards && allCards.length > 0) {
@@ -404,7 +409,7 @@ export default function DashboardPage() {
     async function fetchBalance() {
         setLoadingBalance(true);
         try {
-            const res = await fetch(`${API_URL}/account/${accountId}`, { });
+            const res = await fetch(`${API_URL}/account/${accountId}`, { headers: authHeader() });
             const data = await res.json();
             setBalance(data.balance);
         } catch (err) {

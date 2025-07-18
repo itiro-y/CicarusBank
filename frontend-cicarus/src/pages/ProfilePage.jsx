@@ -1,4 +1,5 @@
 import React from 'react';
+import { useState, useEffect } from 'react'; // Add this import
 import { motion } from 'framer-motion';
 import {
     Box, Container, Typography, Grid, Paper, Avatar, Divider, Stack,
@@ -121,8 +122,38 @@ const InfoListItem = ({ icon, primary, secondary }) => (
 
 const ProfileHeader = ({ profile, onEdit }) => {
     const { user } = useUser();
-    const userName = user ? user.name : profile.name;
-    const userAvatar = user ? user.avatar : profile.avatar;
+    const [customerData, setCustomerData] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchCustomerData = async () => {
+            try {
+                setLoading(true);
+                const email = user?.name;
+                if (!email) return;
+
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/customers/profile/${email}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (!response.ok) throw new Error('Failed to fetch customer data');
+
+                const data = await response.json();
+                setCustomerData(data);
+            } catch (error) {
+                console.error('Error fetching customer data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchCustomerData();
+    }, [user]);
+
+    const userName = customerData?.name || user?.name || profile.name;
+    const userAvatar = user?.avatar || profile.avatar;
 
     return (
         <motion.div
@@ -137,7 +168,7 @@ const ProfileHeader = ({ profile, onEdit }) => {
                 <Avatar src={userAvatar} sx={{ width: 80, height: 80, border: '3px solid', borderColor: 'primary.main' }} />
                 <Box>
                     <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
-                        {userName}
+                        {loading ? 'Carregando...' : userName}
                     </Typography>
                     <Typography variant="body1" sx={{ color: 'text.secondary' }}>
                         ID do Cliente: {profile.id}

@@ -16,9 +16,8 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'rec
 import AppAppBar from '../../components/AppAppBar.jsx';
 import ChatAssistant from '../../components/ChatAssistant.jsx';
 import PromotionalCarousel from '../../components/PromotionalCarousel.jsx';
-import {useEffect, useState} from "react";
 
-import { useUser } from '../context/UserContext.jsx';
+import { useUser } from '../../context/UserContext.jsx';
 
 // --- DADOS MOCK E API URL ---
 const accountData = { balance: 15840.75 };
@@ -324,7 +323,7 @@ const CardManagementActions = () => {
     );
 };
 
-const RecentTransactions = () => (
+const RecentTransactions = ({ transactions, loading }) => (
     <Paper elevation={0} sx={{ p: 3, borderRadius: '16px', backgroundColor: 'background.paper', border: '1px solid', borderColor: 'divider', height: '100%' }}>
         <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>Últimas Transações</Typography>
 

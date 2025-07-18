@@ -11,7 +11,7 @@ import {
     CreditCard, AccountBalance, Home, VpnKey, PhoneAndroid, Business, Close, ErrorOutline
 } from '@mui/icons-material';
 
-import { useUser } from '../context/UserContext.jsx';
+import { useUser } from '../../context/UserContext.jsx';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 import AppAppBar from '../../components/AppAppBar.jsx';

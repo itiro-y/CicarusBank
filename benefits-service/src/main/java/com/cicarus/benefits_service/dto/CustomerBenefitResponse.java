@@ -5,7 +5,7 @@ import java.time.LocalDate;
 public class CustomerBenefitResponse {
     private Long id;
     private Long customerId;
-    private BenefitResponse benefit; // Retorna o DTO do benefício completo
+    private BenefitResponse benefit; 
     private LocalDate activationDate;
     private LocalDate expirationDate;
     private boolean activated;
@@ -22,7 +22,7 @@ public class CustomerBenefitResponse {
         this.activated = activated;
     }
 
-    // Getters e Setters
+    
     public Long getId() {
         return id;
     }

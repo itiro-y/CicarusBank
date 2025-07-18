@@ -9,7 +9,6 @@ import ExchangePage from './pages/CurrencyExchange/ExchangePage.jsx';
 import CardManagementPage from "./pages/Cards/CardManagementPage.jsx";
 import LoanSimulationPage from "./pages/Loans/LoanSimulationPage.jsx";
 import LoanTrackingPage from "./pages/Loans/LoanTrackingPage.jsx";
-import AdminDashboardPage from './pages/Dashboard/AdminDashboardPage.jsx';
 import AdminRoute from './components/AdminRoute.jsx';
 import NearbyAgenciesPage from './pages/NearbyAgencies/NearbyAgenciesPage.jsx';
 import PixPage from './pages/Dashboard/PixPage.jsx';
@@ -30,6 +29,7 @@ import { UserProvider } from './context/UserContext.jsx';
 function App() {
     const location = useLocation();
     const isSignInPage = location.pathname === '/' || location.pathname === '/login';
+    const isAdminPage = location.pathname === '/admin-transactions' || location.pathname.startsWith('/admin/');
 
     return (
         <AppTheme>
@@ -54,23 +54,13 @@ function App() {
                 <Route path="/admin-investments" element={<ProtectedRoute><AdminInvestmentsPage /></ProtectedRoute>} />
                 <Route path="/connected-devices" element={<ProtectedRoute><ConnectedDevicesPage /></ProtectedRoute>} />
                 {/*<Route path="/investments" element={<InvestmentsPage />} />*/}
-                <Route
-                    path="/admin/dashboard"
-                    element={
-                        <ProtectedRoute>
-                        <AdminRoute>
-                            <AdminDashboardPage />
-                        </AdminRoute>
-                        </ProtectedRoute>
-                    }
-                />
                 <Route path="/agencias" element={<ProtectedRoute><NearbyAgenciesPage /></ProtectedRoute>} />
                 <Route path="/virtual-card" element={<ProtectedRoute><VirtualCardCreationPage /></ProtectedRoute>} />
                 <Route path="/investments/criptomoeda" element={<ProtectedRoute><CryptoInvestmentsPage /></ProtectedRoute>} />
 
                 </Routes>
 
-                {!isSignInPage && <VoiceAssistant />}
+                {!isSignInPage || !isAdminPage && <VoiceAssistant />}
             </UserProvider>
         </AppTheme>
     );

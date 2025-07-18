@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-//hehe
+
 @Service
 public class CustomerService {
 
@@ -37,11 +37,11 @@ public class CustomerService {
         BeanUtils.copyProperties(Request, customer);
         Customer saved = repository.save(customer);
 
-        // Create auth entry
+        
         AuthCreateRequest authRequest = new AuthCreateRequest(Request.getEmail(), Request.getPassword());
         authClient.createUser(authRequest);
 
-        // Logic to create an account
+        
         AccountRequest accountRequest = new AccountRequest(customer.getId(),
                 "CHECKING");
 

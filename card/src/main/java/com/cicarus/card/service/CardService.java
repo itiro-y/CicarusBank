@@ -2,7 +2,7 @@ package com.cicarus.card.service;
 
 import com.cicarus.card.dtos.CardDto;
 import com.cicarus.card.dtos.CardRequestDto;
-import com.cicarus.card.dtos.CardStatusRequestDto; // Adicionado
+import com.cicarus.card.dtos.CardStatusRequestDto; 
 import com.cicarus.card.model.Card;
 import com.cicarus.card.model.CardStatus;
 import com.cicarus.card.repository.CardRepository;
@@ -67,7 +67,7 @@ public class CardService {
         }
     }
 
-    // NOVO MÉTODO ADICIONADO
+    
     public ResponseEntity<String> updateStatus(Long cardId, CardStatus newStatus) {
         return cardRepository.findById(cardId)
                 .map(card -> {

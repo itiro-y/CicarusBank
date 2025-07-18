@@ -1,6 +1,6 @@
 package dtos;
 
-// BalanceHistoryDTO.java
+
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

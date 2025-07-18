@@ -5,9 +5,10 @@ import {
     Alert, Chip
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2'; // Importar o SweetAlert2
+import Swal from 'sweetalert2';
 import AppAppBar from '../../components/AppAppBar.jsx';
 import CreditCard from '../../components/CreditCard.jsx';
+import { useUser } from '../../context/UserContext.jsx';
 
 // Ícones
 import LockIcon from '@mui/icons-material/Lock';
@@ -103,6 +104,8 @@ export default function CardManagementPage() {
     const [twoFaDialogOpen, setTwoFaDialogOpen] = useState(false);
     const [twoFaLoading, setTwoFaLoading] = useState(false);
     const [twoFaError, setTwoFaError] = useState('');
+    const [otpCode, setOtpCode] = useState(null);
+    const { user } = useUser();
 
     useEffect(() => {
         fetchCards();
@@ -139,6 +142,21 @@ export default function CardManagementPage() {
             });
             return;
         }
+        // generate 6-digit OTP and send via email
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        setOtpCode(code);
+        // send OTP via Notification microservice
+        fetch(`${API_URL}/notification/send/${user.id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: 'Código de Acesso Cartão',
+            message: `Seu código de acesso é ${code}`,
+            fullDescription: '',
+            timestamp: new Date().toISOString(),
+            read: false
+          })
+        }).catch(console.error);
         setSelectedCard(card);
         setTwoFaDialogOpen(true);
     };
@@ -158,7 +176,7 @@ export default function CardManagementPage() {
         setTwoFaError('');
         try {
             await new Promise(resolve => setTimeout(resolve, 1000));
-            if (code !== '123456') throw new Error('Código de verificação inválido.');
+            if (code !== otpCode) throw new Error('Código de verificação inválido.');
             const res = await fetch(`${API_URL}/card/${selectedCard.id}`);
             if (!res.ok) throw new Error('Falha ao buscar os detalhes do cartão.');
             const fullDetails = await res.json();

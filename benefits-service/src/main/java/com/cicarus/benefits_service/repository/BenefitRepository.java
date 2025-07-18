@@ -10,5 +10,5 @@ import java.util.Optional;
 @Repository
 public interface BenefitRepository extends JpaRepository<Benefit, Long> {
     Optional<Benefit> findByName(String name);
-    List<Benefit> findByActiveTrue(); // Para listar apenas benefícios ativos
+    List<Benefit> findByActiveTrue(); 
 }

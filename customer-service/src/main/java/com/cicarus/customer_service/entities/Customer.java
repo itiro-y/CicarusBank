@@ -13,7 +13,7 @@ public class Customer {
     private String name;
 
     @Column(unique = true)
-    private String document; // CPF ou CNPJ
+    private String document; 
     private String email;
     private String password;
 

@@ -2,7 +2,7 @@ package com.cicarus.card.controller;
 
 import com.cicarus.card.dtos.CardDto;
 import com.cicarus.card.dtos.CardRequestDto;
-import com.cicarus.card.dtos.CardStatusRequestDto; // Adicionado
+import com.cicarus.card.dtos.CardStatusRequestDto; 
 import com.cicarus.card.service.CardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

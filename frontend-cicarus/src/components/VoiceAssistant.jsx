@@ -151,8 +151,7 @@ const VoiceAssistant = () => {
     };
 
     const buttonStyle = {
-        // --- LINHA MODIFICADA ---
-        backgroundColor: isListening ? '#d9534f' : (isProcessing ? '#f0ad4e' : '#f57c00'), // Azul trocado por Laranja (#f57c00)
+        backgroundColor: isListening ? '#d9534f' : (isProcessing ? '#f0ad4e' : '#f57c00'),
         color: 'white',
         border: 'none',
         borderRadius: '50%',

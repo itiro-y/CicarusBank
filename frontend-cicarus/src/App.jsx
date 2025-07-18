@@ -24,42 +24,49 @@ import BillPaymentPage from "./pages/Dashboard/BillPaymentPage.jsx";
 import CryptoInvestmentsPage from "./pages/Investments/CryptoInvestmentsPage.jsx";
 import CardLimitPage from "./pages/Cards/CardLimitPage.jsx";
 
+import ProtectedRoute from './components/ProtectedRoute';
+import { UserProvider } from './context/UserContext.jsx';
+
 function App() {
     return (
         <AppTheme>
+            <UserProvider>
             <Routes>
                 <Route path="/" element={<SignInPage />} />
                 <Route path="/login" element={<SignInPage />} />
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/user-transactions" element={<UserTransactionsPage />} />
-                <Route path="/admin-transactions" element={<AdminTransactionsPage />} />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/exchange" element={<ExchangePage />} />
-                <Route path="/loan" element={<LoanSimulationPage />} />
-                <Route path="/loan-tracking" element={<LoanTrackingPage />} />
-                <Route path="/user-card" element={<CardManagementPage />} />
-                <Route path="/card-limit" element={<CardLimitPage />} />
-                <Route path="/pix" element={<PixPage />} />
-                <Route path="/recharge" element={<MobileRechargePage />} />
-                <Route path="/payment" element={<BillPaymentPage />} />
-                <Route path="/benefits" element={<BenefitsPage />} />
-                <Route path="/user-investments" element={<UserInvestmentsPage />} />
-                <Route path="/admin-investments" element={<AdminInvestmentsPage />} />
-                <Route path="/connected-devices" element={<ConnectedDevicesPage />} />
+                <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+                <Route path="/user-transactions" element={<ProtectedRoute><UserTransactionsPage /></ProtectedRoute>} />
+                <Route path="/admin-transactions" element={<ProtectedRoute><AdminTransactionsPage /></ProtectedRoute>} />
+                <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+                <Route path="/exchange" element={<ProtectedRoute><ExchangePage /></ProtectedRoute>} />
+                <Route path="/loan" element={<ProtectedRoute><LoanSimulationPage /></ProtectedRoute>} />
+                <Route path="/loan-tracking" element={<ProtectedRoute><LoanTrackingPage /></ProtectedRoute>} />
+                <Route path="/user-card" element={<ProtectedRoute><CardManagementPage /></ProtectedRoute>} />
+                <Route path="/card-limit" element={<ProtectedRoute><CardLimitPage /></ProtectedRoute>} />
+                <Route path="/pix" element={<ProtectedRoute><PixPage /></ProtectedRoute>} />
+                <Route path="/recharge" element={<ProtectedRoute><MobileRechargePage /></ProtectedRoute>} />
+                <Route path="/payment" element={<ProtectedRoute><BillPaymentPage /></ProtectedRoute>} />
+                <Route path="/benefits" element={<ProtectedRoute><BenefitsPage /></ProtectedRoute>} />
+                <Route path="/user-investments" element={<ProtectedRoute><UserInvestmentsPage /></ProtectedRoute>} />
+                <Route path="/admin-investments" element={<ProtectedRoute><AdminInvestmentsPage /></ProtectedRoute>} />
+                <Route path="/connected-devices" element={<ProtectedRoute><ConnectedDevicesPage /></ProtectedRoute>} />
                 {/*<Route path="/investments" element={<InvestmentsPage />} />*/}
                 <Route
                     path="/admin/dashboard"
                     element={
+                        <ProtectedRoute>
                         <AdminRoute>
                             <AdminDashboardPage />
                         </AdminRoute>
+                        </ProtectedRoute>
                     }
                 />
-                <Route path="/agencias" element={<NearbyAgenciesPage />} />
-                <Route path="/virtual-card" element={<VirtualCardCreationPage />} />
-                <Route path="/investments/criptomoeda" element={<CryptoInvestmentsPage />} />
+                <Route path="/agencias" element={<ProtectedRoute><NearbyAgenciesPage /></ProtectedRoute>} />
+                <Route path="/virtual-card" element={<ProtectedRoute><VirtualCardCreationPage /></ProtectedRoute>} />
+                <Route path="/investments/criptomoeda" element={<ProtectedRoute><CryptoInvestmentsPage /></ProtectedRoute>} />
 
-            </Routes>
+                </Routes>
+            </UserProvider>
         </AppTheme>
     );
 }

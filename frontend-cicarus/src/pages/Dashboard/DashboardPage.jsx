@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react'; // Add this import
 import { useNavigate } from 'react-router-dom';
 import {
     Box, Container, Typography, Grid, Paper, IconButton,
@@ -15,10 +16,10 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'rec
 import AppAppBar from '../../components/AppAppBar.jsx';
 import ChatAssistant from '../../components/ChatAssistant.jsx';
 import PromotionalCarousel from '../../components/PromotionalCarousel.jsx';
-import {useEffect, useState} from "react";
+
+import { useUser } from '../../context/UserContext.jsx';
 
 // --- DADOS MOCK E API URL ---
-const userData = { name: "Admin", avatar: "https://i.pravatar.cc/150?u=admin" };
 const accountData = { balance: 15840.75 };
 const recentTransactions = [
     { id: 1, type: "Compra Online", store: "Amazon", amount: -150.00, icon: <ArrowDownward color="error" /> },
@@ -34,21 +35,69 @@ const API_URL = import.meta.env.VITE_API_URL || '';
 
 
 // --- COMPONENTES DO DASHBOARD ---
-const WelcomeHeader = () => (
-    <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-            <Avatar src={userData.avatar} sx={{ width: 56, height: 56, mr: 2, border: '2px solid', borderColor: 'primary.main' }} />
-            <div>
-                <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>Bom dia, {userData.name}!</Typography>
-                <Typography variant="body1" sx={{ color: 'text.secondary' }}>Bem-vindo de volta ao seu painel CicarusBank.</Typography>
-            </div>
-        </Box>
-    </motion.div>
-);
+const WelcomeHeader = () => {
+    const [customerData, setCustomerData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const { user } = useUser();
+
+    useEffect(() => {
+        const fetchCustomerData = async () => {
+            try {
+                setLoading(true);
+                const email = user?.name;
+                if (!email) return;
+
+                const response = await fetch(`${API_URL}/customers/profile/${email}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (!response.ok) throw new Error('Failed to fetch customer data');
+
+                const data = await response.json();
+                setCustomerData(data);
+            } catch (error) {
+                console.error('Error fetching customer data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchCustomerData();
+    }, [user]);
+
+    if (loading) {
+        return (
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <Skeleton variant="circular" width={56} height={56} sx={{ mr: 2 }} />
+                <div>
+                    <Skeleton variant="text" width={200} height={32} />
+                    <Skeleton variant="text" width={300} height={24} />
+                </div>
+            </Box>
+        );
+    }
+
+    return (
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <Avatar sx={{ width: 56, height: 56, mr: 2, border: '2px solid', borderColor: 'primary.main' }} />
+                <div>
+                    <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
+                        Bom dia, {customerData?.name || 'Usuário'}!
+                    </Typography>
+                    <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                        Bem-vindo de volta ao seu painel CicarusBank.
+                    </Typography>
+                </div>
+            </Box>
+        </motion.div>
+    );
+};
 
 const BalanceCard = ({ balance, loading }) => {
     const [showBalance, setShowBalance] = React.useState(true);
-
     return (
         <Paper elevation={0} sx={{ p: 3, borderRadius: '16px', backgroundColor: 'background.paper', border: '1px solid', borderColor: 'divider', height: '100%' }}>
             <Typography variant="subtitle1" sx={{ color: 'text.secondary', mb: 1 }}>Saldo em Conta Corrente</Typography>

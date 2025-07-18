@@ -4,9 +4,11 @@ import com.cicarus.customer_service.dto.BriefCustomerDto;
 import com.cicarus.customer_service.dto.CustomerRequest;
 import com.cicarus.customer_service.dto.CustomerResponse;
 import com.cicarus.customer_service.entities.Customer;
+import com.cicarus.customer_service.repository.CustomerRepository;
 import com.cicarus.customer_service.service.CustomerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,7 @@ public class CustomerController {
 
     @Autowired
     private CustomerService service;
+    private CustomerRepository repository;
 
     /*localhost:8300/customers/create
     Body em CustomerPadraoJSON.txt
@@ -29,6 +32,15 @@ public class CustomerController {
     @PostMapping("/create")
     public ResponseEntity<CustomerResponse> create(@RequestBody CustomerRequest request) {
         return ResponseEntity.ok(service.create(request));
+    }
+
+    @GetMapping("/profile/{email}")
+    public ResponseEntity<CustomerResponse> getCustomerByEmail(@PathVariable String email) {
+//        Customer customer = repository.findByEmail(email)
+//                .orElseThrow(() -> new RuntimeException("Customer not found"));
+//        CustomerResponse response = new CustomerResponse();
+//        BeanUtils.copyProperties(customer, response);
+        return ResponseEntity.ok(service.findByEmail(email));
     }
 
     // localhost:8300/customers/{id}

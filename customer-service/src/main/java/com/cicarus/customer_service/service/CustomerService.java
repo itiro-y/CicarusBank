@@ -9,6 +9,7 @@ import com.cicarus.customer_service.dto.CustomerRequest;
 import com.cicarus.customer_service.dto.CustomerResponse;
 import com.cicarus.customer_service.entities.Customer;
 import com.cicarus.customer_service.repository.CustomerRepository;
+import org.apache.http.HttpStatus;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -67,5 +68,13 @@ public class CustomerService {
 
     public void delete(Long id) {
         repository.deleteById(id);
+    }
+
+    public CustomerResponse findByEmail(String email) {
+        Customer customer = repository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Customer not found: " + email));
+        CustomerResponse response = new CustomerResponse();
+        BeanUtils.copyProperties(customer, response);
+        return response;
     }
 }

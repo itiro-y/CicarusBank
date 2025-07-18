@@ -1,0 +1,11 @@
+com\cicarus\card\CardApplication.class
+com\cicarus\card\dtos\CardRequestDto.class
+com\cicarus\card\config\WebConfig.class
+com\cicarus\card\controller\CardController.class
+com\cicarus\card\dtos\CardDto.class
+com\cicarus\card\config\OpenApiConfiguration.class
+com\cicarus\card\repository\CardRepository.class
+com\cicarus\card\model\Card.class
+com\cicarus\card\service\CardService.class
+com\cicarus\card\dtos\CardStatusRequestDto.class
+com\cicarus\card\model\CardStatus.class

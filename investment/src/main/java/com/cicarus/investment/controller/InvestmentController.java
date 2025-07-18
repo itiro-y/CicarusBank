@@ -3,7 +3,9 @@ package com.cicarus.investment.controller;
 import com.cicarus.investment.dtos.investment.InvestmentDto;
 import com.cicarus.investment.dtos.investment.InvestmentRequestDto;
 import com.cicarus.investment.model.investment.InvestmentType;
+import com.cicarus.investment.model.transaction.TransactionType;
 import com.cicarus.investment.service.InvestmentService;
+import com.cicarus.investment.service.account.AccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +19,11 @@ import java.util.List;
 public class InvestmentController {
 
     private final InvestmentService investmentService;
+    private final AccountService accountService;
 
-    public InvestmentController(InvestmentService investmentService) {
+    public InvestmentController(InvestmentService investmentService, AccountService accountService) {
         this.investmentService = investmentService;
+        this.accountService = accountService;
     }
 
     @Operation(summary = "Get that returns a list of all investments")
@@ -43,6 +47,7 @@ public class InvestmentController {
     @Operation(summary = "Post that creates a new Investment based on a InvestmentRequestDto JSON")
     @PostMapping()
     public InvestmentDto createInvestment(@RequestBody InvestmentRequestDto investmentRequestDto) {
+        accountService.alterarSaldo(investmentRequestDto.accountId(), investmentRequestDto.amountInvested(), TransactionType.WITHDRAWAL);
         return investmentService.create(investmentRequestDto);
     }
 

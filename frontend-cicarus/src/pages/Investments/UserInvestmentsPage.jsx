@@ -151,6 +151,7 @@ export default function UserInvestmentsPage() {
     const [depositValue, setDepositValue] = useState('');
     const [successDialog, setSuccessDialog] = useState(false);
 
+    const [totalInvestedBRL, setTotalInvestedBRL] = useState(0);
     const [totalInvested, setTotalInvested] = useState(0);
     const [rendaFixaInvestments, setRendaFixaInvestments] = useState(0);
     const [fundoImobInvestments, setFundoImobInvestments] = useState(0);
@@ -169,14 +170,6 @@ export default function UserInvestmentsPage() {
     };
 
     function ResumoSaldosInvestidos(){
-        const [investmentBalances, setInvestmentBalances] = useState({
-            totalInvestido: 100000.00,
-            rendaFixa: 12000.50,
-            fundoImobiliario: 8700.00,
-            acoes: 15400.75,
-            criptomoedas: 6250.30
-        });
-
         return(
             <Box sx={{ mt: 3, mb: 4}}>
                 <Typography variant="h6" gutterBottom>
@@ -186,10 +179,10 @@ export default function UserInvestmentsPage() {
                     <Grid item xs={12} sm={6} md={3}>
                         <Paper sx={{ p: 2, textAlign: 'center', borderRadius: 2 }}>
                             <Typography variant="subtitle2" color="text.secondary">
-                                Total Investido
+                                Total Investido (BRL)
                             </Typography>
                             <Typography variant="h6">
-                                US$ {totalInvested.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                R$ {totalInvestedBRL.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                             </Typography>
                         </Paper>
                     </Grid>
@@ -199,7 +192,7 @@ export default function UserInvestmentsPage() {
                                 Renda Fixa
                             </Typography>
                             <Typography variant="h6">
-                                US$ {rendaFixaInvestments.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                R$ {rendaFixaInvestments.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                             </Typography>
                         </Paper>
                     </Grid>
@@ -209,7 +202,18 @@ export default function UserInvestmentsPage() {
                                 Fundos Imobiliários
                             </Typography>
                             <Typography variant="h6">
-                                US$ {fundoImobInvestments.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                R$ {fundoImobInvestments.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                            </Typography>
+                        </Paper>
+                    </Grid>
+                    <Grid sx={{ml:3, mr: 3}}/>
+                    <Grid item xs={12} sm={6} md={3}>
+                        <Paper sx={{ p: 2, textAlign: 'center', borderRadius: 2 }}>
+                            <Typography variant="subtitle2" color="text.secondary">
+                                Total Investido (USD)
+                            </Typography>
+                            <Typography variant="h6">
+                                US$ {totalInvested.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                             </Typography>
                         </Paper>
                     </Grid>
@@ -346,9 +350,10 @@ export default function UserInvestmentsPage() {
 
 
     useEffect(() => {
-        const total = rendaFixaInvestments + acoesInvestments + criptoInvestments + fundoImobInvestments;
+        const totalBRL = rendaFixaInvestments + fundoImobInvestments;
+        const total =  acoesInvestments + criptoInvestments;
         setTotalInvested(total);
-
+        setTotalInvestedBRL(totalBRL);
         fetchInvestments();
         fetchInvestmentRendaFixa();
         fetchInvestmentFundoImobiliario();

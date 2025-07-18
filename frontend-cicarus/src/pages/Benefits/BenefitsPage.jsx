@@ -10,14 +10,13 @@ import {
     Chip,
     Grid,
     Button,
-    Snackbar, // Importe Snackbar
+    Snackbar,
 } from '@mui/material';
-import MuiAlert from '@mui/material/Alert'; // Importe Alert de um caminho diferente para ser usado com Snackbar
+import MuiAlert from '@mui/material/Alert';
 import { useTheme } from '@mui/material/styles';
 import AppAppBar from "../../components/AppAppBar";
 import { CardGiftcard, MonetizationOn, Event, CheckCircleOutline } from '@mui/icons-material';
 
-// Função auxiliar para o Alert dentro do Snackbar
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
@@ -25,7 +24,7 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 export default function BenefitsPage() {
     const [benefits, setBenefits] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [pageError, setPageError] = useState(null); // Renomeado para evitar conflito com 'error' do snackbar
+    const [pageError, setPageError] = useState(null);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
@@ -33,7 +32,7 @@ export default function BenefitsPage() {
     const theme = useTheme();
     const isDark = theme.palette.mode === 'dark';
 
-    const API_URL = 'http://localhost:8800'; // Ajuste conforme sua configuração
+    const API_URL = 'http://localhost:8800';
 
     useEffect(() => {
         const fetchBenefits = async () => {

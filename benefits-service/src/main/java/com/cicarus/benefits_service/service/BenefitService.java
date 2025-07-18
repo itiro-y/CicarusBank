@@ -26,7 +26,6 @@ public class BenefitService {
     @Autowired
     private CustomerBenefitRepository customerBenefitRepository;
 
-    // --- Métodos para Benefícios (admin-facing, por exemplo) ---
 
     @Transactional
     public BenefitResponse createBenefit(BenefitRequest request) {
@@ -57,8 +56,6 @@ public class BenefitService {
 
     @Transactional(readOnly = true)
     public List<BenefitResponse> getActiveBenefits() {
-        // Este método já lista os benefícios com 'active = true',
-        // que agora serão considerados os "benefícios padrão/públicos".
         return benefitRepository.findByActiveTrue().stream()
                 .map(this::convertToBenefitResponse)
                 .collect(Collectors.toList());
@@ -86,10 +83,6 @@ public class BenefitService {
         }
         benefitRepository.deleteById(id);
     }
-
-    // --- Métodos para Benefícios do Cliente (customer-facing) ---
-    // Estes métodos ainda existem, mas não serão usados pelo frontend para listar "benefícios padrão".
-    // Eles ainda são úteis se você tiver uma funcionalidade de "ativar benefício para mim" no futuro.
 
     @Transactional
     public CustomerBenefitResponse activateBenefitForCustomer(CustomerBenefitRequest request) {

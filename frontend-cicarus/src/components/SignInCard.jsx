@@ -19,6 +19,7 @@ export default function SignInCard({ onSwitchToSignUp }) {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const navigate = useNavigate();
+    const API_URL = import.meta.env.VITE_API_URL || 'http://172.203.234.78:8765';
 
   const logoStyle = {
     width: "200px",
@@ -33,7 +34,7 @@ const handleSubmit = async (event) => {
   const password = data.get("password");
 
   try {
-    const response = await fetch("http://localhost:8765/auth/login", {
+    const response = await fetch(`${API_URL}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),

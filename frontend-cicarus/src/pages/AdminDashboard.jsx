@@ -11,7 +11,7 @@ import {
 } from '@mui/icons-material';
 import SummaryCard from '../components/SummaryCard';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8765';
+const API_URL = import.meta.env.VITE_API_URL || 'http://172.203.234.78:8765';
 
 export default function AdminDashboard() {
     const [stats, setStats] = useState({ users: 0, transactions: 0, loans: 0, totalVolume: 0 });

@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import SignInPage from './pages/SignIn/SignIn.jsx';
 import DashboardPage from './pages/Dashboard/DashboardPage.jsx';
 import ProfilePage from './pages/Profile/ProfilePage.jsx';
@@ -17,14 +17,16 @@ import MobileRechargePage from './pages/Dashboard/MobileRechargePage.jsx';
 import BenefitsPage from './pages/Benefits/BenefitsPage.jsx';
 import UserInvestmentsPage from "./pages/Investments/UserInvestmentsPage.jsx";
 import AdminInvestmentsPage from "./pages/Investments/AdminInvestmentsPage.jsx";
-// import InvestmentsPage from './pages/InvestmentsPage.jsx';
 import VirtualCardCreationPage from './pages/Dashboard/VirtualCardCreationPage.jsx';
 import ConnectedDevicesPage from "./pages/Profile/ConnectedDevicesPage.jsx";
 import BillPaymentPage from "./pages/Dashboard/BillPaymentPage.jsx";
 import CryptoInvestmentsPage from "./pages/Investments/CryptoInvestmentsPage.jsx";
 import CardLimitPage from "./pages/Cards/CardLimitPage.jsx";
-
+import VoiceAssistant from './components/VoiceAssistant';
 function App() {
+    const location = useLocation();
+    const isSignInPage = location.pathname === '/' || location.pathname === '/login';
+
     return (
         <AppTheme>
             <Routes>
@@ -46,7 +48,6 @@ function App() {
                 <Route path="/user-investments" element={<UserInvestmentsPage />} />
                 <Route path="/admin-investments" element={<AdminInvestmentsPage />} />
                 <Route path="/connected-devices" element={<ConnectedDevicesPage />} />
-                {/*<Route path="/investments" element={<InvestmentsPage />} />*/}
                 <Route
                     path="/admin/dashboard"
                     element={
@@ -58,8 +59,9 @@ function App() {
                 <Route path="/agencias" element={<NearbyAgenciesPage />} />
                 <Route path="/virtual-card" element={<VirtualCardCreationPage />} />
                 <Route path="/investments/criptomoeda" element={<CryptoInvestmentsPage />} />
-
             </Routes>
+
+            {!isSignInPage && <VoiceAssistant />}
         </AppTheme>
     );
 }

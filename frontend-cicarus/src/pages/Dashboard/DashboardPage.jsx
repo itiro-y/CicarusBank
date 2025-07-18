@@ -386,6 +386,10 @@ const BalanceChart = ({ history, loading }) => {
 
 // --- PÁGINA PRINCIPAL DO DASHBOARD (Layout original mantido) ---
 export default function DashboardPage() {
+    const { user } = useUser();
+    const [customerData, setCustomerData] = useState(null);
+    const [loadingCustomerData, setLoadingCustomerData] = useState(true);
+
     const [balance, setBalance] = useState(0);
     const [history, setHistory] = useState([]);
     const [transactions, setTransactions] = useState([]);
@@ -393,23 +397,50 @@ export default function DashboardPage() {
     const [loadingHistory, setLoadingHistory] = useState(false);
     const [loadingTransactions, setLoadingTransactions] = useState(false);
 
-    const accountId = 1; // ou pegue de algum contexto ou autenticação
-
     const authHeader = () => {
         const token = localStorage.getItem('token') || '';
         return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
     };
 
     useEffect(() => {
-        fetchBalance();
-        fetchHistory();
-        fetchTransactions();
-    }, []);
+        const fetchAllData = async () => {
+            setLoadingCustomerData(true);
+            try {
+                const email = user?.name;
+                if (!email) {
+                    setLoadingCustomerData(false);
+                    return;
+                }
 
-    async function fetchBalance() {
+                const response = await fetch(`${API_URL}/customers/profile/${email}`, {
+                    headers: authHeader()
+                });
+
+                if (!response.ok) throw new Error('Failed to fetch customer data');
+
+                const data = await response.json();
+                setCustomerData(data);
+                setLoadingCustomerData(false);
+
+                const currentAccountId = data.id; // Assuming data.id is the accountId
+                if (currentAccountId) {
+                    fetchBalance(currentAccountId);
+                    fetchHistory(currentAccountId);
+                    fetchTransactions(currentAccountId);
+                }
+            } catch (error) {
+                console.error('Error fetching initial data:', error);
+                setLoadingCustomerData(false);
+            }
+        };
+
+        fetchAllData();
+    }, [user]);
+
+    async function fetchBalance(currentAccountId) {
         setLoadingBalance(true);
         try {
-            const res = await fetch(`${API_URL}/account/${accountId}`, { headers: authHeader() });
+            const res = await fetch(`${API_URL}/account/${currentAccountId}`, { headers: authHeader() });
             const data = await res.json();
             setBalance(data.balance);
         } catch (err) {
@@ -419,10 +450,10 @@ export default function DashboardPage() {
         }
     }
 
-    async function fetchHistory() {
+    async function fetchHistory(currentAccountId) {
         setLoadingHistory(true);
         try {
-            const res = await fetch(`${API_URL}/account/balance-history/${accountId}`, { headers: authHeader() });
+            const res = await fetch(`${API_URL}/account/balance-history/${currentAccountId}`, { headers: authHeader() });
             if (!res.ok) throw new Error(`Erro ${res.status}`);
             const raw = await res.json();
             const formatted = raw.map(item => ({
@@ -439,10 +470,10 @@ export default function DashboardPage() {
         }
     }
 
-    async function fetchTransactions() {
+    async function fetchTransactions(currentAccountId) {
         setLoadingTransactions(true);
         try {
-            const res = await fetch(`${API_URL}/transaction/accounts/${accountId}`, { headers: authHeader() });
+            const res = await fetch(`${API_URL}/transaction/accounts/${currentAccountId}`, { headers: authHeader() });
             setTransactions(await res.json());
         } catch (err) {
             console.error('Erro ao buscar transações:', err);

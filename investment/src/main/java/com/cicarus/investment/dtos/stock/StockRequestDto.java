@@ -10,7 +10,7 @@ import java.util.Date;
 
 public record StockRequestDto(
         @NotBlank String symbol,
-        @NotBlank Long accountId,
+        @NotNull Long accountId,
         @NotBlank String companyName,
         @NotNull StockCurrencyType currency,
         @NotBlank String setor,

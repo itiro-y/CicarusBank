@@ -2,12 +2,17 @@ package com.cicarus.investment.controller;
 
 import com.cicarus.investment.dtos.crypto.CryptoDto;
 import com.cicarus.investment.dtos.crypto.CryptoRequestDto;
+import com.cicarus.investment.dtos.investment.InvestmentRequestDto;
 import com.cicarus.investment.dtos.stock.StockDto;
 import com.cicarus.investment.dtos.stock.StockRequestDto;
+import com.cicarus.investment.model.investment.InvestmentStatus;
+import com.cicarus.investment.model.investment.InvestmentType;
+import com.cicarus.investment.service.InvestmentService;
 import com.cicarus.investment.service.StockService;
 import com.cicarus.investment.service.account.AccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -19,10 +24,12 @@ import java.util.List;
 public class StockController {
     private StockService stockService;
     private AccountService accountService;
+    private InvestmentService investmentService;
 
-    public StockController(StockService stockService, AccountService accountService) {
+    public StockController(StockService stockService, AccountService accountService, InvestmentService investmentService) {
         this.stockService = stockService;
         this.accountService = accountService;
+        this.investmentService = investmentService;
     }
 
     @Operation(summary = "Get that returns a list of all stocks")
@@ -46,8 +53,23 @@ public class StockController {
     @Operation(summary = "Post that creates a new Stock based on a StockRequestDto JSON")
     @PostMapping()
     public StockDto createInvestment(@RequestBody StockRequestDto stockRequestDto) {
-        // Check if the user has enough USD in their account to make the purchase, and if he does, withdraw the amount
+        System.out.println(stockRequestDto.accountId());
+
+        InvestmentRequestDto investmentRequestDto = new InvestmentRequestDto(
+                null,
+                stockRequestDto.accountId(),
+                InvestmentType.ACOES,
+                InvestmentStatus.ATIVO,
+                stockRequestDto.currentPrice().multiply(stockRequestDto.volume()),
+                stockRequestDto.currentPrice(),
+                BigDecimal.ZERO,
+                null,
+                true
+        );
         accountService.withdrawUSD(stockRequestDto.accountId(), stockRequestDto.currentPrice().multiply(stockRequestDto.volume()));
+
+        investmentService.create(investmentRequestDto);
+
         return stockService.create(stockRequestDto);
     }
 

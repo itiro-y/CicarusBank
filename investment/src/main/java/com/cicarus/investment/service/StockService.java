@@ -39,6 +39,7 @@ public class StockService {
     public Stock toEntity(StockRequestDto request) {
         Stock stock = new Stock();
         stock.setSymbol(request.symbol());
+        stock.setAccountId(request.accountId());
         stock.setCompanyName(request.companyName());
         stock.setCurrency(request.currency());
         stock.setSetor(request.setor());

@@ -5,15 +5,11 @@ import {
 } from '@mui/material';
 import AppAppBar from '../../components/AppAppBar.jsx';
 import { Link } from 'react-router-dom';
-import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip as RechartsTooltip } from 'recharts';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import EmojiObjectsIcon from '@mui/icons-material/EmojiObjects';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import TrendingDownIcon from '@mui/icons-material/TrendingDown';
-import Chip from '@mui/material/Chip';
 import { useTheme } from '@mui/material/styles';
 
-// Lista de ações para exibir (exemplo: empresas americanas)
+const API_URL = import.meta.env.VITE_API_URL || '';
 const STOCKS = [
     { symbol: 'AAPL', name: 'Apple', icon: 'https://logo.clearbit.com/apple.com' },
     { symbol: 'MSFT', name: 'Microsoft', icon: 'https://logo.clearbit.com/microsoft.com' },
@@ -49,8 +45,14 @@ async function fetchFinnhubData(symbols) {
 }
 
 
+const authHeader = () => {
+    const token = localStorage.getItem('token') || '';
+    return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+};
 
 export default function StockInvestmentsPage() {
+    const accountId = 1; // Substituir quando auth estiver implementado
+
     const [prices, setPrices] = useState({});
     const [changes, setChanges] = useState({});
     const [loading, setLoading] = useState(true);
@@ -65,16 +67,30 @@ export default function StockInvestmentsPage() {
     const [buyLoading, setBuyLoading] = useState(false);
     const [buyError, setBuyError] = useState(null);
     const [selectedChartStock, setSelectedChartStock] = useState('AAPL');
-    const [wallet, setWallet] = useState([
-        { symbol: 'AAPL', amount: 2 },
-        { symbol: 'MSFT', amount: 1.5 },
-        { symbol: 'GOOGL', amount: 0.7 },
-    ]);
+
+    const [wallet, setWallet] = useState([]);
     const theme = useTheme();
 
     useEffect(() => {
         fetchAll();
+        fetchWallet();
     }, []);
+
+    async function fetchWallet() {
+        try {
+            const response = await fetch(`${API_URL}/stock/list/${accountId}`, {
+                headers: authHeader()
+            });
+            if (!response.ok) {
+                throw new Error('Erro ao buscar carteira');
+            }
+            const data = await response.json();
+            setWallet(data);
+        } catch (error) {
+            console.error('Erro ao buscar carteira:', error);
+            setWallet([]);
+        }
+    }
 
     async function fetchAll() {
         setLoading(true);
@@ -106,26 +122,67 @@ export default function StockInvestmentsPage() {
         setSimResult({ qty, price });
     }
 
+
     async function handleBuy() {
         setBuyError(null);
         setBuyResult(null);
+
         if (!buyValue || isNaN(buyValue) || Number(buyValue) <= 0) {
             setBuyError('Informe um valor válido.');
             return;
         }
+
         const price = prices[buyStock];
         if (!price) {
             setBuyError('Preço da ação indisponível.');
             return;
         }
+
         setBuyLoading(true);
-        setTimeout(() => {
-            setBuyResult({
-                qty: Number(buyValue) / Number(price),
-                price,
+        try {
+            // Buscar dados da ação com Alpha Vantage
+            const OV_API_KEY = "05OPBVBUATY9EPP1";
+            const overviewRes = await fetch(`https://www.alphavantage.co/query?function=OVERVIEW&symbol=${buyStock}&apikey=${OV_API_KEY}`);
+            const overviewData = await overviewRes.json();
+
+            const payload = {
+                symbol: buyStock,
+                accountId: accountId,
+                companyName: overviewData.Name || buyStock,
+                currency: overviewData.Currency || 'USD',
+                setor: overviewData.Sector || '',
+                currentPrice: Number(price),
+                volume: buyValue,
+                marketCap: Number(overviewData.MarketCapitalization) || 0,
+                peRatio: Number(overviewData.PERatio) || 0,
+                dividendYield: Number(overviewData.DividendYield) || 0
+            };
+
+            const response = await fetch(`${API_URL}/stock`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...authHeader()
+                },
+                body: JSON.stringify(payload)
             });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Erro ao comprar ação.');
+            }
+
+            const result = await response.json();
+            setBuyResult({
+                qty: result.qty,
+                price: result.price
+            });
+        } catch (error) {
+            console.error(error);
+            setBuyError(error.message || 'Erro inesperado.');
+        } finally {
             setBuyLoading(false);
-        }, 800);
+        }
     }
 
     function getStockInfo(symbol) {
@@ -166,7 +223,6 @@ export default function StockInvestmentsPage() {
                     >
                         <Tabs value={tab} onChange={handleTabChange}>
                             <Tab label="Compre Ações" />
-                            <Tab label="Simule uma compra" />
                             <Tab label="Minha Carteira" />
                         </Tabs>
                         <Button
@@ -342,7 +398,7 @@ export default function StockInvestmentsPage() {
                                 ))}
                             </TextField>
                             <TextField
-                                label="Valor a investir (US$)"
+                                label="Quantidade de Ações (un.)"
                                 value={buyValue}
                                 onChange={e => setBuyValue(e.target.value)}
                                 type="number"
@@ -371,8 +427,7 @@ export default function StockInvestmentsPage() {
                                 {buyLoading ? 'Processando...' : `Comprar ${STOCKS.find(s => s.symbol === buyStock)?.name}`}
                             </Button>
                             {buyError && (
-                                <Typography color="error" sx={{ mt: 2 }}>{buyError}</Typography>
-                            )}
+                                <Typography color="error" sx={{ mt: 2 }}>{buyError}</Typography>)}
                             {buyResult && (
                                 <Paper
                                     elevation={0}
@@ -389,142 +444,13 @@ export default function StockInvestmentsPage() {
                                         Compra Realizada
                                     </Typography>
                                     <Typography>
-                                        Você comprou <b>{buyResult.qty.toFixed(4)}</b> {buyStock} a US$ {Number(buyResult.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} cada.
+                                        Você comprou <b>{buyValue}</b> {buyStock} a US$ {Number(prices[buyStock]).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} cada.
                                     </Typography>
                                 </Paper>
                             )}
                         </Card>
                     )}
                     {tab === 1 && (
-                        <Card
-                            elevation={8}
-                            sx={{
-                                p: { xs: 2, sm: 4 },
-                                maxWidth: 520,
-                                mx: 'auto',
-                                mt: 10,
-                                mb: 4,
-                                borderRadius: 4,
-                                bgcolor: 'background.paper',
-                                boxShadow: '0 8px 32px 0 rgba(25, 118, 210, 0.10)',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                position: 'relative',
-                                overflow: 'visible'
-                            }}
-                        >
-                            <Box
-                                sx={{
-                                    position: 'absolute',
-                                    top: -48,
-                                    left: '50%',
-                                    transform: 'translateX(-50%)',
-                                    bgcolor: 'background.paper',
-                                    borderRadius: '50%',
-                                    boxShadow: 3,
-                                    width: 80,
-                                    height: 80,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    zIndex: 2,
-                                }}
-                            >
-                                <img
-                                    src={STOCKS.find(s => s.symbol === simStock)?.icon}
-                                    alt={STOCKS.find(s => s.symbol === simStock)?.name}
-                                    style={{ width: 56, height: 56 }}
-                                />
-                            </Box>
-                            <Typography variant="h6" sx={{ fontWeight: 700, mt: 1, mb: 1, textAlign: 'center' }}>
-                                Simular Compra de {STOCKS.find(s => s.symbol === simStock)?.name}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 2, textAlign: 'center' }}>
-                                Escolha a ação, informe o valor em dólar e veja instantaneamente quantas ações poderia adquirir.
-                            </Typography>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                                <Typography variant="subtitle2" color="text.secondary">
-                                    Preço atual:
-                                </Typography>
-                                <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                                    US$ {prices[simStock] ? Number(prices[simStock]).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--'}
-                                </Typography>
-                            </Box>
-                            <TextField
-                                select
-                                label="Ação"
-                                value={simStock}
-                                onChange={e => setSimStock(e.target.value)}
-                                fullWidth
-                                sx={{ mb: 2 }}
-                            >
-                                {STOCKS.map(s => (
-                                    <MenuItem key={s.symbol} value={s.symbol}>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                            <img src={s.icon} alt={s.name} style={{ width: 20, height: 20 }} />
-                                            {s.name}
-                                        </Box>
-                                    </MenuItem>
-                                ))}
-                            </TextField>
-                            <TextField
-                                label="Valor a investir (US$)"
-                                value={simValue}
-                                onChange={e => setSimValue(e.target.value)}
-                                type="number"
-                                fullWidth
-                                sx={{ mb: 2 }}
-                                InputProps={{
-                                    startAdornment: (
-                                        <MonetizationOnIcon color="action" sx={{ mr: 1 }} />
-                                    )
-                                }}
-                            />
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                fullWidth
-                                onClick={handleSimulate}
-                                sx={{
-                                    fontWeight: 700,
-                                    borderRadius: 2,
-                                    py: 1.2,
-                                    fontSize: 18,
-                                    boxShadow: '0 2px 8px 0 rgba(25, 118, 210, 0.10)'
-                                }}
-                            >
-                                Simular
-                            </Button>
-                            {simResult && (
-                                <Paper
-                                    elevation={0}
-                                    sx={{
-                                        mt: 3,
-                                        p: 2,
-                                        bgcolor: 'info.lighter',
-                                        borderRadius: 2,
-                                        textAlign: 'center',
-                                        width: '100%',
-                                    }}
-                                >
-                                    <Typography variant="subtitle1" sx={{ fontWeight: 700, color: 'info.main' }}>
-                                        Resultado da Simulação
-                                    </Typography>
-                                    <Typography>
-                                        Você compraria <b>{simResult.qty.toFixed(4)}</b> {simStock} a US$ {Number(simResult.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} cada.
-                                    </Typography>
-                                </Paper>
-                            )}
-                            <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <EmojiObjectsIcon color="warning" />
-                                <Typography variant="body2" color="text.secondary">
-                                    Simule diferentes valores para ver quantas ações você pode adquirir.
-                                </Typography>
-                            </Box>
-                        </Card>
-                    )}
-                    {tab === 2 && (
                         <Card
                             elevation={8}
                             sx={{
@@ -551,7 +477,7 @@ export default function StockInvestmentsPage() {
                                     Você ainda não possui ações na carteira.
                                 </Typography>
                             )}
-                            <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 1 }}>
+                            <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 1, mr: 3 }}>
                                 {wallet.map(({ symbol, amount }) => {
                                     const { name, icon } = getStockInfo(symbol);
                                     const price = prices[symbol];
@@ -601,7 +527,7 @@ export default function StockInvestmentsPage() {
                                                     {amount} {symbol}
                                                 </Typography>
                                                 <Typography variant="caption" sx={{ color: theme.palette.text.secondary }}>
-                                                    {value !== null ? `US$ ${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '--'}
+                                                    {value !== null ? `US$ ${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '--'}
                                                 </Typography>
                                             </Box>
                                         </Box>

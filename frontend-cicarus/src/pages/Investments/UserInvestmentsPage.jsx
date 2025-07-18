@@ -260,7 +260,7 @@ export default function UserInvestmentsPage() {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    ...authHeader() // adiciona Authorization: Bearer <token>
+                    ...authHeader()
                 },
                 body: JSON.stringify(payload)
             });

@@ -1,12 +1,13 @@
-// src/pages/BenefitsPage.jsx (Relembrando o conteúdo)
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import {
     Box, Container, Typography, Paper, CircularProgress, Alert, Stack
 } from '@mui/material';
-import AppAppBar from '../../components/AppAppBar.jsx'; // Certifique-se de que o caminho está correto
+import AppAppBar from "../../components/AppAppBar";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8765'; // URL base do seu API Gateway
+// A URL base do seu API Gateway, se estiver usando um.
+// Se o frontend se comunica diretamente com o benefits-service, use a porta do benefits-service (ex: http://localhost:8800)
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8765'; // Ajuste conforme sua configuração
 
 export default function BenefitsPage() {
     const [benefits, setBenefits] = useState([]);
@@ -19,24 +20,16 @@ export default function BenefitsPage() {
                 setLoading(true);
                 setError(null);
 
-                const customerId = 1; // SUBSTITUA PELA LÓGICA REAL DE OBTENÇÃO DO ID DO CLIENTE
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    setError("Token de autenticação não encontrado. Faça login.");
-                    setLoading(false);
-                    return;
-                }
+                const response = await axios.get(`${API_URL}/benefits/standard`); // AJUSTE AQUI SE SEU API GATEWAY TEM UM PREFIXO DIFERENTE
 
-                // AJUSTE A URL EXATA DO SEU ENDPOINT DE BENEFÍCIOS
-                const response = await axios.get(`${API_URL}/benefits/api/benefits/customer/${customerId}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                });
                 setBenefits(response.data);
             } catch (err) {
-                console.error("Erro ao buscar benefícios:", err);
-                setError("Não foi possível carregar os benefícios. Tente novamente mais tarde.");
+                console.error("Erro ao buscar benefícios padrão:", err);
+                setError("Não foi possível carregar os benefícios padrão. Tente novamente mais tarde.");
+                if (err.response) {
+                    console.error("Dados do erro:", err.response.data);
+                    console.error("Status do erro:", err.response.status);
+                }
             } finally {
                 setLoading(false);
             }
@@ -47,10 +40,10 @@ export default function BenefitsPage() {
 
     return (
         <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-            <AppAppBar title="Seus Benefícios" />
+            <AppAppBar title="Benefícios Padrão" />
             <Container maxWidth="md" sx={{ py: 4, pt: 16 }}>
                 <Typography variant="h4" gutterBottom sx={{ color: 'white', mb: 4 }}>
-                    Benefícios Disponíveis
+                    Benefícios Disponíveis Para Todos
                 </Typography>
 
                 {loading && (
@@ -68,7 +61,7 @@ export default function BenefitsPage() {
 
                 {!loading && !error && benefits.length === 0 && (
                     <Typography variant="h6" sx={{ color: 'text.secondary', textAlign: 'center', mt: 4 }}>
-                        Nenhum benefício encontrado no momento.
+                        Nenhum benefício padrão encontrado no momento.
                     </Typography>
                 )}
 

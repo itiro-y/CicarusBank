@@ -44,7 +44,7 @@ public class BenefitService {
     @Transactional(readOnly = true)
     public BenefitResponse getBenefitById(Long id) {
         Benefit benefit = benefitRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Benefit not found with id: " + id)); // Tratar com exceção mais específica
+                .orElseThrow(() -> new RuntimeException("Benefit not found with id: " + id));
         return convertToBenefitResponse(benefit);
     }
 
@@ -57,6 +57,8 @@ public class BenefitService {
 
     @Transactional(readOnly = true)
     public List<BenefitResponse> getActiveBenefits() {
+        // Este método já lista os benefícios com 'active = true',
+        // que agora serão considerados os "benefícios padrão/públicos".
         return benefitRepository.findByActiveTrue().stream()
                 .map(this::convertToBenefitResponse)
                 .collect(Collectors.toList());
@@ -86,23 +88,22 @@ public class BenefitService {
     }
 
     // --- Métodos para Benefícios do Cliente (customer-facing) ---
+    // Estes métodos ainda existem, mas não serão usados pelo frontend para listar "benefícios padrão".
+    // Eles ainda são úteis se você tiver uma funcionalidade de "ativar benefício para mim" no futuro.
 
     @Transactional
     public CustomerBenefitResponse activateBenefitForCustomer(CustomerBenefitRequest request) {
-        // Verifica se o benefício existe
         Benefit benefit = benefitRepository.findById(request.getBenefitId())
                 .orElseThrow(() -> new RuntimeException("Benefit not found with id: " + request.getBenefitId()));
 
-        // Verifica se o cliente já possui/ativou este benefício (opcional, dependendo da regra de negócio)
         Optional<CustomerBenefit> existingCustomerBenefit = customerBenefitRepository.findByCustomerIdAndBenefitId(request.getCustomerId(), request.getBenefitId());
 
         if (existingCustomerBenefit.isPresent()) {
             CustomerBenefit cb = existingCustomerBenefit.get();
-            // Se já existe e não está ativado, ou se quer reativar
             if (!cb.isActivated() || (request.isActivated() && cb.getExpirationDate() != null && cb.getExpirationDate().isBefore(LocalDate.now()))) {
                 cb.setActivated(true);
                 cb.setActivationDate(LocalDate.now());
-                cb.setExpirationDate(request.getExpirationDate()); // Pode ser redefinido
+                cb.setExpirationDate(request.getExpirationDate());
                 cb = customerBenefitRepository.save(cb);
                 return convertToCustomerBenefitResponse(cb);
             } else {
@@ -124,7 +125,7 @@ public class BenefitService {
     public CustomerBenefitResponse deactivateBenefitForCustomer(Long customerBenefitId) {
         CustomerBenefit customerBenefit = customerBenefitRepository.findById(customerBenefitId)
                 .orElseThrow(() -> new RuntimeException("Customer Benefit not found with id: " + customerBenefitId));
-        customerBenefit.setActivated(false); // Apenas desativa, não remove
+        customerBenefit.setActivated(false);
         customerBenefit = customerBenefitRepository.save(customerBenefit);
         return convertToCustomerBenefitResponse(customerBenefit);
     }
@@ -144,7 +145,6 @@ public class BenefitService {
                 .collect(Collectors.toList());
     }
 
-
     // --- Métodos de Conversão (Entity <-> DTO) ---
 
     private BenefitResponse convertToBenefitResponse(Benefit benefit) {
@@ -163,7 +163,7 @@ public class BenefitService {
         return new CustomerBenefitResponse(
                 customerBenefit.getId(),
                 customerBenefit.getCustomerId(),
-                convertToBenefitResponse(customerBenefit.getBenefit()), // Converte o Benefício aninhado
+                convertToBenefitResponse(customerBenefit.getBenefit()),
                 customerBenefit.getActivationDate(),
                 customerBenefit.getExpirationDate(),
                 customerBenefit.isActivated()

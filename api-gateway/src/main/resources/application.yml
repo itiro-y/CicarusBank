@@ -1,5 +1,6 @@
 server:
   port: 8765
+
 eureka:
   client:
     serviceUrl:
@@ -11,13 +12,25 @@ spring:
     gateway:
       server:
         webflux:
+          globalcors:
+            corsConfigurations:
+              '[/**]':
+                allowedOrigins: "http://172.203.234.78:3000"
+                allowedMethods:
+                  - GET
+                  - POST
+                  - PUT
+                  - DELETE
+                  - OPTIONS
+                allowedHeaders: "*"
+                allowCredentials: true
           routes:
             - id: account
               uri: lb://account
               predicates:
                 - Path=/account/**
-#              filters:
-#                - AuthenticationFilter
+              filters:
+                - JwtAuthenticationFilter
 
             - id: auth
               uri: lb://auth
@@ -28,45 +41,45 @@ spring:
               uri: lb://transaction
               predicates:
                 - Path=/transaction/**
-#              filters:
-#                - AuthenticationFilter
+              filters:
+                - JwtAuthenticationFilter
 
             - id: loan
               uri: lb://loan
               predicates:
                 - Path=/loan/**
-#              filters:
-#                - AuthenticationFilter
+              filters:
+                - JwtAuthenticationFilter
 
             - id: customers
               uri: lb://customers
               predicates:
                 - Path=/customers/**
-#              filters:
-#                - AuthenticationFilter
+              filters:
+                - JwtAuthenticationFilter
 
             - id: exchange
               uri: lb://exchange
               predicates:
                 - Path=/exchange/**
-#              filters:
-#                - AuthenticationFilter
-#              filters:
-#                - StripPrefix=1
+              filters:
+                - JwtAuthenticationFilter
+            #              filters:
+            #                - StripPrefix=1
 
             - id: notification
               uri: lb://notification
               predicates:
                 - Path=/notification/**
-#              filters:
-#                - AuthenticationFilter
+              filters:
+                - JwtAuthenticationFilter
 
             - id: card
               uri: lb://card
               predicates:
                 - Path=/card/**
-#              filters:
-#                - AuthenticationFilter
+              filters:
+                - JwtAuthenticationFilter
 
             - id: statement-service
               uri: lb://statement-service
@@ -82,6 +95,7 @@ spring:
 #              filters:
 #                - AuthenticationFilter
 
+
             - id: investment-crypto
               uri: lb://investment
               predicates:
@@ -95,6 +109,12 @@ spring:
                 - Path=/stock/**
 #              filters:
 #                - AuthenticationFilter
+
+            - id: benefits
+              uri: lb://benefits
+              predicates:
+                - Path=/benefits/**
+
 
 springdoc:
   swagger-ui:
@@ -115,10 +135,15 @@ springdoc:
         url: /statement-service/v3/api-docs
       - name: investment
         url: /investment/v3/api-docs
+      - name: benefits
+        url: /benefits/v3/api-docs
   override-server-url: true
 
 #jwt:
 #  secret: hzAS6BikJ_2Ft3fEye-lqwGviIeGbWFRG9mEnNDzQp4=
+#  secret: hzAS6BikJ_2Ft3fEye-lqwGviIeGbWFRG9mEnNDzQp4=
 #  expiration: 86400000 # 24 horas em ms
 
+jwt:
+  secret: hzAS6BikJ_2Ft3fEye-lqwGviIeGbWFRG9mEnNDzQp4=
 

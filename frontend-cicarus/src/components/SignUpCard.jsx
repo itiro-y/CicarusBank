@@ -106,7 +106,8 @@ function SignUpCard({ onSwitchToSignIn }) {
             address: { street, city, state, zipCode: unmaskedZipCode, country: formData.country }
         };
         try {
-            const response = await fetch('http://localhost:8300/customers/create', {
+//             const response = await fetch('http://localhost:8300/customers/create', {
+            const response = await fetch('http://localhost:8765/customers/create', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
@@ -128,14 +129,13 @@ function SignUpCard({ onSwitchToSignIn }) {
     };
 
     return (
-        // AQUI ESTÁ A CORREÇÃO DO FUNDO DO CARD
+
         <Card sx={{
             width: '100%',
             maxWidth: 600,
             p: 4,
-            // Fundo semi-transparente que se adapta ao tema
             backgroundColor: theme.palette.mode === 'dark' ? 'rgba(40, 45, 52, 0.85)' : 'rgba(255, 255, 255, 0.7)',
-            backdropFilter: 'blur(10px)', // Efeito de vidro fosco
+            backdropFilter: 'blur(10px)',
             border: '1px solid',
             borderColor: 'divider',
             borderRadius: '16px',

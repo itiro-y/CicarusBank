@@ -1,4 +1,16 @@
 services:
+  frontend-cicarus:
+    build:
+      context: ./frontend-cicarus
+      dockerfile: Dockerfile
+    container_name: frontend-cicarus
+    ports:
+      - "3000:80"        # Mapeia a porta 80 do container para 3000 da máquina host
+    depends_on:
+      - customer-service  # Se quiser garantir que o backend esteja rodando antes
+    networks:
+      - cicarus-net
+
   kafka:
     image: bitnami/kafka:3.5
     container_name: kafka
@@ -16,6 +28,8 @@ services:
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
     volumes:
       - kafka_data:/bitnami/kafka
+    networks:
+      - cicarus-net
 
   mysql-auth:
     image: mysql:8.0
@@ -27,6 +41,8 @@ services:
       - "3307:3306" # Auth DB on host port 3306
     volumes:
       - auth-data:/var/lib/mysql
+    networks:
+      - cicarus-net
 
   mysql-account:
     image: mysql:8.0
@@ -38,6 +54,8 @@ services:
       - "3308:3306" # Account DB on host port 3307
     volumes:
       - account-data:/var/lib/mysql
+    networks:
+      - cicarus-net
 
   mysql-transaction:
     image: mysql:8.0
@@ -49,6 +67,8 @@ services:
       - "3309:3306" # Transaction DB on host port 3308
     volumes:
       - transaction-data:/var/lib/mysql
+    networks:
+      - cicarus-net
 
   mysql-notification: # From main branch
     image: mysql:8.0
@@ -60,6 +80,8 @@ services:
       - "3310:3306" # Notification DB on host port 3310
     volumes:
       - notification-data:/var/lib/mysql
+    networks:
+      - cicarus-net
 
   mysql-customer: # From guilherme-Customer branch
     image: mysql:8.0
@@ -71,6 +93,8 @@ services:
       - "3311:3306"
     volumes:
       - customer-data:/var/lib/mysql
+    networks:
+      - cicarus-net
 
   mysql-benefits:
     image: mysql:8.0
@@ -82,6 +106,8 @@ services:
         - "3316:3306"
     volumes:
         - benefits-data:/var/lib/mysql
+    networks:
+      - cicarus-net
 
   mysql-loan:
     image: mysql:8.0
@@ -93,6 +119,8 @@ services:
       - "3312:3306"  # Loan DB on host port 3312
     volumes:
       - loan-data:/var/lib/mysql
+    networks:
+      - cicarus-net
 
   mysql-currency:
     image: mysql:8.0
@@ -104,6 +132,8 @@ services:
       - "3313:3306" # Notification DB on host port 3313
     volumes:
       - currency-data:/var/lib/mysql
+    networks:
+      - cicarus-net
 
   mysql-card:
     image: mysql:8.0
@@ -115,6 +145,8 @@ services:
       - "3314:3306" # Notification DB on host port 3313
     volumes:
       - card-data:/var/lib/mysql
+    networks:
+      - cicarus-net
 
   mysql-statement:
     image: mysql:8.0
@@ -126,6 +158,8 @@ services:
       - "3315:3306" # Notification DB on host port 3313
     volumes:
       - statement-data:/var/lib/mysql
+    networks:
+      - cicarus-net
 
   mysql-investment:
     image: mysql:8.0
@@ -137,12 +171,16 @@ services:
       - "3317:3306" # Notification DB on host port 3313
     volumes:
       - investment-data:/var/lib/mysql
+    networks:
+      - cicarus-net
 
   naming-server:
     build:
       context: ./naming-server # Path to the naming-server project folder
     ports:
       - "8761:8761" # Map host port 8761 to container port 8761
+    networks:
+      - cicarus-net
 
   api-gateway:
     build:
@@ -153,6 +191,9 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
     depends_on:
       - naming-server
+    networks:
+      - cicarus-net
+
 
   account:
     build:
@@ -167,20 +208,24 @@ services:
     depends_on:
       - mysql-account
       - naming-server
+    networks:
+      - cicarus-net
 
-#  auth:
-#    build:
-#      context: ./auth
-#    ports:
-#      - "8000:8000"
-#    environment:
-#      # Override the datasource URL to point to the MySQL container's service name
-#      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-auth:3306/auth_db
-#      # You also need to do this for Eureka!
-#      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
-#    depends_on:
-#      - mysql-auth
-#      - naming-server
+  auth:
+    build:
+      context: ./auth
+    ports:
+      - "8000:8000"
+    environment:
+      # Override the datasource URL to point to the MySQL container's service name
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-auth:3306/auth_db
+      # You also need to do this for Eureka!
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
+    depends_on:
+      - mysql-auth
+      - naming-server
+    networks:
+      - cicarus-net
 
   customer-service:
     build:
@@ -195,6 +240,8 @@ services:
     depends_on:
       - mysql-customer
       - naming-server
+    networks:
+      - cicarus-net
 
   benefits-service:
     build:
@@ -207,6 +254,8 @@ services:
     depends_on:
       - mysql-benefits
       - naming-server
+    networks:
+      - cicarus-net
 
   loan-service:
     build:
@@ -221,6 +270,8 @@ services:
     depends_on:
       - mysql-loan
       - naming-server
+    networks:
+      - cicarus-net
 
   notification:
     build:
@@ -235,6 +286,8 @@ services:
     depends_on:
       - mysql-notification
       - naming-server
+    networks:
+      - cicarus-net
 
   transaction:
     build:
@@ -249,6 +302,8 @@ services:
     depends_on:
       - mysql-transaction
       - naming-server
+    networks:
+      - cicarus-net
 
   currency-exchange:
     build:
@@ -263,6 +318,8 @@ services:
     depends_on:
       - mysql-currency
       - naming-server
+    networks:
+      - cicarus-net
 
   card:
     build:
@@ -277,6 +334,8 @@ services:
     depends_on:
       - mysql-card
       - naming-server
+    networks:
+      - cicarus-net
 
   statement-service:
     build:
@@ -289,6 +348,8 @@ services:
     depends_on:
       - mysql-statement
       - naming-server
+    networks:
+      - cicarus-net
 
   investment:
     build:
@@ -301,6 +362,8 @@ services:
     depends_on:
       - mysql-investment
       - naming-server
+    networks:
+      - cicarus-net
 
 volumes:
   auth-data:
@@ -315,3 +378,6 @@ volumes:
   statement-data:
   investment-data:
   benefits-data:
+networks:
+  cicarus-net:
+    driver: bridge

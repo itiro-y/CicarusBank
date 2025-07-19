@@ -265,4 +265,18 @@ public class LoanService {
         //Implementar logica de deduzir valor da conta e pagar parcela do emprestimo
         return true;
     }
+
+    public List<FullLoanResponse> listLoansByStatus(LoanStatus status) {
+        return loanRepository.findByStatus(status)
+                .stream()
+                .map(this::toResponseFull)
+                .collect(Collectors.toList());
+    }
+
+    public List<FullLoanResponse> listAllLoans() {
+        return loanRepository.findAll()
+            .stream()
+            .map(this::toResponseFull)
+            .collect(Collectors.toList());
+    }
 }

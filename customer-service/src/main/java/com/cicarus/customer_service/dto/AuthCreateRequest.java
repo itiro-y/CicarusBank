@@ -1,12 +1,13 @@
-package com.sicarus.dto;
+package com.cicarus.customer_service.dto;
 
-public class AuthRequest {
+public class AuthCreateRequest {
     private String username;
     private String password;
 
-    public AuthRequest() {}
+    public AuthCreateRequest() {
+    }
 
-    public AuthRequest(String username, String password) {
+    public AuthCreateRequest(String username, String password) {
         this.username = username;
         this.password = password;
     }

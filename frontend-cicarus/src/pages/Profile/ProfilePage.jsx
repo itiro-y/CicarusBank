@@ -1,14 +1,19 @@
-import * as React from 'react';
+import React from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
     Box, Container, Typography, Grid, Paper, Avatar, Divider, Stack,
     Button, List, ListItem, ListItemIcon, ListItemText, IconButton, Dialog,
-    DialogTitle, DialogContent, DialogActions, TextField, useTheme
+    DialogTitle, DialogContent, DialogActions, TextField, useTheme, Skeleton
 } from '@mui/material';
 import {
     Person, Mail, CalendarToday, LocationOn, Edit, Lock, Shield,
-    CreditCard, AccountBalance, Home, VpnKey, PhoneAndroid, Business, Close
+    CreditCard, AccountBalance, Home, VpnKey, PhoneAndroid, Business, Close, ErrorOutline
 } from '@mui/icons-material';
+
+import { useUser } from '../../context/UserContext.jsx';
+
+const API_URL = import.meta.env.VITE_API_URL || '';
 import AppAppBar from '../../components/AppAppBar.jsx';
 import { useNavigate } from "react-router-dom";
 
@@ -27,7 +32,7 @@ const initialProfile = {
         street: "Avenida Principal, 123",
         zip: "01234-567"
     },
-    account: {
+    account: { // This data is not provided by the current /customers/profile API and remains mocked.
         type: "Conta Corrente Premium",
         agency: "0001",
         accountNumber: "123456-7",
@@ -119,36 +124,58 @@ const InfoListItem = ({ icon, primary, secondary }) => (
     </ListItem>
 );
 
-const ProfileHeader = ({ profile, onEdit }) => (
-    <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-    >
-        <Paper elevation={0} sx={{
-            p: 3, borderRadius: '16px', bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider',
-            display: 'flex', alignItems: 'center', gap: 3
-        }}>
-            <Avatar src={profile.avatar} sx={{ width: 80, height: 80, border: '3px solid', borderColor: 'primary.main' }} />
-            <Box>
-                <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
-                    {profile.name}
-                </Typography>
-                <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-                    ID do Cliente: {profile.id}
-                </Typography>
-            </Box>
-            <Button
-                variant="outlined"
-                startIcon={<Edit />}
-                onClick={onEdit}
-                sx={{ ml: 'auto' }}
-            >
-                Editar Perfil
-            </Button>
-        </Paper>
-    </motion.div>
-);
+const ProfileHeader = ({ profile, onEdit, loading }) => {
+    const { user } = useUser();
+    const userName = profile?.name || user?.name || 'Usuário';
+    const userAvatar = profile?.avatar || user?.avatar || "https://i.pravatar.cc/150?u=admin"; // Fallback avatar
+
+    if (loading) {
+        return (
+            <Paper elevation={0} sx={{
+                p: 3, borderRadius: '16px', bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider',
+                display: 'flex', alignItems: 'center', gap: 3
+            }}>
+                <Skeleton variant="circular" width={80} height={80} sx={{ mr: 2 }} />
+                <Box>
+                    <Skeleton variant="text" width={200} height={40} />
+                    <Skeleton variant="text" width={150} height={24} />
+                </Box>
+                <Skeleton variant="rectangular" width={120} height={40} sx={{ ml: 'auto', borderRadius: '8px' }} />
+            </Paper>
+        );
+    }
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+        >
+            <Paper elevation={0} sx={{
+                p: 3, borderRadius: '16px', bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider',
+                display: 'flex', alignItems: 'center', gap: 3
+            }}>
+                <Avatar src={userAvatar} sx={{ width: 80, height: 80, border: '3px solid', borderColor: 'primary.main' }} />
+                <Box>
+                    <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
+                        {userName}
+                    </Typography>
+                    <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                        ID do Cliente: {profile.id}
+                    </Typography>
+                </Box>
+                <Button
+                    variant="outlined"
+                    startIcon={<Edit />}
+                    onClick={onEdit}
+                    sx={{ ml: 'auto' }}
+                >
+                    Editar Perfil
+                </Button>
+            </Paper>
+        </motion.div>
+    );
+};
 
 const InfoWidget = ({ title, children }) => (
     <Paper elevation={0} sx={{
@@ -177,7 +204,8 @@ const PersonalInfo = ({ profile }) => (
 const AddressInfo = ({ profile }) => (
     <InfoWidget title="Endereço">
         <List dense>
-            <InfoListItem icon={<LocationOn />} primary="País" secondary={profile.address.country} />
+            {/* The API response does not include 'country', so it remains hardcoded or can be removed if not needed. */}
+            <InfoListItem icon={<LocationOn />} primary="País" secondary={profile.address.country || "Brasil"} />
             <Divider component="li" sx={{ borderColor: 'divider' }} />
             <InfoListItem icon={<Business />} primary="Estado / Cidade" secondary={`${profile.address.state} / ${profile.address.city}`} />
             <Divider component="li" sx={{ borderColor: 'divider' }} />
@@ -226,9 +254,68 @@ const SecurityActions = () => {
 
 // ------------------ PÁGINA PRINCIPAL ------------------
 export default function ProfilePage() {
+    const { user } = useUser();
     const [profile, setProfile] = React.useState(initialProfile);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [openEdit, setOpenEdit] = React.useState(false);
     const theme = useTheme();
+
+    useEffect(() => {
+        const fetchProfileData = async () => {
+            try {
+                setLoading(true);
+                setError(null);
+                const email = user?.name;
+                if (!email) {
+                    setError("User email not found.");
+                    setLoading(false);
+                    return;
+                }
+
+                const response = await fetch(`${API_URL}/customers/profile/${email}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch profile data: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                // Format birthDate from YYYY-MM-DD to DD/MM/YYYY
+                const formattedBirthDate = data.birthDate ?
+                    new Date(data.birthDate).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) :
+                    initialProfile.birthDate;
+
+                setProfile({
+                    ...initialProfile, // Keep initial mock data for fields not in API response (e.g., account)
+                    id: data.id || initialProfile.id,
+                    name: data.name || initialProfile.name,
+                    document: data.document || initialProfile.document,
+                    email: data.email || initialProfile.email,
+                    birthDate: formattedBirthDate,
+                    avatar: data.avatar || initialProfile.avatar,
+                    address: {
+                        ...initialProfile.address, // Keep initial mock data for address fields not in API response (e.g., country)
+                        street: data.address?.street || initialProfile.address.street,
+                        city: data.address?.city || initialProfile.address.city,
+                        state: data.address?.state || initialProfile.address.state,
+                        zip: data.address?.zipCode || initialProfile.address.zip // Map zipCode from API to zip
+                    }
+                });
+            } catch (err) {
+                console.error('Error fetching profile data:', err);
+                setError(err.message || "Failed to load profile data.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProfileData();
+    }, [user]);
 
     const widgetStyle = {
         p: 3,
@@ -239,13 +326,42 @@ export default function ProfilePage() {
         height: '100%',
     };
 
+    if (loading) {
+        return (
+            <Box sx={{ width: '100%', minHeight: '100vh', bgcolor: 'background.default' }}>
+                <AppAppBar />
+                <Container maxWidth="lg" sx={{ pt: '120px', pb: 4 }}>
+                    <Stack spacing={3}>
+                        <ProfileHeader loading={true} />
+                        <Grid container spacing={3}>
+                            <Grid item xs={12} md={6}><Skeleton variant="rectangular" height={250} sx={{ borderRadius: '16px' }} /></Grid>
+                            <Grid item xs={12} md={6}><Skeleton variant="rectangular" height={250} sx={{ borderRadius: '16px' }} /></Grid>
+                            <Grid item xs={12} md={6}><Skeleton variant="rectangular" height={250} sx={{ borderRadius: '16px' }} /></Grid>
+                            <Grid item xs={12} md={6}><Skeleton variant="rectangular" height={250} sx={{ borderRadius: '16px' }} /></Grid>
+                        </Grid>
+                    </Stack>
+                </Container>
+            </Box>
+        );
+    }
+
+    if (error) {
+        return (
+            <Box sx={{ width: '100%', minHeight: '100vh', bgcolor: 'background.default', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', p: 4 }}>
+                <ErrorOutline color="error" sx={{ fontSize: 60, mb: 2 }} />
+                <Typography variant="h5" color="text.primary" gutterBottom>Erro ao Carregar Perfil</Typography>
+                <Typography variant="body1" color="text.secondary">{error}</Typography>
+                <Button variant="contained" onClick={() => window.location.reload()} sx={{ mt: 3 }}>Tentar Novamente</Button>
+            </Box>
+        );
+    }
 
     return (
         <Box sx={{ width: '100%', minHeight: '100vh', bgcolor: 'background.default' }}>
             <AppAppBar />
             <Container maxWidth="lg" sx={{ pt: '120px', pb: 4 }}>
                 <Stack spacing={3}>
-                    <ProfileHeader profile={profile} onEdit={() => setOpenEdit(true)} />
+                    <ProfileHeader profile={profile} onEdit={() => setOpenEdit(true)} loading={false} />
                     <Grid container spacing={3}>
                         <Grid item xs={12} md={6}>
                             <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>

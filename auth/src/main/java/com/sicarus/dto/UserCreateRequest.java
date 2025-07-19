@@ -1,12 +1,13 @@
 package com.sicarus.dto;
 
-public class AuthRequest {
+public class UserCreateRequest {
     private String username;
     private String password;
 
-    public AuthRequest() {}
+    public UserCreateRequest() {
+    }
 
-    public AuthRequest(String username, String password) {
+    public UserCreateRequest(String username, String password) {
         this.username = username;
         this.password = password;
     }

@@ -25,9 +25,13 @@ import CryptoInvestmentsPage from "./pages/Investments/CryptoInvestmentsPage.jsx
 import CardLimitPage from "./pages/Cards/CardLimitPage.jsx";
 import StockInvestmentsPage from "./pages/Investments/StockInvestmentsPage.jsx";
 
+import ProtectedRoute from './components/ProtectedRoute';
+import { UserProvider } from './context/UserContext.jsx';
+
 function App() {
     return (
         <AppTheme>
+            <UserProvider>
             <Routes>
                 <Route path="/" element={<SignInPage />} />
                 <Route path="/login" element={<SignInPage />} />
@@ -48,19 +52,23 @@ function App() {
                 <Route path="/admin-investments" element={<AdminInvestmentsPage />} />
                 <Route path="/connected-devices" element={<ConnectedDevicesPage />} />
                 <Route path="/investments/acoes" element={<StockInvestmentsPage />} />
+
                 <Route
                     path="/admin/dashboard"
                     element={
+                        <ProtectedRoute>
                         <AdminRoute>
                             <AdminDashboardPage />
                         </AdminRoute>
+                        </ProtectedRoute>
                     }
                 />
-                <Route path="/agencias" element={<NearbyAgenciesPage />} />
-                <Route path="/virtual-card" element={<VirtualCardCreationPage />} />
-                <Route path="/investments/criptomoeda" element={<CryptoInvestmentsPage />} />
+                <Route path="/agencias" element={<ProtectedRoute><NearbyAgenciesPage /></ProtectedRoute>} />
+                <Route path="/virtual-card" element={<ProtectedRoute><VirtualCardCreationPage /></ProtectedRoute>} />
+                <Route path="/investments/criptomoeda" element={<ProtectedRoute><CryptoInvestmentsPage /></ProtectedRoute>} />
 
-            </Routes>
+                </Routes>
+            </UserProvider>
         </AppTheme>
     );
 }

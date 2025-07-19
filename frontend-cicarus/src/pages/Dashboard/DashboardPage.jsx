@@ -35,37 +35,7 @@ const API_URL = import.meta.env.VITE_API_URL || '';
 
 
 // --- COMPONENTES DO DASHBOARD ---
-const WelcomeHeader = () => {
-    const [customerData, setCustomerData] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const { user } = useUser();
-
-    useEffect(() => {
-        const fetchCustomerData = async () => {
-            try {
-                setLoading(true);
-                const email = user?.name;
-                if (!email) return;
-
-                const response = await fetch(`${API_URL}/customers/profile/${email}`, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-
-                if (!response.ok) throw new Error('Failed to fetch customer data');
-
-                const data = await response.json();
-                setCustomerData(data);
-            } catch (error) {
-                console.error('Error fetching customer data:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchCustomerData();
-    }, [user]);
+const WelcomeHeader = ({ customerData, loading }) => {
 
     if (loading) {
         return (
@@ -183,12 +153,17 @@ const CreditCardComponent = () => {
     const [isLoading, setIsLoading] = React.useState(true);
     const [error, setError] = React.useState(null);
 
+    const authHeader = () => {
+        const token = localStorage.getItem('token') || '';
+        return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+    };
+
     React.useEffect(() => {
         const fetchPrimaryCard = async () => {
             try {
                 setIsLoading(true);
                 setError(null);
-                const res = await fetch(`${API_URL}/card/list/1`);
+                const res = await fetch(`${API_URL}/card/list/1`, { headers: authHeader() });
                 if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
                 const allCards = await res.json();
                 if (allCards && allCards.length > 0) {
@@ -381,6 +356,10 @@ const BalanceChart = ({ history, loading }) => {
 
 // --- PÁGINA PRINCIPAL DO DASHBOARD (Layout original mantido) ---
 export default function DashboardPage() {
+    const { user } = useUser();
+    const [customerData, setCustomerData] = useState(null);
+    const [loadingCustomerData, setLoadingCustomerData] = useState(true);
+
     const [balance, setBalance] = useState(0);
     const [history, setHistory] = useState([]);
     const [transactions, setTransactions] = useState([]);
@@ -388,23 +367,50 @@ export default function DashboardPage() {
     const [loadingHistory, setLoadingHistory] = useState(false);
     const [loadingTransactions, setLoadingTransactions] = useState(false);
 
-    const accountId = 1; // ou pegue de algum contexto ou autenticação
-
     const authHeader = () => {
         const token = localStorage.getItem('token') || '';
         return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
     };
 
     useEffect(() => {
-        fetchBalance();
-        fetchHistory();
-        fetchTransactions();
-    }, []);
+        const fetchAllData = async () => {
+            setLoadingCustomerData(true);
+            try {
+                const email = user?.name;
+                if (!email) {
+                    setLoadingCustomerData(false);
+                    return;
+                }
 
-    async function fetchBalance() {
+                const response = await fetch(`${API_URL}/customers/profile/${email}`, {
+                    headers: authHeader()
+                });
+
+                if (!response.ok) throw new Error('Failed to fetch customer data');
+
+                const data = await response.json();
+                setCustomerData(data);
+                setLoadingCustomerData(false);
+
+                const currentAccountId = data.id; // Assuming data.id is the accountId
+                if (currentAccountId) {
+                    fetchBalance(currentAccountId);
+                    fetchHistory(currentAccountId);
+                    fetchTransactions(currentAccountId);
+                }
+            } catch (error) {
+                console.error('Error fetching initial data:', error);
+                setLoadingCustomerData(false);
+            }
+        };
+
+        fetchAllData();
+    }, [user]);
+
+    async function fetchBalance(currentAccountId) {
         setLoadingBalance(true);
         try {
-            const res = await fetch(`${API_URL}/account/${accountId}`, { });
+            const res = await fetch(`${API_URL}/account/${currentAccountId}`, { headers: authHeader() });
             const data = await res.json();
             setBalance(data.balance);
         } catch (err) {
@@ -414,10 +420,10 @@ export default function DashboardPage() {
         }
     }
 
-    async function fetchHistory() {
+    async function fetchHistory(currentAccountId) {
         setLoadingHistory(true);
         try {
-            const res = await fetch(`${API_URL}/account/balance-history/${accountId}`, { headers: authHeader() });
+            const res = await fetch(`${API_URL}/account/balance-history/${currentAccountId}`, { headers: authHeader() });
             if (!res.ok) throw new Error(`Erro ${res.status}`);
             const raw = await res.json();
             const formatted = raw.map(item => ({
@@ -434,10 +440,10 @@ export default function DashboardPage() {
         }
     }
 
-    async function fetchTransactions() {
+    async function fetchTransactions(currentAccountId) {
         setLoadingTransactions(true);
         try {
-            const res = await fetch(`${API_URL}/transaction/accounts/${accountId}`, { headers: authHeader() });
+            const res = await fetch(`${API_URL}/transaction/accounts/${currentAccountId}`, { headers: authHeader() });
             setTransactions(await res.json());
         } catch (err) {
             console.error('Erro ao buscar transações:', err);
@@ -456,7 +462,7 @@ export default function DashboardPage() {
                     </Grid>
                     <Grid item xs={12} lg={8}>
                         <Stack spacing={3}>
-                            <WelcomeHeader />
+                            <WelcomeHeader customerData={customerData} loading={loadingCustomerData} />
                             <Grid container spacing={3}>
                                 <BalanceCard balance={balance} loading={loadingBalance}/>
                                 <QuickActions />

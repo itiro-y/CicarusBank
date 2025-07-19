@@ -12,7 +12,6 @@ import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
-import AccountBalanceWalletRoundedIcon from "@mui/icons-material/AccountBalanceWalletRounded";
 import WalletIcon from '@mui/icons-material/Wallet';
 
 // Lista de moedas para exibir
@@ -47,7 +46,8 @@ export default function CryptoInvestmentsPage() {
     const [selectedChartCrypto, setSelectedChartCrypto] = useState('BTCUSDT');
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [successOpen, setSuccessOpen] = useState(false);
-    const [usdWallet, setUsdWallet] = useState(0); // Saldo em USD
+    const [usdWallet, setUsdWallet] = useState(0);
+    const [selectedCrypto, setSelectedCrypto] = useState('BTCUSDT');
 
     //hard code da carteira
     const [wallet, setWallet] = useState([]);
@@ -150,7 +150,7 @@ export default function CryptoInvestmentsPage() {
         setTab(v);
     }
 
-    async function handleSell(symbol) {
+    async function handleSell(type) {
         try {
             const response = await fetch(`${API_URL}/crypto/sell/${type}/${accountId}`, {
                 method: 'DELETE',
@@ -224,9 +224,9 @@ export default function CryptoInvestmentsPage() {
                 throw new Error(`Erro ${res.status}: ${msg}`);
             }
 
-            const result = await res.json();
             setSuccessOpen(true);
-
+            await fetchWallet();
+            await fetchUsdWallet();
         } catch (err) {
             setBuyError(err.message);
         } finally {

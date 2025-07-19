@@ -86,7 +86,7 @@ public class StockController {
         return sum;
     }
 
-    @Operation(summary = "Delete that remosves a stock based on its symbol and accountId")
+    @Operation(summary = "Delete that remosves a stock based on its symbol and accountId. Also deposits the total value of the stock back to the user's account.")
     @DeleteMapping("sell/{symbol}/{accountId}")
     public void deleteStock(@PathVariable String symbol, @PathVariable Long accountId) {
         StockDto stockDto = stockService.findBySymbolAndAccountId(symbol, accountId);

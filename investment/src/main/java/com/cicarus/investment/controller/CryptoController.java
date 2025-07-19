@@ -83,13 +83,13 @@ public class CryptoController {
         return sum;
     }
 
-    @Operation(summary = "Delete that removes a crypto based on its type and accountId")
+    @Operation(summary = "Delete that removes a crypto based on its type and accountId. Also adds the current value of the crypto to the user's account balance.")
     @DeleteMapping("sell/{type}/{accountId}")
     public void deleteStock(@PathVariable CryptoType type, @PathVariable Long accountId) {
         CryptoDto cryptoDto = cryptoService.findByTypeAndAccountId(type, accountId);
 
         if (cryptoDto != null) {
-            BigDecimal totalValue = cryptoDto.currentValue();
+            BigDecimal totalValue = cryptoDto.amountInvested();
             accountService.depositUSD(accountId, totalValue);
             cryptoService.delete(cryptoDto.id());
         }

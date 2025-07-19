@@ -6,6 +6,7 @@ import {
 } from '@mui/material';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import AppAppBar from '../../components/AppAppBar.jsx';
+import { useUser } from '../../context/UserContext.jsx';
 import Swal from 'sweetalert2';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
@@ -38,6 +39,8 @@ const CurrencyCard = ({ currency, value, flagUrl }) => (
 
 export default function ExchangePage() {
     const theme = useTheme();
+    const { user } = useUser();
+    const [accountId, setAccountId] = useState(null);
     const [exchangeRates, setExchangeRates] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -50,14 +53,37 @@ export default function ExchangePage() {
     const [accountData, setAccountData] = useState(null);
     const [loadingExchange, setLoadingExchange] = useState(false);
 
-    const accountId = 1;
-
     const authHeader = () => {
         const token = localStorage.getItem('token') || '';
         return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
     };
 
+    useEffect(() => {
+        const fetchInitialData = async () => {
+            if (!user?.name) return;
+
+            try {
+                const response = await fetch(`${API_URL}/customers/profile/${user.name}`, { headers: authHeader() });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const customerData = await response.json();
+                setAccountId(customerData.id);
+            } catch (e) {
+                console.error("Error fetching customer data:", e);
+                Swal.fire('Erro', 'Não foi possível carregar os dados do cliente.', 'error');
+            }
+        };
+
+        fetchInitialData();
+    }, [user]);
+
+    useEffect(() => {
+        if (accountId) {
+            fetchAccountData();
+        }
+    }, [accountId]);
+
     const fetchAccountData = async () => {
+        if (!accountId) return;
         try {
             const response = await fetch(`${API_URL}/account/${accountId}`, { headers: authHeader() });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -70,34 +96,32 @@ export default function ExchangePage() {
     };
 
     useEffect(() => {
-        const fetchExchangeRates = async () => {
+        const fetchExternalApiData = async () => {
             try {
-                const response = await fetch('https://open.er-api.com/v6/latest/BRL');
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const data = await response.json();
-                setExchangeRates(data.rates);
+                const ratesResponse = await fetch('https://open.er-api.com/v6/latest/BRL');
+                if (!ratesResponse.ok) throw new Error(`HTTP error! status: ${ratesResponse.status}`);
+                const ratesData = await ratesResponse.json();
+                setExchangeRates(ratesData.rates);
             } catch (e) {
                 setError(e.message);
             } finally {
                 setLoading(false);
             }
-        };
 
-        const fetchHistoricalRates = async () => {
             try {
                 const endDate = new Date();
                 const startDate = new Date();
                 startDate.setMonth(endDate.getMonth() - 3);
                 const formatDate = (date) => date.toISOString().split('T')[0];
-                const response = await fetch(`https://api.frankfurter.app/${formatDate(startDate)}..${formatDate(endDate)}?from=BRL&to=USD,EUR`);
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const data = await response.json();
-                if (!data || !data.rates) throw new Error('Invalid API response: rates data missing.');
-                const processedData = Object.keys(data.rates).map(date => ({
+                const historicalResponse = await fetch(`https://api.frankfurter.app/${formatDate(startDate)}..${formatDate(endDate)}?from=BRL&to=USD,EUR`);
+                if (!historicalResponse.ok) throw new Error(`HTTP error! status: ${historicalResponse.status}`);
+                const historicalData = await historicalResponse.json();
+                if (!historicalData || !historicalData.rates) throw new Error('Invalid API response: rates data missing.');
+                const processedData = Object.keys(historicalData.rates).map(date => ({
                     date,
-                    usd: data.rates[date].USD ? (1 / data.rates[date].USD) : null,
-                    eur: data.rates[date].EUR ? (1 / data.rates[date].EUR) : null,
-                })).sort((a, b) => new Date(a.date) - new Date(b.date)); // Ordenar dados
+                    usd: historicalData.rates[date].USD ? (1 / historicalData.rates[date].USD) : null,
+                    eur: historicalData.rates[date].EUR ? (1 / historicalData.rates[date].EUR) : null,
+                })).sort((a, b) => new Date(a.date) - new Date(b.date));
                 setHistoricalData(processedData);
             } catch (e) {
                 setErrorHistorical(e.message);
@@ -106,9 +130,7 @@ export default function ExchangePage() {
             }
         };
 
-        fetchExchangeRates();
-        fetchHistoricalRates();
-        fetchAccountData();
+        fetchExternalApiData();
     }, []);
 
     useEffect(() => {

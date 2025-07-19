@@ -12,25 +12,25 @@ INSERT INTO crypto (
 ) VALUES
       (
           1,
-          'BITCOIN',
+          'BTCUSDT',
           'ACTIVE',
-          0.50,
+          200.00,
           0.60,
           1.20,
           '2025-01-10 00:00:00'
       ),
       (
           2,
-          'ETHEREUM',
+          'BNBUSDT',
           'ACTIVE',
-          2.00,
+          1000.00,
           2.10,
           1.05,
           '2025-02-15 00:00:00'
       ),
       (
           3,
-          'BITCOIN',
+          'BTCUSDT',
           'ACTIVE',
           1000.00,
           1350.00,

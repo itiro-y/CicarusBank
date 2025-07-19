@@ -22,52 +22,57 @@ import TextField from '@mui/material/TextField';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 const accountId = 1;
-const historico = [
-    { mes: 'Jan', valor: 10000 },
-    { mes: 'Fev', valor: 10250 },
-    { mes: 'Mar', valor: 9800  },
-    { mes: 'Abr', valor: 11000 },
-    { mes: 'Mai', valor: 11500 },
-    { mes: 'Jun', valor: 11800 },
-    { mes: 'Jul', valor: 12000 },
-    { mes: 'Ago', valor: 12500 },
-    { mes: 'Set', valor: 13000 },
-    { mes: 'Out', valor: 12800 },
-    { mes: 'Nov', valor: 13500 },
-    { mes: 'Dez', valor: 14000 },
-];
+
+const generateHourlyMock = (min=50, max=150) => {
+    const now = Date.now();
+    return Array.from({ length: 24 }).map((_, i) => {
+        const ts = now - (23 - i) * 3_600_000;
+        const date = new Date(ts);
+        const hour = String(date.getHours()).padStart(2, '0') + ':00';
+        const valor = (Math.random() * (max - min) + min).toFixed(2);
+        return { hour, valor };
+    });
+};
 
 function InvestmentTable({ investments, loading }) {
+    const formatCurrency = (value, type) => {
+        const isReal = ['RENDA_FIXA', 'FUNDO_IMOBILIARIO'].includes(type);
+        return Number(value).toLocaleString(
+            isReal ? 'pt-BR' : 'en-US',
+            { style: 'currency', currency: isReal ? 'BRL' : 'USD' }
+        );
+    };
+
     if (loading) return <CircularProgress />;
     return (
         <TableContainer component={Paper}>
             <Table>
                 <TableHead>
                     <TableRow>
-                        <TableCell>ID</TableCell>
-                        <TableCell>Conta</TableCell>
+                        <TableCell>ID Conta</TableCell>
                         <TableCell>Tipo</TableCell>
                         <TableCell>Status</TableCell>
                         <TableCell>Valor Investido</TableCell>
                         <TableCell>Valor Atual</TableCell>
                         <TableCell>Rentabilidade Esperada</TableCell>
                         <TableCell>Início</TableCell>
-                        <TableCell>Fim</TableCell>
                         <TableCell>Renovar?</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {investments.map(inv => (
                         <TableRow key={inv.id}>
-                            <TableCell>{inv.id}</TableCell>
                             <TableCell>{inv.accountId}</TableCell>
                             <TableCell>{inv.type}</TableCell>
                             <TableCell>{inv.status}</TableCell>
-                            <TableCell>{Number(inv.amountInvested).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
-                            <TableCell>{Number(inv.currentValue).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
+                            <TableCell>
+                                { formatCurrency(inv.amountInvested, inv.type) }
+                            </TableCell>
+                            <TableCell>
+                                { formatCurrency(inv.currentValue,   inv.type) }
+                            </TableCell>
                             <TableCell>{Number(inv.expectedReturnRate).toLocaleString('pt-BR')}%</TableCell>
                             <TableCell>{new Date(inv.startDate).toLocaleDateString('pt-BR')}</TableCell>
-                            <TableCell>{new Date(inv.endDate).toLocaleDateString('pt-BR')}</TableCell>
                             <TableCell>{inv.autoRenew ? 'Sim' : 'Não'}</TableCell>
                         </TableRow>
                     ))}
@@ -101,59 +106,260 @@ function SummaryCard(){
     )
 }
 
-function EvolutionGraph() {
+function EvolutionGraph({ historicoBRL, historicoUSD }) {
     const theme = useTheme();
+
+    // monta um array [ { mes, valor1, valor2 }, … ]
+    const merged = historicoBRL.map((brl, i) => ({
+        hour:    brl.hour,
+        valor1: brl.valor,
+        valor2: historicoUSD[i]?.valor ?? 0
+    }));
+
     return (
         <ResponsiveContainer width="100%" height={250}>
-            <AreaChart data={historico} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+            <AreaChart
+                data={merged}
+                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+            >
                 <defs>
-                    <linearGradient id="colorValor" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient id="gradBRL" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor={theme.palette.primary.main} stopOpacity={0.8}/>
                         <stop offset="95%" stopColor={theme.palette.primary.main} stopOpacity={0.05}/>
                     </linearGradient>
+                    <linearGradient id="gradUSD" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={theme.palette.secondary.main} stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor={theme.palette.secondary.main} stopOpacity={0.05}/>
+                    </linearGradient>
                 </defs>
+
                 <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} />
-                <XAxis dataKey="mes" tick={{ fill: theme.palette.text.secondary }} />
+
+                <XAxis dataKey="hour" tick={{ fill: theme.palette.text.secondary }} />
                 <YAxis tick={{ fill: theme.palette.text.secondary }} />
+
                 <Tooltip
                     contentStyle={{
                         background: theme.palette.background.paper,
                         border: `1px solid ${theme.palette.divider}`,
-                        color: theme.palette.text.primary,
                         borderRadius: 8,
                         boxShadow: theme.shadows[2],
                     }}
                     labelStyle={{ color: theme.palette.text.secondary }}
                 />
+
+                {/* As duas áreas */}
                 <Area
                     type="monotone"
-                    dataKey="valor"
+                    dataKey="valor1"
+                    name="BRL"
                     stroke={theme.palette.primary.main}
-                    fillOpacity={1}
-                    fill="url(#colorValor)"
-                    strokeWidth={3}
-                    dot={{ r: 4, stroke: theme.palette.background.paper, strokeWidth: 2 }}
-                    activeDot={{ r: 6 }}
+                    fill="url(#gradBRL)"
+                    strokeWidth={2}
+                    dot={false}
                 />
+                <Area
+                    type="monotone"
+                    dataKey="valor2"
+                    name="USD"
+                    stroke={theme.palette.secondary.main}
+                    fill="url(#gradUSD)"
+                    strokeWidth={2}
+                    dot={false}
+                />
+
+                {/* Legenda */}
                 <Legend />
             </AreaChart>
         </ResponsiveContainer>
     );
 }
 
+
 export default function UserInvestmentsPage() {
+    const theme = useTheme();
+    const authHeader = () => {
+        const token = localStorage.getItem('token') || '';
+        return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+    };
+
     const [investments, setInvestments] = useState([]);
     const [loading, setLoading] = useState(false);
     const [openRendaFixa, setOpenRendaFixa] = useState(false);
     const [depositValue, setDepositValue] = useState('');
     const [successDialog, setSuccessDialog] = useState(false);
 
-    // Novo estado para Fundo Imobiliário
+    const [totalInvestedBRL, setTotalInvestedBRL] = useState(0);
+    const [totalInvested, setTotalInvested] = useState(0);
+    const [rendaFixaInvestments, setRendaFixaInvestments] = useState(0);
+    const [fundoImobInvestments, setFundoImobInvestments] = useState(0);
+    const [acoesInvestments, setAcoesInvestments] = useState(0);
+    const [criptoInvestments, setCriptoInvestments] = useState(0);
+
     const [openFundoImob, setOpenFundoImob] = useState(false);
     const [fundoValue, setFundoValue] = useState('');
     const [successFundoDialog, setSuccessFundoDialog] = useState(false);
 
-    const theme = useTheme();
+    const [historicoBRL, setHistoricoBRL] = useState(
+        generateHourlyMock(8_000, 10_000)
+    );
+    const [historicoUSD, setHistoricoUSD] = useState(
+        generateHourlyMock(0, 800)
+    );
+    function ResumoSaldosInvestidos(){
+        return(
+            <Box sx={{ mt: 3, mb: 4}}>
+                <Typography variant="h6" gutterBottom>
+                    Resumo de Seus Investimentos
+                </Typography>
+                <Grid container spacing={2} sx={{mt: 3, justifyContent: 'center', textAlign: 'center' }}>
+                    <Grid item xs={12} sm={6} md={3}>
+                        <Paper sx={{ p: 2, textAlign: 'center', borderRadius: 2 }}>
+                            <Typography variant="subtitle2" color="text.secondary">
+                                Total Investido (BRL)
+                            </Typography>
+                            <Typography variant="h6">
+                                R$ {totalInvestedBRL.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </Typography>
+                        </Paper>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3}>
+                        <Paper sx={{ p: 2, textAlign: 'center', borderRadius: 2 }}>
+                            <Typography variant="subtitle2" color="text.secondary">
+                                Renda Fixa
+                            </Typography>
+                            <Typography variant="h6">
+                                R$ {rendaFixaInvestments.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                            </Typography>
+                        </Paper>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3}>
+                        <Paper sx={{ p: 2, textAlign: 'center', borderRadius: 2 }}>
+                            <Typography variant="subtitle2" color="text.secondary">
+                                Fundos Imobiliários
+                            </Typography>
+                            <Typography variant="h6">
+                                R$ {fundoImobInvestments.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                            </Typography>
+                        </Paper>
+                    </Grid>
+                    <Grid sx={{ml:3, mr: 3}}/>
+                    <Grid item xs={12} sm={6} md={3}>
+                        <Paper sx={{ p: 2, textAlign: 'center', borderRadius: 2 }}>
+                            <Typography variant="subtitle2" color="text.secondary">
+                                Total Investido (USD)
+                            </Typography>
+                            <Typography variant="h6">
+                                US$ {totalInvested.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                            </Typography>
+                        </Paper>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3}>
+                        <Paper sx={{ p: 2, textAlign: 'center', borderRadius: 2 }}>
+                            <Typography variant="subtitle2" color="text.secondary">
+                                Ações
+                            </Typography>
+                            <Typography variant="h6">
+                                US$ {acoesInvestments.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                            </Typography>
+                        </Paper>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3}>
+                        <Paper sx={{ p: 2, textAlign: 'center', borderRadius: 2 }}>
+                            <Typography variant="subtitle2" color="text.secondary">
+                                Criptomoedas
+                            </Typography>
+                            <Typography variant="h6">
+                                US$ {criptoInvestments.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                            </Typography>
+                        </Paper>
+                    </Grid>
+                </Grid>
+            </Box>
+        )
+    }
+
+
+    async function handleRendaFixaDeposit() {
+        const payload = {
+            accountId: accountId,
+            type: "RENDA_FIXA",
+            status: "ATIVO",
+            amountInvested: depositValue,
+            currentValue: depositValue,
+            expectedReturnRate: 0.065,
+            endDate: null,
+            autoRenew: true
+        };
+
+        try {
+            const response = await fetch(`${API_URL}/investment`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...authHeader()
+                },
+                body: JSON.stringify(payload)
+            });
+            await fetchInvestments()
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error("Erro ao depositar renda fixa:", errorData);
+            } else {
+                const result = await response.json();
+                console.log("Depósito realizado com sucesso:", result);
+            }
+            await fetchBRLInverstments();
+            await fetchUSDInverstments();
+        } catch (error) {
+            console.error("Erro na requisição de renda fixa:", error);
+        } finally {
+            setOpenRendaFixa(false);
+            setSuccessDialog(true);
+            setDepositValue('');
+        }
+    }
+
+    async function handleFundoImobDeposit() {
+        const payload = {
+            accountId: accountId,
+            type: "FUNDO_IMOBILIARIO",
+            status: "ATIVO",
+            amountInvested: fundoValue,
+            currentValue: fundoValue,
+            expectedReturnRate: 0.09,
+            endDate: null,
+            autoRenew: true
+        };
+
+        try {
+            const response = await fetch(`${API_URL}/investment`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...authHeader() // adiciona Authorization: Bearer <token>
+                },
+                body: JSON.stringify(payload)
+            });
+            await fetchInvestments()
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error("Erro ao depositar renda fixa:", errorData);
+            } else {
+                const result = await response.json();
+                console.log("Depósito realizado com sucesso:", result);
+            }
+            await fetchBRLInverstments();
+            await fetchUSDInverstments();
+        } catch (error) {
+            console.error("Erro na requisição de renda fixa:", error);
+        } finally {
+            setOpenFundoImob(false);
+            setSuccessFundoDialog(true);
+            setFundoValue('');
+        }
+    }
+
 
     // Atualize os cards para incluir ícones e descrições
     const cards = [
@@ -183,14 +389,21 @@ export default function UserInvestmentsPage() {
         },
     ];
 
-    const authHeader = () => {
-        const token = localStorage.getItem('token') || '';
-        return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
-    };
 
     useEffect(() => {
+        const totalBRL = rendaFixaInvestments + fundoImobInvestments;
+        const total =  acoesInvestments + criptoInvestments;
+        setTotalInvested(total);
+        setTotalInvestedBRL(totalBRL);
         fetchInvestments();
-    }, []);
+        fetchInvestmentRendaFixa();
+        fetchInvestmentFundoImobiliario();
+        fetchInvestmentStocks();
+        fetchInvestmentCrypto();
+
+        fetchUSDInverstments();
+        fetchBRLInverstments();
+    }, [rendaFixaInvestments, acoesInvestments, criptoInvestments, fundoImobInvestments]);
 
     async function fetchInvestments() {
         setLoading(true);
@@ -205,18 +418,98 @@ export default function UserInvestmentsPage() {
         }
     }
 
-    // Função para simular depósito renda fixa
-    function handleRendaFixaDeposit() {
-        setOpenRendaFixa(false);
-        setSuccessDialog(true);
-        setDepositValue('');
+    async function fetchInvestmentRendaFixa(){
+        setLoading(true);
+        try {
+            const res = await fetch(`${API_URL}/investment/renda-fixa/sum/${accountId}`, { headers: authHeader() });
+            const data = await res.json();
+            setRendaFixaInvestments(data);
+        } catch (error) {
+            console.error('Erro ao buscar saldo de renda fixa:', error);
+        } finally {
+            setLoading(false);
+        }
     }
 
-    // Função para simular aplicação fundo imobiliário
-    function handleFundoImobDeposit() {
-        setOpenFundoImob(false);
-        setSuccessFundoDialog(true);
-        setFundoValue('');
+    async function fetchInvestmentFundoImobiliario(){
+        setLoading(true);
+        try {
+            const res = await fetch(`${API_URL}/investment/fundo-imobiliario/sum/${accountId}`, { headers: authHeader() });
+            const data = await res.json();
+            setFundoImobInvestments(data);
+        } catch (error) {
+            console.error('Erro ao buscar saldo de renda fixa:', error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function fetchInvestmentStocks(){
+        setLoading(true);
+        try {
+            const res = await fetch(`${API_URL}/stock/sum/${accountId}`, { headers: authHeader() });
+            const data = await res.json();
+            setAcoesInvestments(data);
+        } catch (error) {
+            console.error('Erro ao buscar saldo de renda fixa:', error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function fetchInvestmentCrypto(){
+        setLoading(true);
+        try {
+            const res = await fetch(`${API_URL}/crypto/sum/${accountId}`, { headers: authHeader() });
+            const data = await res.json();
+            setCriptoInvestments(data);
+        } catch (error) {
+            console.error('Erro ao buscar saldo de renda fixa:', error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function fetchBRLInverstments(){
+        setLoading(true);
+        try {
+            const res = await fetch(`${API_URL}/investment/history-brl/${accountId}`, { headers: authHeader() });
+            const data = await res.json();               // { sumOfAllBrlInvestments, dateOfLastInvestment }
+            const items = Array.isArray(data) ? data : [data];
+
+            const shaped = items.map(item => {
+                const d = new Date(item.dateOfLastInvestment);
+                return {
+                    hour: new Date(item.dateOfLastInvestment).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                    valor: item.sumOfAllBrlInvestments.toFixed(2)
+                };
+            });
+            setHistoricoBRL(prev => [...prev, ...shaped]);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function fetchUSDInverstments(){
+        setLoading(true);
+        try {
+            const res = await fetch(`${API_URL}/investment/history-usd/${accountId}`, { headers: authHeader() });
+            const data = await res.json();
+            const items = Array.isArray(data) ? data : [data];
+            console.log(items);
+            const shaped = items.map(item => {
+                const d = new Date(item.dateOfLastInvestment);
+                return {
+                    hour: new Date(item.dateOfLastInvestment).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                    valor: item.sumOfAllUsdInvestments.toFixed(2)
+                };
+            });
+            setHistoricoUSD(prev => [...prev, ...shaped]);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
     }
 
     return (
@@ -224,8 +517,8 @@ export default function UserInvestmentsPage() {
             <AppAppBar title="Meus Investimentos" />
             <Toolbar />
             <Container maxWidth="lg" sx={{ py: 4, mt: 5 }}>
-
                 <InvestmentCarouselInvestments />
+
 
                 <Typography variant="h4" sx={{ mb: 2, mt: 3, fontWeight: 700 }}>
                     Dashboard de Investimentos
@@ -261,18 +554,18 @@ export default function UserInvestmentsPage() {
                                 </Typography>
                                 <Button
                                     component={
-                                        card.title === 'Renda Fixa'
-                                            ? undefined
-                                            : card.title === 'Fundo Imobiliário'
-                                                ? undefined
-                                                : RouterLink
+                                        card.title === 'Renda Fixa' ? undefined : card.title === 'Fundo Imobiliário'
+                                                                    ? undefined : card.title === 'Ações'
+                                                                    ? RouterLink : RouterLink
                                     }
                                     to={
                                         card.title === 'Renda Fixa'
                                             ? undefined
                                             : card.title === 'Fundo Imobiliário'
                                                 ? undefined
-                                                : card.to
+                                                : card.title === 'Ações'
+                                                    ? '/investments/acoes'
+                                                    : card.to
                                     }
                                     variant="contained"
                                     color="primary"
@@ -291,12 +584,22 @@ export default function UserInvestmentsPage() {
                                                 : undefined
                                     }
                                 >
-                                    Ver detalhes
+                                    Investir
                                 </Button>
                             </Card>
                         </Grid>
                     ))}
                 </Grid>
+
+                <ResumoSaldosInvestidos />
+
+                <Paper sx={{ p: 2, mb: 4 }}>
+                    <EvolutionGraph historicoBRL={historicoBRL} historicoUSD={historicoUSD} />
+                </Paper>
+                <Typography variant="h6" sx={{ mb: 2 }}>
+                    Histórico de Investimentos
+                </Typography>
+                <InvestmentTable investments={investments} loading={loading} />
 
                 {/* Dialog para Renda Fixa */}
                 <Dialog open={openRendaFixa} onClose={() => setOpenRendaFixa(false)}>
@@ -394,15 +697,6 @@ export default function UserInvestmentsPage() {
                         </Button>
                     </DialogActions>
                 </Dialog>
-
-                <Typography variant="h6" sx={{ mb: 2 }}>Evolução de seus Investimentos</Typography>
-                <Paper sx={{ p: 2, mb: 4 }}>
-                    <EvolutionGraph />
-                </Paper>
-                <Typography variant="h6" sx={{ mb: 2 }}>
-                    Histórico de Investimentos
-                </Typography>
-                <InvestmentTable investments={investments} loading={loading} />
             </Container>
         </Box>
     );

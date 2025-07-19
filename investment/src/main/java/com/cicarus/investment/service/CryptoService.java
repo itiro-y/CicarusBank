@@ -1,14 +1,14 @@
 package com.cicarus.investment.service;
 
-import com.cicarus.investment.dtos.CryptoDto;
-import com.cicarus.investment.dtos.CryptoRequestDto;
-import com.cicarus.investment.dtos.InvestmentDto;
-import com.cicarus.investment.dtos.InvestmentRequestDto;
-import com.cicarus.investment.model.Crypto;
-import com.cicarus.investment.model.Investment;
+import com.cicarus.investment.dtos.crypto.CryptoDto;
+import com.cicarus.investment.dtos.crypto.CryptoRequestDto;
+import com.cicarus.investment.dtos.stock.StockDto;
+import com.cicarus.investment.model.crypto.Crypto;
+import com.cicarus.investment.model.crypto.CryptoType;
 import com.cicarus.investment.repository.CryptoRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,6 +38,15 @@ public class CryptoService {
         return cryptoRepository.findAllByAccountId(accountId).stream().map(this::toDto).collect(Collectors.toList());
     }
 
+    public CryptoDto findByTypeAndAccountId(CryptoType type, Long accountId) {
+        CryptoDto crypto = toDto(cryptoRepository.findFirstByTypeAndAccountId(type, accountId).get());
+        return crypto;
+    }
+
+    public void delete(Long id) {
+        cryptoRepository.deleteById(id);
+    }
+
     public CryptoDto toDto(Crypto crypto) {
         return new CryptoDto(
                 crypto.getId(),
@@ -59,7 +68,7 @@ public class CryptoService {
         crypto.setAmountInvested(request.amountInvested());
         crypto.setCurrentValue(request.currentValue());
         crypto.setCryptoMultiplier(request.cryptoMultiplier());
-        crypto.setStartDate(request.startDate());
+        crypto.setStartDate(new Date());
         return crypto;
     }
 }

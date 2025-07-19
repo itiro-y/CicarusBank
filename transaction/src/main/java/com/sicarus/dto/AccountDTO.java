@@ -10,8 +10,7 @@ public class AccountDTO {
     private AccountType type;
     private BigDecimal balance;
 
-    public AccountDTO(){
-    }
+    public AccountDTO(){}
 
     public Long getId() {
         return id;

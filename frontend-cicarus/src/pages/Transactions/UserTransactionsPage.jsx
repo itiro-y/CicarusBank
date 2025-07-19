@@ -303,7 +303,8 @@ export default function UserTransactionsPage() {
             const res = await fetch(`${API_URL}/account/${accountId}`, { headers: authHeader() });
             const data = await res.json();
             setBalance(data.balance);
-        } catch(error) { console.error("Erro ao buscar saldo:", error); }
+        } catch(error) {
+            console.error("Erro ao buscar saldo:", error); }
         finally { setLoadingBalance(false); }
     }
 

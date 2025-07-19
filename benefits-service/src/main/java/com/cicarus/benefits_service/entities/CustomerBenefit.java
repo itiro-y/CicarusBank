@@ -12,15 +12,15 @@ public class CustomerBenefit {
     private Long id;
 
     @Column(nullable = false)
-    private Long customerId; // ID do cliente (assumindo que o customer-service gerencia o cliente)
+    private Long customerId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "benefit_id", nullable = false)
-    private Benefit benefit; // O benefício que o cliente possui
+    private Benefit benefit;
 
     private LocalDate activationDate;
-    private LocalDate expirationDate; // Pode ser nulo se o benefício for permanente
-    private boolean activated; // Se o cliente ativou este benefício (para benefícios que precisam de ativação)
+    private LocalDate expirationDate;
+    private boolean activated;
 
     public CustomerBenefit() {
     }
@@ -34,7 +34,7 @@ public class CustomerBenefit {
         this.activated = activated;
     }
 
-    // Getters e Setters
+
     public Long getId() {
         return id;
     }

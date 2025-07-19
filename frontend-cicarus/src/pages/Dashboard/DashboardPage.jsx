@@ -146,7 +146,7 @@ const hashToCvv = (hash) => {
     return digits.slice(0, 3).join('');
 };
 
-const CreditCardComponent = () => {
+const CreditCardComponent = ({ customerName }) => {
     const theme = useTheme();
     const [isFlipped, setIsFlipped] = React.useState(false);
     const [cardData, setCardData] = React.useState(null);
@@ -236,7 +236,7 @@ const CreditCardComponent = () => {
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                             <Box>
                                 <Typography variant="caption" sx={{ color: 'grey.300' }}>NOME</Typography>
-                                <Typography sx={{ fontWeight: 'medium' }}>{cardData.cardholderName}</Typography>
+                                <Typography sx={{ fontWeight: 'medium' }}>{customerName || 'Nome do Titular'}</Typography>
                             </Box>
                             <Box sx={{ textAlign: 'right' }}>
                                 <Typography variant="caption" sx={{ color: 'grey.300' }}>VALIDADE</Typography>
@@ -488,7 +488,7 @@ export default function DashboardPage() {
                     </Grid>
                     <Grid item xs={12} lg={4}>
                         <Stack spacing={3}>
-                            <CreditCardComponent />
+                            <CreditCardComponent customerName={customerData?.name} />
                             <CardManagementActions />
                             <ChatAssistant />
                         </Stack>

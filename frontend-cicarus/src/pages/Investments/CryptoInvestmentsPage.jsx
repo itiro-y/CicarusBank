@@ -38,7 +38,6 @@ export default function CryptoInvestmentsPage() {
     const [error, setError] = useState(null);
     const [tab, setTab] = useState(0);
     const [history, setHistory] = useState({});
-    const [buyCrypto, setBuyCrypto] = useState('BTCUSDT');
     const [buyValue, setBuyValue] = useState('');
     const [buyResult, setBuyResult] = useState(null);
     const [buyLoading, setBuyLoading] = useState(false);
@@ -49,7 +48,6 @@ export default function CryptoInvestmentsPage() {
     const [usdWallet, setUsdWallet] = useState(0);
     const [selectedCrypto, setSelectedCrypto] = useState('BTCUSDT');
 
-    //hard code da carteira
     const [wallet, setWallet] = useState([]);
     const theme = useTheme();
     const API_URL = import.meta.env.VITE_API_URL || '';
@@ -97,13 +95,12 @@ export default function CryptoInvestmentsPage() {
     }
 
     async function fetchHistory() {
-        // Busca dados históricos (últimos 7 dias, 1 ponto por dia)
         const newHistory = {};
         for (const crypto of CRYPTOS) {
             try {
                 const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${crypto.symbol}&interval=1d&limit=7`);
                 const data = await res.json();
-                // Cada item: [openTime, open, high, low, close, ...]
+
                 newHistory[crypto.symbol] = data.map(item => ({
                     date: new Date(item[0]).toLocaleDateString('pt-BR', { month: 'short', day: 'numeric' }),
                     price: Number(item[4])
@@ -119,7 +116,6 @@ export default function CryptoInvestmentsPage() {
         setLoading(true);
         setError(null);
         try {
-            // Preço atual
             const res = await fetch(`https://api.binance.com/api/v3/ticker/price`);
             const data = await res.json();
             const filtered = {};
@@ -129,7 +125,7 @@ export default function CryptoInvestmentsPage() {
                 }
             });
             setPrices(filtered);
-            // Variação 24h
+
             const res24h = await fetch(`https://api.binance.com/api/v3/ticker/24hr`);
             const data24h = await res24h.json();
             const filteredChange = {};
@@ -170,7 +166,6 @@ export default function CryptoInvestmentsPage() {
                 }
             }
 
-            // Apenas tente ler o corpo se houver
             let result = null;
             const contentType = response.headers.get('content-type');
             if (contentType && contentType.includes('application/json')) {
@@ -187,11 +182,9 @@ export default function CryptoInvestmentsPage() {
         }
     }
 
-    // Função para simular compra (substitua por POST futuramente)
     async function handleBuy() {
         setBuyError(null);
 
-        // validação básica
         if (!buyValue || isNaN(buyValue) || Number(buyValue) <= 0) {
             setBuyError('Informe um valor válido.');
             return;
@@ -199,10 +192,10 @@ export default function CryptoInvestmentsPage() {
 
         const payload = {
             accountId,                                 // Long accountId
-            type: buyCrypto,                           // CryptoType, ex: 'BTCUSDT'
+            type: selectedCrypto,                           // CryptoType, ex: 'BTCUSDT'
             status: 'ACTIVE',                       // CryptoStatus, ex: 'PURCHASED'
             amountInvested: Number(buyValue),          // BigDecimal amountInvested
-            currentValue: Number(buyValue) / Number(prices[buyCrypto]),   // BigDecimal currentValue
+            currentValue: Number(buyValue) / Number(prices[selectedCrypto]),   // BigDecimal currentValue
             cryptoMultiplier: 0
         };
 
@@ -234,12 +227,10 @@ export default function CryptoInvestmentsPage() {
         }
     }
 
-    // Helper para pegar nome e ícone da moeda
     function getCryptoInfo(symbol) {
         return CRYPTOS.find(c => c.symbol === symbol) || { name: symbol, icon: '' };
     }
 
-    // Cálculo da variação percentual dos últimos 7 dias para o gráfico
     const chartHistory = history[selectedChartCrypto] || [];
     const chartChange = chartHistory.length > 1
         ? ((chartHistory[chartHistory.length - 1].price - chartHistory[0].price) / chartHistory[0].price) * 100
@@ -309,7 +300,9 @@ export default function CryptoInvestmentsPage() {
                                         }}
                                     >
                                         <Box
+                                            onClick = {() => setSelectedCrypto(crypto.symbol)}
                                             sx={{
+                                                cursor: 'pointer',
                                                 display: 'flex',
                                                 flexDirection: 'row',
                                                 alignItems: 'center',
@@ -319,6 +312,11 @@ export default function CryptoInvestmentsPage() {
                                                 bgcolor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : 'grey.50',
                                                 boxShadow: 2,
                                                 minHeight: 64,
+                                                transition: 'transform 0.2s, box-shadow 0.2s',
+                                                '&:hover': {
+                                                    transform: 'translateY(-4px) scale(1.03)',
+                                                    boxShadow: 6,
+                                                }
                                             }}
                                         >
                                             <Box
@@ -408,13 +406,13 @@ export default function CryptoInvestmentsPage() {
                                     }}
                                 >
                                     <img
-                                        src={CRYPTOS.find(c => c.symbol === buyCrypto)?.icon}
-                                        alt={CRYPTOS.find(c => c.symbol === buyCrypto)?.name}
+                                        src={CRYPTOS.find(c => c.symbol === selectedCrypto)?.icon}
+                                        alt={CRYPTOS.find(c => c.symbol === selectedCrypto)?.name}
                                         style={{ width: 56, height: 56 }}
                                     />
                                 </Box>
                                 <Typography variant="h6" sx={{ fontWeight: 700, mt: 1, mb: 1, textAlign: 'center' }}>
-                                    Comprar {CRYPTOS.find(c => c.symbol === buyCrypto)?.name}
+                                    Comprar {CRYPTOS.find(c => c.symbol === selectedCrypto)?.name}
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary" sx={{ mb: 2, textAlign: 'center' }}>
                                     Escolha a criptomoeda, informe o valor em dólar e veja instantaneamente quanto você pode adquirir.
@@ -432,14 +430,14 @@ export default function CryptoInvestmentsPage() {
                                         Preço atual:
                                     </Typography>
                                     <Typography variant="h6" sx={{fontSize:15,  fontWeight: 600 }}>
-                                        US$ {prices[buyCrypto] ? Number(prices[buyCrypto]).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--'}
+                                        US$ {prices[selectedCrypto] ? Number(prices[selectedCrypto]).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--'}
                                     </Typography>
                                 </Box>
                                 <TextField
                                     select
                                     label="Criptomoeda"
-                                    value={buyCrypto}
-                                    onChange={e => setBuyCrypto(e.target.value)}
+                                    value={selectedCrypto}
+                                    onChange={e => setSelectedCrypto(e.target.value)}
                                     fullWidth
                                     sx={{ mb: 2 }}
                                 >
@@ -481,16 +479,15 @@ export default function CryptoInvestmentsPage() {
                                         width: 200
                                     }}
                                 >
-                                    {buyLoading ? 'Processando...' : `Comprar ${CRYPTOS.find(c => c.symbol === buyCrypto)?.name}`}
+                                    {buyLoading ? 'Processando...' : `Comprar ${CRYPTOS.find(c => c.symbol === selectedCrypto)?.name}`}
                                 </Button>
                             </Card>
 
-                            {/* Confirmação de compra */}
                             <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
                                 <DialogTitle>Confirmar Compra</DialogTitle>
                                 <DialogContent>
                                     <Typography>
-                                        Tem certeza que deseja comprar {buyValue || '--'} USD em {CRYPTOS.find(c => c.symbol === buyCrypto)?.name} ({(buyValue / prices[buyCrypto]).toFixed(6)} {CRYPTOS.find(c => c.symbol === buyCrypto)?.name}s)?
+                                        Tem certeza que deseja comprar {buyValue || '--'} USD em {CRYPTOS.find(c => c.symbol === selectedCrypto)?.name} ({(buyValue / prices[selectedCrypto]).toFixed(6)} {CRYPTOS.find(c => c.symbol === selectedCrypto)?.name}s)?
                                     </Typography>
                                 </DialogContent>
                                 <DialogActions>
@@ -508,16 +505,15 @@ export default function CryptoInvestmentsPage() {
                                 </DialogActions>
                             </Dialog>
 
-                            {/* Sucesso da compra */}
                             <Dialog open={successOpen} onClose={() => setSuccessOpen(false)}>
                                 <DialogTitle>Compra Realizada</DialogTitle>
                                 <DialogContent>
                                     <Typography>
-                                        Sua compra de {buyValue || '--'} USD em {CRYPTOS.find(c => c.symbol === buyCrypto)?.name} foi realizada com sucesso!
+                                        Sua compra de {buyValue || '--'} USD em {CRYPTOS.find(c => c.symbol === selectedCrypto)?.name} foi realizada com sucesso!
                                     </Typography>
                                     {buyResult && (
                                         <Typography sx={{ mt: 2 }}>
-                                            Você comprou <b>{(buyValue / prices[buyCrypto]).toFixed(6)}</b> {buyCrypto.replace('USDT','')} a US$ {Number(buyResult.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} cada.
+                                            Você comprou <b>{(buyValue / prices[selectedCrypto]).toFixed(6)}</b> {selectedCrypto.replace('USDT','')} a US$ {Number(buyResult.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} cada.
                                         </Typography>
                                     )}
                                 </DialogContent>

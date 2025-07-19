@@ -90,7 +90,19 @@ public class CryptoController {
 
         if (cryptoDto != null) {
             BigDecimal totalValue = cryptoDto.amountInvested();
+            InvestmentRequestDto investmentRequestDto = new InvestmentRequestDto(
+                    null,
+                    accountId,
+                    InvestmentType.CRIPTOMOEDA,
+                    InvestmentStatus.RESGATADO,
+                    totalValue,
+                    cryptoDto.amountInvested(),
+                    BigDecimal.ZERO,
+                    new Date(),
+                    false
+            );
             accountService.depositUSD(accountId, totalValue);
+            investmentService.create(investmentRequestDto);
             cryptoService.delete(cryptoDto.id());
         }
     }

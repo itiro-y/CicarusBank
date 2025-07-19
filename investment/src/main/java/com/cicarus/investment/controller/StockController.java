@@ -17,6 +17,7 @@ import jakarta.validation.constraints.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -81,7 +82,7 @@ public class StockController {
         List<StockDto> stockDtoList = stockService.findAllByAccountId(accountId);
 
         for( StockDto stock : stockDtoList) {
-            sum = sum.add((stock.currentPrice().multiply(stock.volume())));
+            sum = sum.add((stock.currentPrice()));
         }
         return sum;
     }
@@ -93,7 +94,19 @@ public class StockController {
 
         if (stockDto != null) {
             BigDecimal totalValue = stockDto.currentPrice();
+            InvestmentRequestDto investmentRequestDto = new InvestmentRequestDto(
+                    null,
+                    accountId,
+                    InvestmentType.ACOES,
+                    InvestmentStatus.RESGATADO,
+                    totalValue,
+                    stockDto.currentPrice(),
+                    BigDecimal.ZERO,
+                    new Date(),
+                    false
+            );
             accountService.depositUSD(accountId, totalValue);
+            investmentService.create(investmentRequestDto);
             stockService.delete(stockDto.id());
         }
     }

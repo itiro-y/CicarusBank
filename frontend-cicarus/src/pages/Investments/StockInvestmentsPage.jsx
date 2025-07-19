@@ -63,7 +63,6 @@ export default function StockInvestmentsPage() {
     const [simStock, setSimStock] = useState('AAPL');
     const [simValue, setSimValue] = useState('');
     const [simResult, setSimResult] = useState(null);
-    const [buyStock, setBuyStock] = useState('AAPL');
     const [buyVolume, setbuyVolume] = useState('');
     const [buyResult, setBuyResult] = useState(null);
     const [buyLoading, setBuyLoading] = useState(false);
@@ -71,6 +70,7 @@ export default function StockInvestmentsPage() {
     const [selectedChartStock, setSelectedChartStock] = useState('AAPL');
     const [usdWallet, setUsdWallet] = useState(0);
     const [wallet, setWallet] = useState([]);
+    const [selectedStock, setSelectedStock] = useState('AAPL');
     const theme = useTheme();
 
     useEffect(() => {
@@ -188,7 +188,7 @@ export default function StockInvestmentsPage() {
             return;
         }
 
-        const price = prices[buyStock];
+        const price = prices[selectedStock];
         if (!price) {
             setBuyError('Preço da ação indisponível.');
             return;
@@ -198,13 +198,13 @@ export default function StockInvestmentsPage() {
         try {
             // Buscar dados da ação com Alpha Vantage
             const OV_API_KEY = "05OPBVBUATY9EPP1";
-            const overviewRes = await fetch(`https://www.alphavantage.co/query?function=OVERVIEW&symbol=${buyStock}&apikey=${OV_API_KEY}`);
+            const overviewRes = await fetch(`https://www.alphavantage.co/query?function=OVERVIEW&symbol=${selectedStock}&apikey=${OV_API_KEY}`);
             const overviewData = await overviewRes.json();
 
             const payload = {
-                symbol: buyStock,
+                symbol: selectedStock,
                 accountId: accountId,
-                companyName: overviewData.Name || buyStock,
+                companyName: overviewData.Name || selectedStock,
                 currency: overviewData.Currency || 'USD',
                 setor: overviewData.Sector || '',
                 currentPrice: Number(price),
@@ -317,7 +317,9 @@ export default function StockInvestmentsPage() {
                                         }}
                                     >
                                         <Box
+                                            onClick={() => setSelectedStock(stock.symbol)}
                                             sx={{
+                                                cursor: 'pointer',
                                                 display: 'flex',
                                                 flexDirection: 'row',
                                                 alignItems: 'center',
@@ -327,6 +329,11 @@ export default function StockInvestmentsPage() {
                                                 bgcolor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : 'grey.50',
                                                 boxShadow: 2,
                                                 minHeight: 64,
+                                                transition: 'transform 0.2s, box-shadow 0.2s',
+                                                '&:hover': {
+                                                    transform: 'translateY(-4px) scale(1.03)',
+                                                    boxShadow: 6,
+                                                }
                                             }}
                                         >
                                             <Box
@@ -415,13 +422,13 @@ export default function StockInvestmentsPage() {
                                 }}
                             >
                                 <img
-                                    src={STOCKS.find(s => s.symbol === buyStock)?.icon}
-                                    alt={STOCKS.find(s => s.symbol === buyStock)?.name}
+                                    src={STOCKS.find(s => s.symbol === selectedStock)?.icon}
+                                    alt={STOCKS.find(s => s.symbol === selectedStock)?.name}
                                     style={{ width: 56, height: 56 }}
                                 />
                             </Box>
                             <Typography variant="h6" sx={{ fontWeight: 700, mt: 1, mb: -1, textAlign: 'center' }}>
-                                Comprar Ações da {STOCKS.find(s => s.symbol === buyStock)?.name}
+                                Comprar Ações da {STOCKS.find(s => s.symbol === selectedStock)?.name}
                             </Typography>
                             <Typography variant="body2" color="text.secondary" sx={{ mb: 2, textAlign: 'center' }}>
                                 Escolha a ação, informe o valor em dólar e veja instantaneamente quantas ações pode adquirir.
@@ -440,14 +447,14 @@ export default function StockInvestmentsPage() {
                                     Preço da ação:
                                 </Typography>
                                 <Typography variant="h6" sx={{ fontSize: 16, fontWeight: 600 }}>
-                                    US$ {prices[buyStock] ? Number(prices[buyStock]).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--'}
+                                    US$ {prices[selectedStock] ? Number(prices[selectedStock]).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--'}
                                 </Typography>
                             </Box>
                             <TextField
                                 select
                                 label="Ação"
-                                value={buyStock}
-                                onChange={e => setBuyStock(e.target.value)}
+                                value={selectedStock}
+                                onChange={e => setselectedStock(e.target.value)}
                                 fullWidth
                                 sx={{ mb: 2 }}
                             >
@@ -488,7 +495,7 @@ export default function StockInvestmentsPage() {
                                     width: 200
                                 }}
                             >
-                                {buyLoading ? 'Processando...' : `Comprar ${STOCKS.find(s => s.symbol === buyStock)?.name}`}
+                                {buyLoading ? 'Processando...' : `Comprar ${STOCKS.find(s => s.symbol === selectedStock)?.name}`}
                             </Button>
                             {buyError && (
                                 <Typography color="error" sx={{ mt: 2 }}>{buyError}</Typography>)}
@@ -508,7 +515,7 @@ export default function StockInvestmentsPage() {
                                         Compra Realizada
                                     </Typography>
                                     <Typography>
-                                        Você comprou <b>{buyVolume}</b> {buyStock} a US$ {Number(prices[buyStock]).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} cada.
+                                        Você comprou <b>{buyVolume}</b> {selectedStock} a US$ {Number(prices[selectedStock]).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} cada.
                                     </Typography>
                                 </Paper>
                             )}

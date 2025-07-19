@@ -23,53 +23,56 @@ import TextField from '@mui/material/TextField';
 const API_URL = import.meta.env.VITE_API_URL || '';
 const accountId = 1;
 
-const historico = [
-    { mes: 'Jan', valor: 10000 },
-    { mes: 'Fev', valor: 10250 },
-    { mes: 'Mar', valor: 9800  },
-    { mes: 'Abr', valor: 11000 },
-    { mes: 'Mai', valor: 11500 },
-    { mes: 'Jun', valor: 11800 },
-    { mes: 'Jul', valor: 12000 },
-    { mes: 'Ago', valor: 12500 },
-    { mes: 'Set', valor: 13000 },
-    { mes: 'Out', valor: 12800 },
-    { mes: 'Nov', valor: 13500 },
-    { mes: 'Dez', valor: 14000 },
-];
-
+const generateHourlyMock = (min=50, max=150) => {
+    const now = Date.now();
+    return Array.from({ length: 24 }).map((_, i) => {
+        const ts = now - (23 - i) * 3_600_000;
+        const date = new Date(ts);
+        const hour = String(date.getHours()).padStart(2, '0') + ':00';
+        const valor = (Math.random() * (max - min) + min).toFixed(2);
+        return { hour, valor };
+    });
+};
 
 function InvestmentTable({ investments, loading }) {
+    const formatCurrency = (value, type) => {
+        const isReal = ['RENDA_FIXA', 'FUNDO_IMOBILIARIO'].includes(type);
+        return Number(value).toLocaleString(
+            isReal ? 'pt-BR' : 'en-US',
+            { style: 'currency', currency: isReal ? 'BRL' : 'USD' }
+        );
+    };
+
     if (loading) return <CircularProgress />;
     return (
         <TableContainer component={Paper}>
             <Table>
                 <TableHead>
                     <TableRow>
-                        <TableCell>ID</TableCell>
-                        <TableCell>Conta</TableCell>
+                        <TableCell>ID Conta</TableCell>
                         <TableCell>Tipo</TableCell>
                         <TableCell>Status</TableCell>
                         <TableCell>Valor Investido</TableCell>
                         <TableCell>Valor Atual</TableCell>
                         <TableCell>Rentabilidade Esperada</TableCell>
                         <TableCell>Início</TableCell>
-                        <TableCell>Fim</TableCell>
                         <TableCell>Renovar?</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {investments.map(inv => (
                         <TableRow key={inv.id}>
-                            <TableCell>{inv.id}</TableCell>
                             <TableCell>{inv.accountId}</TableCell>
                             <TableCell>{inv.type}</TableCell>
                             <TableCell>{inv.status}</TableCell>
-                            <TableCell>{Number(inv.amountInvested).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
-                            <TableCell>{Number(inv.currentValue).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
+                            <TableCell>
+                                { formatCurrency(inv.amountInvested, inv.type) }
+                            </TableCell>
+                            <TableCell>
+                                { formatCurrency(inv.currentValue,   inv.type) }
+                            </TableCell>
                             <TableCell>{Number(inv.expectedReturnRate).toLocaleString('pt-BR')}%</TableCell>
                             <TableCell>{new Date(inv.startDate).toLocaleDateString('pt-BR')}</TableCell>
-                            <TableCell>{new Date(inv.endDate).toLocaleDateString('pt-BR')}</TableCell>
                             <TableCell>{inv.autoRenew ? 'Sim' : 'Não'}</TableCell>
                         </TableRow>
                     ))}
@@ -103,40 +106,69 @@ function SummaryCard(){
     )
 }
 
-function EvolutionGraph() {
+function EvolutionGraph({ historicoBRL, historicoUSD }) {
     const theme = useTheme();
+
+    // monta um array [ { mes, valor1, valor2 }, … ]
+    const merged = historicoBRL.map((brl, i) => ({
+        hour:    brl.hour,
+        valor1: brl.valor,
+        valor2: historicoUSD[i]?.valor ?? 0
+    }));
+
     return (
         <ResponsiveContainer width="100%" height={250}>
-            <AreaChart data={historico} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+            <AreaChart
+                data={merged}
+                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+            >
                 <defs>
-                    <linearGradient id="colorValor" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient id="gradBRL" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor={theme.palette.primary.main} stopOpacity={0.8}/>
                         <stop offset="95%" stopColor={theme.palette.primary.main} stopOpacity={0.05}/>
                     </linearGradient>
+                    <linearGradient id="gradUSD" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={theme.palette.secondary.main} stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor={theme.palette.secondary.main} stopOpacity={0.05}/>
+                    </linearGradient>
                 </defs>
+
                 <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} />
-                <XAxis dataKey="mes" tick={{ fill: theme.palette.text.secondary }} />
+
+                <XAxis dataKey="hour" tick={{ fill: theme.palette.text.secondary }} />
                 <YAxis tick={{ fill: theme.palette.text.secondary }} />
+
                 <Tooltip
                     contentStyle={{
                         background: theme.palette.background.paper,
                         border: `1px solid ${theme.palette.divider}`,
-                        color: theme.palette.text.primary,
                         borderRadius: 8,
                         boxShadow: theme.shadows[2],
                     }}
                     labelStyle={{ color: theme.palette.text.secondary }}
                 />
+
+                {/* As duas áreas */}
                 <Area
                     type="monotone"
-                    dataKey="valor"
+                    dataKey="valor1"
+                    name="BRL"
                     stroke={theme.palette.primary.main}
-                    fillOpacity={1}
-                    fill="url(#colorValor)"
-                    strokeWidth={3}
-                    dot={{ r: 4, stroke: theme.palette.background.paper, strokeWidth: 2 }}
-                    activeDot={{ r: 6 }}
+                    fill="url(#gradBRL)"
+                    strokeWidth={2}
+                    dot={false}
                 />
+                <Area
+                    type="monotone"
+                    dataKey="valor2"
+                    name="USD"
+                    stroke={theme.palette.secondary.main}
+                    fill="url(#gradUSD)"
+                    strokeWidth={2}
+                    dot={false}
+                />
+
+                {/* Legenda */}
                 <Legend />
             </AreaChart>
         </ResponsiveContainer>
@@ -145,6 +177,12 @@ function EvolutionGraph() {
 
 
 export default function UserInvestmentsPage() {
+    const theme = useTheme();
+    const authHeader = () => {
+        const token = localStorage.getItem('token') || '';
+        return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+    };
+
     const [investments, setInvestments] = useState([]);
     const [loading, setLoading] = useState(false);
     const [openRendaFixa, setOpenRendaFixa] = useState(false);
@@ -158,17 +196,16 @@ export default function UserInvestmentsPage() {
     const [acoesInvestments, setAcoesInvestments] = useState(0);
     const [criptoInvestments, setCriptoInvestments] = useState(0);
 
-    // Novo estado para Fundo Imobiliário
     const [openFundoImob, setOpenFundoImob] = useState(false);
     const [fundoValue, setFundoValue] = useState('');
     const [successFundoDialog, setSuccessFundoDialog] = useState(false);
 
-    const theme = useTheme();
-    const authHeader = () => {
-        const token = localStorage.getItem('token') || '';
-        return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
-    };
-
+    const [historicoBRL, setHistoricoBRL] = useState(
+        generateHourlyMock(8_000, 10_000)
+    );
+    const [historicoUSD, setHistoricoUSD] = useState(
+        generateHourlyMock(0, 800)
+    );
     function ResumoSaldosInvestidos(){
         return(
             <Box sx={{ mt: 3, mb: 4}}>
@@ -272,6 +309,8 @@ export default function UserInvestmentsPage() {
                 const result = await response.json();
                 console.log("Depósito realizado com sucesso:", result);
             }
+            await fetchBRLInverstments();
+            await fetchUSDInverstments();
         } catch (error) {
             console.error("Erro na requisição de renda fixa:", error);
         } finally {
@@ -310,6 +349,8 @@ export default function UserInvestmentsPage() {
                 const result = await response.json();
                 console.log("Depósito realizado com sucesso:", result);
             }
+            await fetchBRLInverstments();
+            await fetchUSDInverstments();
         } catch (error) {
             console.error("Erro na requisição de renda fixa:", error);
         } finally {
@@ -359,6 +400,9 @@ export default function UserInvestmentsPage() {
         fetchInvestmentFundoImobiliario();
         fetchInvestmentStocks();
         fetchInvestmentCrypto();
+
+        fetchUSDInverstments();
+        fetchBRLInverstments();
     }, [rendaFixaInvestments, acoesInvestments, criptoInvestments, fundoImobInvestments]);
 
     async function fetchInvestments() {
@@ -421,6 +465,48 @@ export default function UserInvestmentsPage() {
             setCriptoInvestments(data);
         } catch (error) {
             console.error('Erro ao buscar saldo de renda fixa:', error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function fetchBRLInverstments(){
+        setLoading(true);
+        try {
+            const res = await fetch(`${API_URL}/investment/history-brl/${accountId}`, { headers: authHeader() });
+            const data = await res.json();               // { sumOfAllBrlInvestments, dateOfLastInvestment }
+            const items = Array.isArray(data) ? data : [data];
+
+            const shaped = items.map(item => {
+                const d = new Date(item.dateOfLastInvestment);
+                return {
+                    hour: new Date(item.dateOfLastInvestment).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                    valor: item.sumOfAllBrlInvestments.toFixed(2)
+                };
+            });
+            setHistoricoBRL(prev => [...prev, ...shaped]);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function fetchUSDInverstments(){
+        setLoading(true);
+        try {
+            const res = await fetch(`${API_URL}/investment/history-usd/${accountId}`, { headers: authHeader() });
+            const data = await res.json();
+            const items = Array.isArray(data) ? data : [data];
+            console.log(items);
+            const shaped = items.map(item => {
+                const d = new Date(item.dateOfLastInvestment);
+                return {
+                    hour: new Date(item.dateOfLastInvestment).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                    valor: item.sumOfAllUsdInvestments.toFixed(2)
+                };
+            });
+            setHistoricoUSD(prev => [...prev, ...shaped]);
+        } catch (error) {
+            console.error(error);
         } finally {
             setLoading(false);
         }
@@ -508,7 +594,7 @@ export default function UserInvestmentsPage() {
                 <ResumoSaldosInvestidos />
 
                 <Paper sx={{ p: 2, mb: 4 }}>
-                    <EvolutionGraph />
+                    <EvolutionGraph historicoBRL={historicoBRL} historicoUSD={historicoUSD} />
                 </Paper>
                 <Typography variant="h6" sx={{ mb: 2 }}>
                     Histórico de Investimentos

@@ -35,37 +35,7 @@ const API_URL = import.meta.env.VITE_API_URL || '';
 
 
 // --- COMPONENTES DO DASHBOARD ---
-const WelcomeHeader = () => {
-    const [customerData, setCustomerData] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const { user } = useUser();
-
-    useEffect(() => {
-        const fetchCustomerData = async () => {
-            try {
-                setLoading(true);
-                const email = user?.name;
-                if (!email) return;
-
-                const response = await fetch(`${API_URL}/customers/profile/${email}`, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-
-                if (!response.ok) throw new Error('Failed to fetch customer data');
-
-                const data = await response.json();
-                setCustomerData(data);
-            } catch (error) {
-                console.error('Error fetching customer data:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchCustomerData();
-    }, [user]);
+const WelcomeHeader = ({ customerData, loading }) => {
 
     if (loading) {
         return (
@@ -492,7 +462,7 @@ export default function DashboardPage() {
                     </Grid>
                     <Grid item xs={12} lg={8}>
                         <Stack spacing={3}>
-                            <WelcomeHeader />
+                            <WelcomeHeader customerData={customerData} loading={loadingCustomerData} />
                             <Grid container spacing={3}>
                                 <BalanceCard balance={balance} loading={loadingBalance}/>
                                 <QuickActions />

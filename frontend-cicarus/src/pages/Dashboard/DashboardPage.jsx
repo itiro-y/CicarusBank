@@ -444,9 +444,24 @@ export default function DashboardPage() {
         setLoadingTransactions(true);
         try {
             const res = await fetch(`${API_URL}/transaction/accounts/${currentAccountId}`, { headers: authHeader() });
-            setTransactions(await res.json());
+            if (!res.ok) throw new Error(`Failed to fetch transactions: ${res.status}`);
+            const rawTransactions = await res.json();
+
+            // Palavras-chave que indicam uma transação de débito (saída de dinheiro).
+            const DEBIT_KEYWORDS = ['compra', 'pagamento', 'transferência', 'pix', 'recarga', 'saque', 'débito'];
+
+            const processedTransactions = rawTransactions.map(tx => {
+                // A API pode retornar todos os valores como positivos, então verificamos o tipo.
+                const isDebit = DEBIT_KEYWORDS.some(keyword => tx.type.toLowerCase().includes(keyword));
+                const amount = isDebit ? -Math.abs(tx.amount) : Math.abs(tx.amount);
+                const icon = isDebit ? <ArrowDownward color="error" /> : <ArrowUpward color="success" />;
+                return { ...tx, amount, icon };
+            });
+
+            setTransactions(processedTransactions);
         } catch (err) {
             console.error('Erro ao buscar transações:', err);
+            setTransactions([]); // Limpa as transações em caso de erro.
         } finally {
             setLoadingTransactions(false);
         }

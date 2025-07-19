@@ -2,6 +2,7 @@ package com.cicarus.investment.service;
 
 import com.cicarus.investment.dtos.crypto.CryptoDto;
 import com.cicarus.investment.dtos.crypto.CryptoRequestDto;
+import com.cicarus.investment.dtos.stock.StockDto;
 import com.cicarus.investment.model.crypto.Crypto;
 import com.cicarus.investment.repository.CryptoRepository;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,11 @@ public class CryptoService {
 
     public List<CryptoDto> findAllByAccountId(Long accountId){
         return cryptoRepository.findAllByAccountId(accountId).stream().map(this::toDto).collect(Collectors.toList());
+    }
+
+    public CryptoDto findByTypeAndAccountId( symbol, Long accountId) {
+        CryptoDto crypto = toDto(cryptoRepository.findFirstBySymbolAndAccountId(type, accountId).get());
+        return crypto;
     }
 
     public CryptoDto toDto(Crypto crypto) {

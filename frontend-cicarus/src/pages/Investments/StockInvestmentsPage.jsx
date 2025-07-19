@@ -6,8 +6,10 @@ import {
 import AppAppBar from '../../components/AppAppBar.jsx';
 import { Link } from 'react-router-dom';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
-import EmojiObjectsIcon from '@mui/icons-material/EmojiObjects';
 import { useTheme } from '@mui/material/styles';
+import WalletIcon from '@mui/icons-material/Wallet';
+import ShowChartIcon from '@mui/icons-material/ShowChart';
+import AddIcon from '@mui/icons-material/Add';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 const STOCKS = [
@@ -425,17 +427,19 @@ export default function StockInvestmentsPage() {
                                 Escolha a ação, informe o valor em dólar e veja instantaneamente quantas ações pode adquirir.
                             </Typography>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 2 }}>
+                                <WalletIcon color='primary' sx={{ fontSize: 23 }}/>
                                 <Typography variant="subtitle2" color="text.secondary">
-                                    Seu saldo em USD:
+                                    Saldo:
                                 </Typography>
-                                <Typography variant="h6" sx={{ fontWeight: 600, mr:4 }}>
+                                <Typography variant="h6" sx={{ fontSize: 15, fontWeight: 600, mr:6 }}>
                                     US$ {Number(usdWallet).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </Typography>
 
+                                <ShowChartIcon color='primary' sx={{ fontSize: 23 }}/>
                                 <Typography variant="subtitle2" color="text.secondary">
                                     Preço da ação:
                                 </Typography>
-                                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                                <Typography variant="h6" sx={{ fontSize: 16, fontWeight: 600 }}>
                                     US$ {prices[buyStock] ? Number(prices[buyStock]).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--'}
                                 </Typography>
                             </Box>
@@ -465,7 +469,7 @@ export default function StockInvestmentsPage() {
                                 sx={{ mb: 2 }}
                                 InputProps={{
                                     startAdornment: (
-                                        <MonetizationOnIcon color="action" sx={{ mr: 1 }} />
+                                        <AddIcon color="action" sx={{ mr: 1, fontSize: 15 }} />
                                     )
                                 }}
                             />
@@ -479,8 +483,9 @@ export default function StockInvestmentsPage() {
                                     fontWeight: 700,
                                     borderRadius: 2,
                                     py: 1.2,
-                                    fontSize: 18,
-                                    boxShadow: '0 2px 8px 0 rgba(25, 118, 210, 0.10)'
+                                    fontSize: 16,
+                                    boxShadow: '0 2px 8px 0 rgba(25, 118, 210, 0.10)',
+                                    width: 200
                                 }}
                             >
                                 {buyLoading ? 'Processando...' : `Comprar ${STOCKS.find(s => s.symbol === buyStock)?.name}`}
@@ -533,11 +538,12 @@ export default function StockInvestmentsPage() {
                                     Minha Carteira
                                 </Typography>
                             </Box>
-                            <Box sx={{mr: 48, mt: 2, mb: 2}}>
+                            <Box sx={{mr: 40, mt: 2, display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
+                                <WalletIcon color='primary' sx={{ fontSize: 23 }}/>
                                 <Typography variant="subtitle2" color="text.secondary">
-                                    Seu saldo em USD:
+                                    Saldo:
                                 </Typography>
-                                <Typography variant="h7" sx={{ fontWeight: 600, mr:4 }}>
+                                <Typography variant="h7" sx={{ fontSize: 15, fontWeight: 600, mr:4 }}>
                                     US$ {Number(usdWallet).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </Typography>
                             </Box>
@@ -600,8 +606,8 @@ export default function StockInvestmentsPage() {
                                                 </Typography>
                                             </Box>
                                             <Button
-                                                variant="outlined"
-                                                color="error"
+                                                variant="contained"
+                                                color="primary"
                                                 size="small"
                                                 onClick={() => handleSell(symbol)}
                                             >

@@ -20,7 +20,6 @@ public record CryptoRequestDto(
         CryptoStatus status,
 
         @NotNull
-        @DecimalMin("0.0")
         BigDecimal amountInvested,
 
         @NotNull

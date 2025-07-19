@@ -1,9 +1,14 @@
 package com.cicarus.investment.model.crypto;
 
 public enum CryptoType {
-    BITCOIN,
-    ETHEREUM,
-    BINANCE_COIN,
-    CARDANO,
-    SOLANA,
+    BTCUSDT,
+    ETHUSDT,
+    BNBUSDT,
+    SOLUSDT,
+    ADAUSDT,
+    XRPUSDT,
+    DOGEUSDT,
+    MATICUSDT,
+    DOTUSDT,
+    AVAXUSDT;
 }

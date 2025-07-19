@@ -12,7 +12,7 @@ INSERT INTO crypto (
 ) VALUES
       (
           1,
-          'BITCOIN',
+          'BTCUSDT',
           'ACTIVE',
           1000.00,
           0.60,
@@ -21,7 +21,7 @@ INSERT INTO crypto (
       ),
       (
           2,
-          'ETHEREUM',
+          'BNBUSDT',
           'ACTIVE',
           1000.00,
           2.10,
@@ -30,7 +30,7 @@ INSERT INTO crypto (
       ),
       (
           3,
-          'BITCOIN',
+          'BTCUSDT',
           'ACTIVE',
           1000.00,
           1350.00,

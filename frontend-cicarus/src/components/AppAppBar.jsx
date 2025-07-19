@@ -97,11 +97,11 @@ export default function AppAppBar() {
                     <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', px: 0 }}>
                         <img
                             src="https://i.postimg.cc/13MB7w9d/download.png"
-                            style={{ height: '80px', marginRight: '16px', cursor: 'pointer' }}
+                            style={{ height: '75px', marginRight: '16px', cursor: 'pointer' }}
                             alt="CicarusBank logo"
                             onClick={() => navigate('/dashboard')}
                         />
-                        <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+                        <Box sx={{ml: -3, display: { xs: 'none', md: 'flex'} }}>
                             <Button component={Link} to="/dashboard" color="primary" variant="text" size="small">Visão Geral</Button>
                             <Button component={Link} to="/user-transactions" variant="text" color="info" size="small">Transferências</Button>
                             <Button component={Link} to="/user-card" variant="text" color="info" size="small">Cartões</Button>
@@ -110,10 +110,7 @@ export default function AppAppBar() {
                             <Button component={Link} to="/exchange" variant="text" color="info" size="small">Câmbio</Button>
                             <Button component={Link} to="/agencias" variant="text" color="info" size="small">Agências</Button>
                             {/* NOVO BOTÃO DE BENEFÍCIOS PARA DESKTOP - MOVIDO AQUI */}
-                            <Button
-                                component={Link}
-                                to="/benefits"
-                                sx={{
+                            <Button component={Link} to="/benefits" sx={{
                                     bgcolor: '#f57c00', // Laranja
                                     color: 'white', // Cor do texto branco para contraste
                                     '&:hover': {
@@ -121,7 +118,7 @@ export default function AppAppBar() {
                                     },
                                     textTransform: 'none', // Manter o texto como você digitou
                                     fontWeight: 'bold', // Deixar negrito
-                                    px: 2, // Preenchimento horizontal
+                                    px: 1.5, // Preenchimento horizontal
                                     py: 0.8, // Preenchimento vertical
                                     borderRadius: '8px', // Bordas arredondadas
                                     ml: 1 // Adicionar uma margem esquerda para separar de "Agências"
@@ -139,11 +136,10 @@ export default function AppAppBar() {
                             alignItems: 'center',
                         }}
                     >
-                        <NotificationBell />
-                        <Button component={Link} to="/profile" color="primary" variant="text" size="small">
+                        <NotificationBell/>
+                        <Button component={Link} to="/profile" color="primary" variant="text" size="small" >
                             Perfil
                         </Button>
-                        {/* Botão de Logout Desktop com a nova função */}
                         <Button color="primary" variant="contained" size="small" onClick={handleLogout}>
                             Logout
                         </Button>

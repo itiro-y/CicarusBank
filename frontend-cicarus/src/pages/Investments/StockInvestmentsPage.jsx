@@ -10,6 +10,7 @@ import { useTheme } from '@mui/material/styles';
 import WalletIcon from '@mui/icons-material/Wallet';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import AddIcon from '@mui/icons-material/Add';
+import {useUser} from "../../context/UserContext.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 const STOCKS = [
@@ -53,8 +54,6 @@ const authHeader = () => {
 };
 
 export default function StockInvestmentsPage() {
-    const accountId = 1; // Substituir quando auth estiver implementado
-
     const [prices, setPrices] = useState({});
     const [changes, setChanges] = useState({});
     const [loading, setLoading] = useState(true);
@@ -63,7 +62,7 @@ export default function StockInvestmentsPage() {
     const [simStock, setSimStock] = useState('AAPL');
     const [simValue, setSimValue] = useState('');
     const [simResult, setSimResult] = useState(null);
-    const [buyVolume, setbuyVolume] = useState('');
+    const [buyVolume, setBuyVolume] = useState('');
     const [buyResult, setBuyResult] = useState(null);
     const [buyLoading, setBuyLoading] = useState(false);
     const [buyError, setBuyError] = useState(null);
@@ -73,11 +72,57 @@ export default function StockInvestmentsPage() {
     const [selectedStock, setSelectedStock] = useState('AAPL');
     const theme = useTheme();
 
+    const { user } = useUser();
+    const [accountId, setAccountId] = useState(0);
+    const [customerData, setCustomerData] = useState(null);
+    const [loadingCustomerData, setLoadingCustomerData] = useState(false);
+
     useEffect(() => {
-        fetchAll();
-        fetchWallet();
-        fetchUsdWallet()
+        if (!user) return;  // só roda quando 'user' estiver disponível
+
+        const fetchCustomerData = async () => {
+            setLoadingCustomerData(true);
+            try {
+                const email = user.name;
+                if (!email) {
+                    setLoadingCustomerData(false);
+                    return;
+                }
+
+                const response = await fetch(
+                    `${API_URL}/customers/profile/${email}`,
+                    { headers: authHeader() }
+                );
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch customer data (${response.status})`);
+                }
+
+                const data = await response.json();
+                setCustomerData(data);
+                setAccountId(data.id);
+                console.log(data.id);
+            } catch (error) {
+                console.error('Error fetching initial data:', error);
+            } finally {
+                setLoadingCustomerData(false);
+            }
+        };
+        fetchCustomerData();
+    }, [user, setAccountId]);
+
+    useEffect(() => {
+        fetchAll();                // cotação do Finnhub
     }, []);
+
+    // 2) Quando accountId for atualizado, dispara só os fetches que precisam dele:
+    useEffect(() => {
+        if (!accountId) return;    // evita accountId=0
+
+        fetchWallet();
+        fetchUsdWallet();
+    }, [accountId]);
+
 
     async function fetchUsdWallet(){
         try {
@@ -470,7 +515,7 @@ export default function StockInvestmentsPage() {
                             <TextField
                                 label="Quantidade de Ações (un.)"
                                 value={buyVolume}
-                                onChange={e => setbuyVolume(e.target.value)}
+                                onChange={e => setBuyVolume(e.target.value)}
                                 type="number"
                                 fullWidth
                                 sx={{ mb: 2 }}
@@ -485,7 +530,7 @@ export default function StockInvestmentsPage() {
                                 color="primary"
                                 fullWidth
                                 onClick={handleBuy}
-                                disabled={buyLoading}
+                                disabled={buyLoading || accountId == 0}
                                 sx={{
                                     fontWeight: 700,
                                     borderRadius: 2,

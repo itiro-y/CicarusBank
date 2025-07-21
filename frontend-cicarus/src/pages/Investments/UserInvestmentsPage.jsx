@@ -19,9 +19,10 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
+import jwtDecode from "../../utils/jwtDecode.js";
+import {useUser} from "../../context/UserContext.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL || '';
-const accountId = 1;
 
 const generateHourlyMock = (min=50, max=150) => {
     const now = Date.now();
@@ -80,30 +81,6 @@ function InvestmentTable({ investments, loading }) {
             </Table>
         </TableContainer>
     );
-}
-
-function SummaryCard(){
-    return(
-        <Grid container spacing={2} sx={{ my: 3 }}>
-            <Grid item xs={6} md={3}>
-                <Card>
-                    <CardContent>
-                        <Typography variant="subtitle2">Total Investido</Typography>
-                        <Typography variant="h5">R$ 50.000,00</Typography>
-                    </CardContent>
-                </Card>
-            </Grid>
-            <Grid item xs={6} md={3}>
-                <Card>
-                    <CardContent>
-                        <Typography variant="subtitle2">Rentabilidade Mês</Typography>
-                        <Typography variant="h5">+2,3%</Typography>
-                    </CardContent>
-                </Card>
-            </Grid>
-            {/* Outros cards: Rentabilidade Ano, Valor Atual, etc */}
-        </Grid>
-    )
 }
 
 function EvolutionGraph({ historicoBRL, historicoUSD }) {
@@ -182,6 +159,10 @@ export default function UserInvestmentsPage() {
         const token = localStorage.getItem('token') || '';
         return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
     };
+    const { user } = useUser();
+    const [accountId, setAccountId] = useState(0);
+    const [customerData, setCustomerData] = useState(null);
+    const [loadingCustomerData, setLoadingCustomerData] = useState(false);
 
     const [investments, setInvestments] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -199,6 +180,7 @@ export default function UserInvestmentsPage() {
     const [openFundoImob, setOpenFundoImob] = useState(false);
     const [fundoValue, setFundoValue] = useState('');
     const [successFundoDialog, setSuccessFundoDialog] = useState(false);
+
 
     const [historicoBRL, setHistoricoBRL] = useState(
         generateHourlyMock(8_000, 10_000)
@@ -391,19 +373,58 @@ export default function UserInvestmentsPage() {
 
 
     useEffect(() => {
-        const totalBRL = rendaFixaInvestments + fundoImobInvestments;
-        const total =  acoesInvestments + criptoInvestments;
-        setTotalInvested(total);
-        setTotalInvestedBRL(totalBRL);
+        if (!accountId) return;
+
         fetchInvestments();
         fetchInvestmentRendaFixa();
         fetchInvestmentFundoImobiliario();
         fetchInvestmentStocks();
         fetchInvestmentCrypto();
-
-        fetchUSDInverstments();
         fetchBRLInverstments();
-    }, [rendaFixaInvestments, acoesInvestments, criptoInvestments, fundoImobInvestments]);
+        fetchUSDInverstments();
+    }, [accountId]);
+
+    // só recalcula totais quando qualquer valor individual mudar
+    useEffect(() => {
+        const brl = rendaFixaInvestments + fundoImobInvestments;
+        const usd = acoesInvestments + criptoInvestments;
+        setTotalInvestedBRL(brl);
+        setTotalInvested(usd);
+    }, [rendaFixaInvestments, fundoImobInvestments, acoesInvestments, criptoInvestments]);
+
+    useEffect(() => {
+        if (!user) return;  // só roda quando 'user' estiver disponível
+
+        const fetchCustomerData = async () => {
+            setLoadingCustomerData(true);
+            try {
+                const email = user.name;
+                if (!email) {
+                    setLoadingCustomerData(false);
+                    return;
+                }
+
+                const response = await fetch(
+                    `${API_URL}/customers/profile/${email}`,
+                    { headers: authHeader() }
+                );
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch customer data (${response.status})`);
+                }
+
+                const data = await response.json();
+                setCustomerData(data);
+                setAccountId(data.id);
+            } catch (error) {
+                console.error('Error fetching initial data:', error);
+            } finally {
+                setLoadingCustomerData(false);
+            }
+        };
+
+        fetchCustomerData();
+    }, [user, setAccountId]);
 
     async function fetchInvestments() {
         setLoading(true);

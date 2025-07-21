@@ -93,7 +93,7 @@ export default function NotificationBell() {
     const API_URL = import.meta.env.VITE_API_URL || '';
 
     //Posteriormente capturar o userId dinamicamente
-    const userId = 1;
+    const userId = localStorage.getItem('accountId');
 
     const stompClientRef = useRef(null);
 
@@ -141,36 +141,6 @@ export default function NotificationBell() {
         } catch (error) {
             console.error("Erro ao buscar notificações:", error);
         }
-    };
-
-    // Conecta ao WebSocket e ouve notificações em tempo real
-    const connectWebSocket = () => {
-        const socket = new WebSocket(`${API_URL.replace('http', 'ws')}/notification/ws?userId=${userId}`);
-
-        let stompClient = new Client({
-            webSocketFactory: () => socket,
-            connectHeaders: {
-                userId: String(userId)  // <- Aqui vai como header STOMP
-            },
-            onConnect: () => {
-                stompClient.subscribe(`/user/queue/notifications`, (message) => {
-                    console.log("📥 Notificação recebida:", message.body);
-                    const newNotification = JSON.parse(message.body);
-                    setNotifications((prev) => [newNotification, ...prev]);
-                });
-            },
-            onStompError: (frame) => {
-                console.error("Erro no WebSocket:", frame);
-            }
-        });
-
-        // Adiciona logs de debug no console
-        stompClient.debug = function(str) {
-            console.log("[STOMP DEBUG]", str);
-        };
-
-        stompClient.activate();
-        window.stompClient = stompClient;
     };
 
     useEffect(() => {
@@ -247,6 +217,7 @@ export default function NotificationBell() {
         // Envia para o backend
         fetch(`${API_URL}/notification/${notificationId}/read`, {
             method: "PUT",
+            headers: authHeader(),
         }).catch((err) => {
             console.error("Erro ao marcar notificação como lida no backend", err);
             // Desfazer alterações locais se não der para atualizar no banco

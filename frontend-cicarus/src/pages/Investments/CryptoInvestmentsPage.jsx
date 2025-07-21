@@ -13,6 +13,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import WalletIcon from '@mui/icons-material/Wallet';
+import {useUser} from "../../context/UserContext.jsx";
 
 // Lista de moedas para exibir
 const CRYPTOS = [
@@ -30,7 +31,6 @@ const CRYPTOS = [
 ];
 
 export default function CryptoInvestmentsPage() {
-    const accountId = 1; // Substitua pelo ID da conta do usuário autenticado
 
     const [prices, setPrices] = useState({});
     const [changes, setChanges] = useState({});
@@ -48,6 +48,11 @@ export default function CryptoInvestmentsPage() {
     const [usdWallet, setUsdWallet] = useState(0);
     const [selectedCrypto, setSelectedCrypto] = useState('BTCUSDT');
 
+    const { user } = useUser();
+    const [accountId, setAccountId] = useState(0);
+    const [customerData, setCustomerData] = useState(null);
+    const [loadingCustomerData, setLoadingCustomerData] = useState(false);
+
     const [wallet, setWallet] = useState([]);
     const theme = useTheme();
     const API_URL = import.meta.env.VITE_API_URL || '';
@@ -58,9 +63,44 @@ export default function CryptoInvestmentsPage() {
     useEffect(() => {
         fetchPrices();
         fetchHistory();
-        fetchUsdWallet()
-        fetchWallet();
     }, []);
+
+    // 2) Busca os dados do usuário e define accountId
+    useEffect(() => {
+        if (!user) return;
+
+        const fetchCustomerData = async () => {
+            setLoadingCustomerData(true);
+            try {
+                const email = user.name;
+                if (!email) return;
+
+                const res = await fetch(`${API_URL}/customers/profile/${email}`, {
+                    headers: authHeader()
+                });
+                if (!res.ok) throw new Error(res.statusText);
+
+                const data = await res.json();
+                setCustomerData(data);
+                setAccountId(data.id);
+            } catch (err) {
+                console.error('Error fetching customer data:', err);
+            } finally {
+                setLoadingCustomerData(false);
+            }
+        };
+
+        fetchCustomerData();
+    }, [user]);
+
+    // 3) Só quando accountId mudar e for diferente de 0, busca carteira e saldo USD
+    useEffect(() => {
+        if (!accountId) return;
+
+        // você já tem as funções definidas abaixo
+        fetchUsdWallet();
+        fetchWallet();
+    }, [accountId]);
 
     async function fetchUsdWallet(){
         try {

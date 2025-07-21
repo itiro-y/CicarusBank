@@ -9,6 +9,7 @@ import Swal from 'sweetalert2';
 import AppAppBar from '../../components/AppAppBar.jsx';
 import CreditCard from '../../components/CreditCard.jsx';
 import { useUser } from '../../context/UserContext.jsx';
+import AddPhysicalCardDialog from '../../components/AddPhysicalCardDialog.jsx';
 
 // Ícones
 import LockIcon from '@mui/icons-material/Lock';
@@ -20,6 +21,8 @@ import TuneIcon from '@mui/icons-material/Tune';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
+const accountId = localStorage.getItem('accountId');
+
 // --- Componente do Dialog de 2FA ---
 const TwoFactorAuthDialog = ({ open, onClose, onSubmit, loading, error }) => {
     const [code, setCode] = useState('');
@@ -27,15 +30,14 @@ const TwoFactorAuthDialog = ({ open, onClose, onSubmit, loading, error }) => {
     const handleSubmit = () => {
         if (code.length === 6) {
             onSubmit(code);
-            setCode(''); // Limpa o código após o envio
+            setCode('');
         }
     };
 
     const handleClose = () => {
-        setCode(''); // Limpa o código ao fechar
+        setCode('');
         onClose();
     };
-
 
     return (
         <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
@@ -43,7 +45,7 @@ const TwoFactorAuthDialog = ({ open, onClose, onSubmit, loading, error }) => {
             <DialogContent sx={{ textAlign: 'center' }}>
                 <LockIcon color="primary" sx={{ fontSize: 40, mb: 2 }} />
                 <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-                    Enviamos um código de 6 dígitos para o seu dispositivo. Insira-o abaixo para continuar.
+                    Enviamos um código de 6 dígitos para o seu e-mail. Insira-o abaixo para continuar.
                 </Typography>
                 <TextField
                     label="Código de Verificação"
@@ -107,6 +109,7 @@ export default function CardManagementPage() {
     const [otpCode, setOtpCode] = useState(null);
     const { user } = useUser();
 
+
     useEffect(() => {
         fetchCards();
     }, []);
@@ -114,7 +117,12 @@ export default function CardManagementPage() {
     async function fetchCards() {
         setLoading(true);
         try {
-            const res = await fetch(`${API_URL}/card/list/1`);
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${API_URL}/card/list/${accountId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             const physicalCards = await res.json();
             const storedVirtualCards = JSON.parse(localStorage.getItem('virtualCards')) || [];
             const now = new Date().getTime();
@@ -132,7 +140,6 @@ export default function CardManagementPage() {
     }
 
     const handleCardClick = (card) => {
-        // ATUALIZAÇÃO: Exibe um alerta para cartões cancelados em vez de abrir os detalhes.
         if (card.status === 'CANCELED') {
             Swal.fire({
                 icon: 'error',
@@ -142,21 +149,32 @@ export default function CardManagementPage() {
             });
             return;
         }
-        // generate 6-digit OTP and send via email
-        const code = Math.floor(100000 + Math.random() * 900000).toString();
-        setOtpCode(code);
-        // send OTP via Notification microservice
-        fetch(`${API_URL}/notification/send/${user.id}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            title: 'Código de Acesso Cartão',
-            message: `Seu código de acesso é ${code}`,
-            fullDescription: '',
-            timestamp: new Date().toISOString(),
-            read: false
-          })
+
+        if (!user || !user.email) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro',
+                text: 'Não foi possível encontrar o e-mail do usuário para enviar o código.',
+            });
+            return;
+        }
+
+        const accountId = localStorage.getItem('accountId'); // ou de onde você obtiver o ID
+        const token = localStorage.getItem('token');
+
+        fetch(`${API_URL}/notification/email/send/${accountId}`, { // <-- ID NA URL
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            // Corpo SEM o e-mail do destinatário
+            body: JSON.stringify({
+                channel: 'EMAIL',
+                message: `Olá, seu código de acesso para o cartão é: ${code}`
+            })
         }).catch(console.error);
+
         setSelectedCard(card);
         setTwoFaDialogOpen(true);
     };
@@ -177,7 +195,12 @@ export default function CardManagementPage() {
         try {
             await new Promise(resolve => setTimeout(resolve, 1000));
             if (code !== otpCode) throw new Error('Código de verificação inválido.');
-            const res = await fetch(`${API_URL}/card/${selectedCard.id}`);
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${API_URL}/card/${selectedCard.id}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             if (!res.ok) throw new Error('Falha ao buscar os detalhes do cartão.');
             const fullDetails = await res.json();
             setFullCardDetails(fullDetails);
@@ -207,7 +230,13 @@ export default function CardManagementPage() {
             return;
         }
         try {
-            await fetch(`${API_URL}/card/${action}/${id}`, { method: 'PUT' });
+            const token = localStorage.getItem('token');
+            await fetch(`${API_URL}/card/${action}/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             await fetchCards();
             handleDetailsDialogClose();
         } catch (err) {
@@ -241,12 +270,19 @@ export default function CardManagementPage() {
                 ) : (
                     <Grid container spacing={4}>
                         {cards.map(card => (
-                            <Grid key={card.id} xs={12} sm={6} md={4}>
+                            <Grid item key={card.id} xs={12} sm={6} md={4}>
                                 <CreditCard card={card} onClick={() => handleCardClick(card)} />
                             </Grid>
                         ))}
                     </Grid>
                 )}
+
+                {/* --- DIALOGS --- */}
+                <AddPhysicalCardDialog
+                    open={addDialogOpen}
+                    onClose={handleAddDialogClose}
+                    onCardAdded={fetchCards}
+                />
 
                 <TwoFactorAuthDialog
                     open={twoFaDialogOpen}

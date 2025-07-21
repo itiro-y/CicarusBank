@@ -19,7 +19,8 @@ export default function SignInCard({ onSwitchToSignUp }) {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const navigate = useNavigate();
-    const API_URL = import.meta.env.VITE_API_URL || 'http://172.203.234.78:8765';
+    const API_URL = import.meta.env.VITE_API_URL || '';
+    // const API_URL = import.meta.env.VITE_API_URL || 'http://172.203.234.78:8765';
 
   const logoStyle = {
     width: "200px",

@@ -1,7 +1,7 @@
-package com.cicarus.investment.dtos;
+package com.cicarus.investment.dtos.crypto;
 
-import com.cicarus.investment.model.CryptoStatus;
-import com.cicarus.investment.model.CryptoType;
+import com.cicarus.investment.model.crypto.CryptoStatus;
+import com.cicarus.investment.model.crypto.CryptoType;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
@@ -20,16 +20,11 @@ public record CryptoRequestDto(
         CryptoStatus status,
 
         @NotNull
-        @DecimalMin("0.0")
         BigDecimal amountInvested,
 
         @NotNull
         BigDecimal currentValue,
 
         @NotNull
-        BigDecimal cryptoMultiplier,
-
-        @NotNull
-        @PastOrPresent
-        Date startDate
+        BigDecimal cryptoMultiplier
 ) {}

@@ -12,15 +12,15 @@ public class CustomerBenefit {
     private Long id;
 
     @Column(nullable = false)
-    private Long customerId; 
+    private Long customerId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "benefit_id", nullable = false)
-    private Benefit benefit; 
+    private Benefit benefit;
 
     private LocalDate activationDate;
-    private LocalDate expirationDate; 
-    private boolean activated; 
+    private LocalDate expirationDate;
+    private boolean activated;
 
     public CustomerBenefit() {
     }
@@ -34,7 +34,7 @@ public class CustomerBenefit {
         this.activated = activated;
     }
 
-    
+
     public Long getId() {
         return id;
     }

@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "benefits") 
+@Table(name = "benefits") // Nome da tabela no banco de dados
 public class Benefit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,14 +18,14 @@ public class Benefit {
     @Column(nullable = false, length = 1000)
     private String description;
 
-    @Enumerated(EnumType.STRING) 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private BenefitType type; 
+    private BenefitType type;
 
-    private BigDecimal value; 
-    private LocalDate validUntil; 
+    private BigDecimal value;
+    private LocalDate validUntil;
 
-    private boolean active; 
+    private boolean active;
 
     public Benefit() {
     }
@@ -40,7 +40,7 @@ public class Benefit {
         this.active = active;
     }
 
-    
+
     public Long getId() {
         return id;
     }

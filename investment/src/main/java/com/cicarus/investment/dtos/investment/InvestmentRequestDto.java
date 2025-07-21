@@ -1,7 +1,7 @@
-package com.cicarus.investment.dtos;
+package com.cicarus.investment.dtos.investment;
 
-import com.cicarus.investment.model.InvestmentStatus;
-import com.cicarus.investment.model.InvestmentType;
+import com.cicarus.investment.model.investment.InvestmentStatus;
+import com.cicarus.investment.model.investment.InvestmentType;
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
@@ -15,8 +15,7 @@ public record InvestmentRequestDto(
         @NotEmpty @Positive BigDecimal amountInvested,
         @NotEmpty BigDecimal currentValue,
         @NotEmpty @DecimalMin("0.0") BigDecimal expectedReturnRate,
-        @NotNull @PastOrPresent Date startDate,
-        @NotNull @FutureOrPresent Date endDate,
+        @FutureOrPresent Date endDate,
         @NotEmpty Boolean autoRenew
 ) {}
 

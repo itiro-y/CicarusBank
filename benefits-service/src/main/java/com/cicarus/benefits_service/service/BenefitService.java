@@ -26,7 +26,6 @@ public class BenefitService {
     @Autowired
     private CustomerBenefitRepository customerBenefitRepository;
 
-    
 
     @Transactional
     public BenefitResponse createBenefit(BenefitRequest request) {
@@ -44,7 +43,7 @@ public class BenefitService {
     @Transactional(readOnly = true)
     public BenefitResponse getBenefitById(Long id) {
         Benefit benefit = benefitRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Benefit not found with id: " + id)); 
+                .orElseThrow(() -> new RuntimeException("Benefit not found with id: " + id));
         return convertToBenefitResponse(benefit);
     }
 
@@ -85,24 +84,19 @@ public class BenefitService {
         benefitRepository.deleteById(id);
     }
 
-    
-
     @Transactional
     public CustomerBenefitResponse activateBenefitForCustomer(CustomerBenefitRequest request) {
-        
         Benefit benefit = benefitRepository.findById(request.getBenefitId())
                 .orElseThrow(() -> new RuntimeException("Benefit not found with id: " + request.getBenefitId()));
 
-        
         Optional<CustomerBenefit> existingCustomerBenefit = customerBenefitRepository.findByCustomerIdAndBenefitId(request.getCustomerId(), request.getBenefitId());
 
         if (existingCustomerBenefit.isPresent()) {
             CustomerBenefit cb = existingCustomerBenefit.get();
-            
             if (!cb.isActivated() || (request.isActivated() && cb.getExpirationDate() != null && cb.getExpirationDate().isBefore(LocalDate.now()))) {
                 cb.setActivated(true);
                 cb.setActivationDate(LocalDate.now());
-                cb.setExpirationDate(request.getExpirationDate()); 
+                cb.setExpirationDate(request.getExpirationDate());
                 cb = customerBenefitRepository.save(cb);
                 return convertToCustomerBenefitResponse(cb);
             } else {
@@ -124,7 +118,7 @@ public class BenefitService {
     public CustomerBenefitResponse deactivateBenefitForCustomer(Long customerBenefitId) {
         CustomerBenefit customerBenefit = customerBenefitRepository.findById(customerBenefitId)
                 .orElseThrow(() -> new RuntimeException("Customer Benefit not found with id: " + customerBenefitId));
-        customerBenefit.setActivated(false); 
+        customerBenefit.setActivated(false);
         customerBenefit = customerBenefitRepository.save(customerBenefit);
         return convertToCustomerBenefitResponse(customerBenefit);
     }
@@ -144,8 +138,7 @@ public class BenefitService {
                 .collect(Collectors.toList());
     }
 
-
-    
+    // --- Métodos de Conversão (Entity <-> DTO) ---
 
     private BenefitResponse convertToBenefitResponse(Benefit benefit) {
         return new BenefitResponse(
@@ -163,7 +156,7 @@ public class BenefitService {
         return new CustomerBenefitResponse(
                 customerBenefit.getId(),
                 customerBenefit.getCustomerId(),
-                convertToBenefitResponse(customerBenefit.getBenefit()), 
+                convertToBenefitResponse(customerBenefit.getBenefit()),
                 customerBenefit.getActivationDate(),
                 customerBenefit.getExpirationDate(),
                 customerBenefit.isActivated()

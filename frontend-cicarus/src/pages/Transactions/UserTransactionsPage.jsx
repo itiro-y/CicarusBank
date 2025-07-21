@@ -21,6 +21,7 @@ import {
 
 import AppAppBar from '../../components/AppAppBar.jsx';
 import { Link } from 'react-router-dom';
+import { useUser } from '../../context/UserContext.jsx';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -239,7 +240,10 @@ export function TransactionDialogs({ openWithdraw, onCloseWithdraw, onConfirmWit
 
 // --- Página Principal ---
 export default function UserTransactionsPage() {
-    const accountId = 1;
+    const { user } = useUser();
+    const [customerData, setCustomerData] = useState(null);
+    const [loadingCustomerData, setLoadingCustomerData] = useState(true);
+    const [accountId, setAccountId] = useState(null);
     const [openWithdraw, setOpenWithdraw] = useState(false);
     const [openDeposit,  setOpenDeposit]  = useState(false);
     const [openTransfer, setOpenTransfer] = useState(false);
@@ -252,11 +256,46 @@ export default function UserTransactionsPage() {
 
     const authHeader = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') || ''}` });
 
+    useEffect(() => {
+        const fetchCustomerData = async () => {
+            setLoadingCustomerData(true);
+            try {
+                const email = user?.name;
+                if (!email) {
+                    setLoadingCustomerData(false);
+                    return;
+                }
+
+                const response = await fetch(`${API_URL}/customers/profile/${email}`, {
+                    headers: authHeader()
+                });
+
+                if (!response.ok) throw new Error('Failed to fetch customer data');
+
+                const data = await response.json();
+                setCustomerData(data);
+                setAccountId(data.id);
+                setLoadingCustomerData(false);
+            } catch (error) {
+                console.error('Error fetching initial data:', error);
+                setLoadingCustomerData(false);
+            }
+        };
+
+        if (user) {
+            fetchCustomerData();
+        }
+    }, [user]);
+
+    useEffect(() => {
+        if (accountId) {
+            fetchAllData();
+        }
+    }, [accountId]);
+
     async function fetchAllData() {
         await Promise.all([ fetchBalance(), fetchHistory(), fetchTransactions() ]);
     }
-
-    useEffect(() => { fetchAllData(); }, []);
 
     async function fetchBalance() {
         setLoadingBalance(true);
@@ -264,7 +303,8 @@ export default function UserTransactionsPage() {
             const res = await fetch(`${API_URL}/account/${accountId}`, { headers: authHeader() });
             const data = await res.json();
             setBalance(data.balance);
-        } catch(error) { console.error("Erro ao buscar saldo:", error); }
+        } catch(error) {
+            console.error("Erro ao buscar saldo:", error); }
         finally { setLoadingBalance(false); }
     }
 
@@ -290,6 +330,7 @@ export default function UserTransactionsPage() {
     }
 
     async function handleTransaction(type, payload) {
+        if (!accountId) return;
         let body;
         switch (type) {
             case 'WITHDRAWAL': body = { accountId, transactionType: 'WITHDRAWAL', amount: payload }; break;

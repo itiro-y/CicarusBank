@@ -11,5 +11,5 @@ import java.util.Optional;
 public interface CustomerBenefitRepository extends JpaRepository<CustomerBenefit, Long> {
     List<CustomerBenefit> findByCustomerId(Long customerId);
     Optional<CustomerBenefit> findByCustomerIdAndBenefitId(Long customerId, Long benefitId);
-    List<CustomerBenefit> findByCustomerIdAndActivatedTrue(Long customerId); 
+    List<CustomerBenefit> findByCustomerIdAndActivatedTrue(Long customerId);
 }

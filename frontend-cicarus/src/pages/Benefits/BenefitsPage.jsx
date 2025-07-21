@@ -28,11 +28,13 @@ export default function BenefitsPage() {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+    const [coupons, setCoupons] = useState({}); // Novo estado para cupons
 
     const theme = useTheme();
-    const isDark = theme.palette.mode === 'dark';
+    // Você não precisa mais do isDark para controlar a cor do texto do título principal se usar text.primary ou text.secondary
+    // const isDark = theme.palette.mode === 'dark';
 
-    const API_URL = 'http://localhost:8800';
+    const API_URL = import.meta.env.VITE_API_URL || '';
 
     useEffect(() => {
         const fetchBenefits = async () => {
@@ -70,6 +72,12 @@ export default function BenefitsPage() {
         setSnackbarOpen(false);
     };
 
+    const copyToClipboard = (text) => {
+        navigator.clipboard.writeText(text).then(() => {
+            handleOpenSnackbar("Cupom copiado para a área de transferência!", "success");
+        });
+    };
+
     const handleActivateBenefit = async (benefitToActivate) => {
         try {
             const updatedBenefitData = {
@@ -89,6 +97,15 @@ export default function BenefitsPage() {
                     b.id === benefitToActivate.id ? { ...b, active: response.data.active } : b
                 )
             );
+
+            // Simula cupom (em vez de pegar do backend)
+            const fakeCoupon = `CICARUS-${benefitToActivate.id}-${Math.floor(Math.random() * 9000 + 1000)}`;
+
+            setCoupons(prev => ({
+                ...prev,
+                [benefitToActivate.id]: fakeCoupon,
+            }));
+
             handleOpenSnackbar(`Benefício "${response.data.name}" resgatado com sucesso!`, 'success');
         } catch (err) {
             console.error("Erro ao resgatar benefício:", err);
@@ -119,14 +136,16 @@ export default function BenefitsPage() {
         <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
             <AppAppBar title="Benefícios Disponíveis Para Todos" />
             <Container maxWidth="md" sx={{ py: 4, pt: 16 }}>
-                <Typography variant="h4" gutterBottom sx={{ mb: 4 }} color={isDark ? 'white' : 'black'}>
+                <Typography variant="h4" gutterBottom sx={{ mb: 4 }} color="text.primary"> {/* Alterado para text.primary */}
                     Benefícios Disponíveis Para Todos
                 </Typography>
 
                 {loading && (
                     <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
                         <CircularProgress />
-                        <Typography sx={{ ml: 2 }} color={isDark ? 'text.secondary' : 'text.secondary'}>Carregando benefícios...</Typography>
+                        <Typography sx={{ ml: 2 }} color="text.secondary">
+                            Carregando benefícios...
+                        </Typography>
                     </Box>
                 )}
 
@@ -137,7 +156,7 @@ export default function BenefitsPage() {
                 )}
 
                 {!loading && !pageError && benefits.length === 0 && (
-                    <Typography variant="h6" sx={{ textAlign: 'center', mt: 4 }} color={isDark ? 'text.secondary' : 'text.secondary'}>
+                    <Typography variant="h6" sx={{ textAlign: 'center', mt: 4 }} color="text.secondary">
                         Nenhum benefício padrão encontrado no momento.
                     </Typography>
                 )}
@@ -147,32 +166,29 @@ export default function BenefitsPage() {
                         {benefits.map((benefit) => (
                             <Paper
                                 key={benefit.id}
-                                elevation={4}
+                                elevation={0} // Alterado para 0, como na Dashboard
                                 sx={{
                                     p: 3,
                                     borderRadius: '16px',
-                                    background: isDark
-                                        ? 'linear-gradient(135deg, #2e2e2e, #4b4b4b)'
-                                        : 'linear-gradient(135deg, #f5f5f5, #dcdcdc)',
-                                    color: isDark ? 'white' : 'black',
-                                    border: isDark
-                                        ? '1px solid rgba(255, 255, 255, 0.08)'
-                                        : '1px solid rgba(0, 0, 0, 0.05)',
-                                    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                                    // Utiliza as cores do tema para o fundo e borda, como na Dashboard
+                                    backgroundColor: 'background.paper',
+                                    border: '1px solid',
+                                    borderColor: 'divider',
+                                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)', // Um boxShadow mais suave
                                     transition: 'all 0.3s ease-in-out',
                                     '&:hover': {
                                         transform: 'translateY(-4px)',
-                                        boxShadow: '0 6px 20px rgba(0,0,0,0.3)',
+                                        boxShadow: '0 6px 20px rgba(0,0,0,0.15)', // Um boxShadow mais suave no hover
                                     },
                                 }}
                             >
                                 <Stack spacing={1}>
-                                    <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', fontWeight: 'bold' }} color={isDark ? 'text.primary' : 'text.primary'}>
+                                    <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', fontWeight: 'bold' }} color="text.primary">
                                         <CardGiftcard sx={{ mr: 1, color: 'orange' }} />
                                         {benefit.name}
                                     </Typography>
 
-                                    <Typography variant="body2" sx={{ mb: 1 }} color={isDark ? 'text.secondary' : 'text.secondary'}>
+                                    <Typography variant="body2" sx={{ mb: 1 }} color="text.secondary">
                                         {benefit.description}
                                     </Typography>
 
@@ -208,14 +224,25 @@ export default function BenefitsPage() {
                                             </Grid>
                                         )}
 
-                                        <Grid item>
+                                        <Grid item xs={12} sm="auto">
                                             {benefit.active ? (
-                                                <Chip
-                                                    icon={<CheckCircleOutline />}
-                                                    label="Resgatado"
-                                                    color="success"
-                                                    variant="filled"
-                                                />
+                                                <Stack spacing={1} direction={{ xs: 'column', sm: 'row' }} alignItems="center">
+                                                    <Chip
+                                                        icon={<CheckCircleOutline />}
+                                                        label="Resgatado"
+                                                        color="success"
+                                                        variant="filled"
+                                                    />
+                                                    {coupons[benefit.id] && (
+                                                        <Chip
+                                                            label={`Cupom: ${coupons[benefit.id]}`}
+                                                            variant="outlined"
+                                                            color="primary"
+                                                            onClick={() => copyToClipboard(coupons[benefit.id])}
+                                                            sx={{ cursor: 'pointer' }}
+                                                        />
+                                                    )}
+                                                </Stack>
                                             ) : (
                                                 <Button
                                                     variant="contained"
@@ -236,7 +263,6 @@ export default function BenefitsPage() {
                 )}
             </Container>
 
-            {/* Snackbar para mensagens de sucesso/erro */}
             <Snackbar
                 open={snackbarOpen}
                 autoHideDuration={6000}

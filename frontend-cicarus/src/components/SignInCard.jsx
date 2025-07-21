@@ -48,6 +48,8 @@ const handleSubmit = async (event) => {
     const result = await response.json();
     localStorage.setItem("token", result.token);
 
+
+
     Swal.fire({
       title: "Login Efetuado!",
       text: "Seja bem-vindo de volta.",

@@ -1,15 +1,15 @@
 services:
-#  frontend-cicarus:
-#    build:
-#      context: ./frontend-cicarus
-#      dockerfile: Dockerfile
-#    container_name: frontend-cicarus
-#    ports:
-#      - "3000:80"        # Mapeia a porta 80 do container para 3000 da máquina host
-#    depends_on:
-#      - customer-service  # Se quiser garantir que o backend esteja rodando antes
-#    networks:
-#      - cicarus-net
+  frontend-cicarus:
+    build:
+      context: ./frontend-cicarus
+      dockerfile: Dockerfile
+    container_name: frontend-cicarus
+    ports:
+      - "80:80"        # Mapeia a porta 80 do container para 80 da máquina host
+    depends_on:
+      - customer-service  # Se quiser garantir que o backend esteja rodando antes
+    networks:
+      - cicarus-net
 
   kafka:
     image: bitnami/kafka:3.5

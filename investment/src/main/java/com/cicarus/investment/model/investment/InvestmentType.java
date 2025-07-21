@@ -1,4 +1,4 @@
-package com.cicarus.investment.model;
+package com.cicarus.investment.model.investment;
 
 public enum InvestmentType {
     RENDA_FIXA,

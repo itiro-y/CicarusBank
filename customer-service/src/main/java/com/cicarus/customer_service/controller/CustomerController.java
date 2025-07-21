@@ -36,10 +36,6 @@ public class CustomerController {
 
     @GetMapping("/profile/{email}")
     public ResponseEntity<CustomerResponse> getCustomerByEmail(@PathVariable String email) {
-//        Customer customer = repository.findByEmail(email)
-//                .orElseThrow(() -> new RuntimeException("Customer not found"));
-//        CustomerResponse response = new CustomerResponse();
-//        BeanUtils.copyProperties(customer, response);
         return ResponseEntity.ok(service.findByEmail(email));
     }
 
@@ -51,7 +47,6 @@ public class CustomerController {
     }
 
 
-    //Endpoint que retorna BriefCustomerDto (objeto que contem apenas alguns atributos do customer - id, nome e email)
     @GetMapping("/brief/{id}")
     public ResponseEntity<BriefCustomerDto> getBriefCustomerById(@PathVariable Long id) {
         CustomerResponse customer = service.getById(id);

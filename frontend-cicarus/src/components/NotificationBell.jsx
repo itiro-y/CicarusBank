@@ -126,9 +126,16 @@ export default function NotificationBell() {
 
 
     // Carrega notificações do banco ao montar o componente
+    const authHeader = () => {
+        const token = localStorage.getItem('token') || '';
+        return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+    };
+
     const fetchNotifications = async () => {
         try {
-            const response = await fetch(`${API_URL}/notification/websocket/${userId}`);
+            const response = await fetch(`${API_URL}/notification/websocket/${userId}`, {
+                headers: authHeader()
+            });
             const data = await response.json();
             setNotifications(data);
         } catch (error) {

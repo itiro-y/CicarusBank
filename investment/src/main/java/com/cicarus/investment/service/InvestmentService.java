@@ -1,11 +1,12 @@
 package com.cicarus.investment.service;
 
-import com.cicarus.investment.dtos.InvestmentDto;
-import com.cicarus.investment.dtos.InvestmentRequestDto;
-import com.cicarus.investment.model.Investment;
+import com.cicarus.investment.dtos.investment.InvestmentDto;
+import com.cicarus.investment.dtos.investment.InvestmentRequestDto;
+import com.cicarus.investment.model.investment.Investment;
 import com.cicarus.investment.repository.InvestmentRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -58,7 +59,7 @@ public class InvestmentService {
         investment.setAmountInvested(request.amountInvested());
         investment.setCurrentValue(request.currentValue());
         investment.setExpectedReturnRate(request.expectedReturnRate());
-        investment.setStartDate(request.startDate());
+        investment.setStartDate(new Date());
         investment.setEndDate(request.endDate());
         investment.setAutoRenew(request.autoRenew());
         return investment;

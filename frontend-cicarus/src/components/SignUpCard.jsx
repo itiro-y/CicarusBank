@@ -129,14 +129,13 @@ function SignUpCard({ onSwitchToSignIn }) {
     };
 
     return (
-        // AQUI ESTÁ A CORREÇÃO DO FUNDO DO CARD
+
         <Card sx={{
             width: '100%',
             maxWidth: 600,
             p: 4,
-            // Fundo semi-transparente que se adapta ao tema
             backgroundColor: theme.palette.mode === 'dark' ? 'rgba(40, 45, 52, 0.85)' : 'rgba(255, 255, 255, 0.7)',
-            backdropFilter: 'blur(10px)', // Efeito de vidro fosco
+            backdropFilter: 'blur(10px)',
             border: '1px solid',
             borderColor: 'divider',
             borderRadius: '16px',

@@ -1,4 +1,4 @@
-package com.cicarus.investment.model;
+package com.cicarus.investment.model.crypto;
 
 import jakarta.persistence.*;
 

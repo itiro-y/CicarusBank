@@ -4,11 +4,12 @@ import { useState, useEffect } from 'react'; // Add this import
 import { useNavigate } from 'react-router-dom';
 import {
     Box, Container, Typography, Grid, Paper, IconButton,
-    List, ListItem, ListItemAvatar, Avatar, ListItemText, Divider, Stack, Button, useTheme, Skeleton
+    List, ListItem, ListItemAvatar, Avatar, ListItemText, Divider, Stack, Button, useTheme, Skeleton, Chip
 } from '@mui/material';
 import {
     Visibility, VisibilityOff, ArrowUpward, ArrowDownward,
-    Pix, ReceiptLong, Smartphone, TrendingUp, Article, Tune, Lock, AddCard, WifiProtectedSetup, ErrorOutline
+    Pix, ReceiptLong, Smartphone, TrendingUp, Article, Tune, Lock, AddCard, WifiProtectedSetup, ErrorOutline,
+    CheckCircleOutline, HourglassTop
 } from '@mui/icons-material';
 import { SiVisa, SiMastercard, SiAmericanexpress } from 'react-icons/si';
 import { FaCreditCard } from 'react-icons/fa';
@@ -298,6 +299,33 @@ const CardManagementActions = () => {
     );
 };
 
+// --- NOVO COMPONENTE DE STATUS ---
+function StatusChip({ status }) {
+    let color = 'default';
+    let label = status;
+    let icon = null;
+
+    switch (status) {
+        case 'COMPLETED':
+            color = 'success';
+            label = 'Completa';
+            icon = <CheckCircleOutline sx={{ fontSize: '1rem' }} />;
+            break;
+        case 'PENDING':
+            color = 'warning';
+            label = 'Pendente';
+            icon = <HourglassTop sx={{ fontSize: '1rem' }} />;
+            break;
+        case 'FAILED':
+            color = 'error';
+            label = 'Falhou';
+            icon = <ErrorOutline sx={{ fontSize: '1rem' }} />;
+            break;
+    }
+
+    return <Chip icon={icon} label={label} color={color} size="small" variant="outlined" sx={{ height: 24, fontSize: '0.75rem'}} />;
+}
+
 const RecentTransactions = ({ transactions, loading }) => (
     <Paper elevation={0} sx={{ p: 3, borderRadius: '16px', backgroundColor: 'background.paper', border: '1px solid', borderColor: 'divider', height: '100%' }}>
         <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>Últimas Transações</Typography>
@@ -308,14 +336,24 @@ const RecentTransactions = ({ transactions, loading }) => (
             <List disablePadding>
                 {transactions.map((tx, index) => (
                     <React.Fragment key={tx.id}>
-                        <ListItem disablePadding sx={{ py: 1 }}>
+                        <ListItem disablePadding sx={{ py: 1.5 }}>
                             <ListItemAvatar>
                                 <Avatar sx={{ bgcolor: 'action.hover' }}>{tx.icon}</Avatar>
                             </ListItemAvatar>
-                            <ListItemText primaryTypographyProps={{ fontWeight: 'medium' }} primary={tx.store} secondary={tx.type} />
-                            <Typography variant="body1" sx={{ fontWeight: 'bold', color: tx.amount > 0 ? 'success.main' : 'error.main' }}>
-                                {tx.amount > 0 ? '+' : '-'} R$ {Math.abs(tx.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                            </Typography>
+                            <ListItemText 
+                                primaryTypographyProps={{ fontWeight: 'medium' }} 
+                                primary={tx.store || tx.type} // Fallback para tx.type se store não existir
+                                secondary={<StatusChip status={tx.transactionStatus} />}
+                                secondaryTypographyProps={{ component: 'div' }} // Evita erro de hidratação
+                            />
+                            <Box sx={{ textAlign: 'right' }}>
+                                <Typography variant="body1" sx={{ fontWeight: 'bold', color: tx.amount > 0 ? 'success.main' : 'error.main' }}>
+                                    {tx.amount > 0 ? '+' : '-'} R$ {Math.abs(tx.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                                    {new Date(tx.timestamp).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
+                                </Typography>
+                            </Box>
                         </ListItem>
                         {index < transactions.length - 1 && <Divider />}
                     </React.Fragment>

@@ -159,10 +159,7 @@ export default function UserInvestmentsPage() {
         const token = localStorage.getItem('token') || '';
         return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
     };
-    const { user } = useUser();
-    const [accountId, setAccountId] = useState(0);
-    const [customerData, setCustomerData] = useState(null);
-    const [loadingCustomerData, setLoadingCustomerData] = useState(false);
+    const accountId = localStorage.getItem('accountId');
 
     const [investments, setInvestments] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -392,39 +389,6 @@ export default function UserInvestmentsPage() {
         setTotalInvested(usd);
     }, [rendaFixaInvestments, fundoImobInvestments, acoesInvestments, criptoInvestments]);
 
-    useEffect(() => {
-        if (!user) return;  // só roda quando 'user' estiver disponível
-
-        const fetchCustomerData = async () => {
-            setLoadingCustomerData(true);
-            try {
-                const email = user.name;
-                if (!email) {
-                    setLoadingCustomerData(false);
-                    return;
-                }
-
-                const response = await fetch(
-                    `${API_URL}/customers/profile/${email}`,
-                    { headers: authHeader() }
-                );
-
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch customer data (${response.status})`);
-                }
-
-                const data = await response.json();
-                setCustomerData(data);
-                setAccountId(data.id);
-            } catch (error) {
-                console.error('Error fetching initial data:', error);
-            } finally {
-                setLoadingCustomerData(false);
-            }
-        };
-
-        fetchCustomerData();
-    }, [user, setAccountId]);
 
     async function fetchInvestments() {
         setLoading(true);

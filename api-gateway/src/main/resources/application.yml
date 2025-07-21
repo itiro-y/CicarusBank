@@ -1,5 +1,10 @@
 server:
-  port: 8765
+  port: 8443
+  ssl:
+    enabled: true
+    key-store: classpath:keystore.p12
+    key-store-password: Morteaolombok123
+    key-store-type: PKCS12
 
 eureka:
   client:

@@ -186,7 +186,7 @@ services:
     build:
       context: ./api-gateway # Path to api-gateway project
     ports:
-      - "8765:8765"
+      - "443:8443"
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
     depends_on:

@@ -15,6 +15,13 @@ import {
 import Swal from "sweetalert2";
 import ForgotPassword from "./ForgotPassword.jsx";
 
+const API_URL = import.meta.env.VITE_API_URL || '';
+
+const authHeader = () => {
+    const token = localStorage.getItem('token') || '';
+    return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+};
+
 export default function SignInCard({ onSwitchToSignUp }) {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
@@ -26,51 +33,62 @@ export default function SignInCard({ onSwitchToSignUp }) {
     filter: theme.palette.mode === "dark" ? "brightness(0) invert(1)" : "none",
   };
 
-const handleSubmit = async (event) => {
-  event.preventDefault();
-  const data = new FormData(event.currentTarget);
-  const username = data.get("username");
-  const password = data.get("password");
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        const form = new FormData(event.currentTarget);
+        const username = form.get("username"); // email do usuário
+        const password = form.get("password");
 
-  try {
-    const response = await fetch("http://localhost:8765/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    });
+        try {
+            // 1) Faz login e armazena token
+            const loginRes = await fetch(`${API_URL}/auth/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password }),
+            });
+            if (!loginRes.ok) throw new Error("Usuário ou senha inválidos.");
+            const { token } = await loginRes.json();
+            localStorage.setItem("token", token);
 
-    if (!response.ok) {
-      throw new Error("Usuário ou senha inválidos.");
-    }
+            // 2) Busca perfil do cliente usando o email (username) como no seu useEffect
+            const profileRes = await fetch(
+                `${API_URL}/customers/profile/${username}`,
+                { headers: authHeader() }
+            );
+            if (!profileRes.ok) {
+                throw new Error(`Failed to fetch customer data (${profileRes.status})`);
+            }
+            const profileData = await profileRes.json();
+            localStorage.setItem("accountId", profileData.id);
 
-    const result = await response.json();
-    localStorage.setItem("token", result.token);
+            // 3) Notifica e navega
+            Swal.fire({
+                title: "Login Efetuado!",
+                text: "Seja bem-vindo de volta.",
+                icon: "success",
+                timer: 2000,
+                showConfirmButton: false,
+                background: theme.palette.background.paper,
+                color: theme.palette.text.primary,
+                timerProgressBar: true,
+                didClose: () => navigate("/dashboard"),
+            });
 
-    Swal.fire({
-      title: "Login Efetuado!",
-      text: "Seja bem-vindo de volta.",
-      icon: "success",
-      timer: 2000,
-      showConfirmButton: false,
-      background: theme.palette.background.paper,
-      color: theme.palette.text.primary,
-      timerProgressBar: true,
-      didClose: () => {
-        navigate("/dashboard");
-      },
-    });
-  } catch (error) {
-    Swal.fire({
-      title: "Erro!",
-      text: error.message,
-      icon: "error",
-      confirmButtonText: "Tentar Novamente",
-      background: theme.palette.background.paper,
-      color: theme.palette.text.primary,
-      confirmButtonColor: theme.palette.primary.main,
-    });
-  }
-};
+        } catch (error) {
+            console.error("Erro no login/perfil:", error);
+            Swal.fire({
+                title: "Erro!",
+                text: error.message,
+                icon: "error",
+                confirmButtonText: "Tentar Novamente",
+                background: theme.palette.background.paper,
+                color: theme.palette.text.primary,
+                confirmButtonColor: theme.palette.primary.main,
+            });
+        }
+    };
+
+
   const handleForgotPasswordOpen = () => setOpen(true);
   const handleForgotPasswordClose = () => setOpen(false);
 

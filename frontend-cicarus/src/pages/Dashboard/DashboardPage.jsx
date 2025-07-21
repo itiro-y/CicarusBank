@@ -447,12 +447,25 @@ export default function DashboardPage() {
             if (!res.ok) throw new Error(`Failed to fetch transactions: ${res.status}`);
             const rawTransactions = await res.json();
 
-            // Palavras-chave que indicam uma transação de débito (saída de dinheiro).
-            const DEBIT_KEYWORDS = ['compra', 'pagamento', 'transferência', 'pix', 'recarga', 'saque', 'débito'];
-
             const processedTransactions = rawTransactions.map(tx => {
-                // A API pode retornar todos os valores como positivos, então verificamos o tipo.
-                const isDebit = DEBIT_KEYWORDS.some(keyword => tx.type.toLowerCase().includes(keyword));
+                let isDebit;
+                const transactionType = tx.transactionType || '';
+
+                // Prioritize structured transactionType for core types
+                if (transactionType === 'TRANSFER') {
+                    isDebit = tx.accountId === currentAccountId; // Debit only if user is the sender
+                } else if (transactionType === 'WITHDRAWAL' || transactionType === 'PAYMENT') {
+                    isDebit = true;
+                } else if (transactionType === 'DEPOSIT') {
+                    isDebit = false;
+                } else {
+                    // Fallback to keyword-based check for other types (e.g., PIX, compra)
+                    const descriptiveType = (tx.type || '').toLowerCase();
+                    // Note: 'transferência' is removed to avoid conflict with the specific check above.
+                    const DEBIT_KEYWORDS = ['compra', 'pagamento', 'pix', 'recarga', 'saque', 'débito', 'withdrawal'];
+                    isDebit = DEBIT_KEYWORDS.some(keyword => descriptiveType.includes(keyword));
+                }
+
                 const amount = isDebit ? -Math.abs(tx.amount) : Math.abs(tx.amount);
                 const icon = isDebit ? <ArrowDownward color="error" /> : <ArrowUpward color="success" />;
                 return { ...tx, amount, icon };

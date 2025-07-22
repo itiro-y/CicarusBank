@@ -12,18 +12,18 @@ spring:
     gateway:
       server:
         webflux:
-#          globalcors:
-#            corsConfigurations:
-#              '[/**]':
-#                allowedOrigins: "http://172.203.234.78:3000"
-#                allowedMethods:
-#                  - GET
-#                  - POST
-#                  - PUT
-#                  - DELETE
-#                  - OPTIONS
-#                allowedHeaders: "*"
-#                allowCredentials: true
+          #          globalcors:
+          #            corsConfigurations:
+          #              '[/**]':
+          #                allowedOrigins: "http://172.203.234.78:3000"
+          #                allowedMethods:
+          #                  - GET
+          #                  - POST
+          #                  - PUT
+          #                  - DELETE
+          #                  - OPTIONS
+          #                allowedHeaders: "*"
+          #                allowCredentials: true
           routes:
             - id: account
               uri: lb://account
@@ -71,8 +71,6 @@ spring:
               uri: lb://notification
               predicates:
                 - Path=/notification/**
-              filters:
-                - JwtAuthenticationFilter
 
             - id: card
               uri: lb://card
@@ -85,30 +83,30 @@ spring:
               uri: lb://statement-service
               predicates:
                 - Path=/statement-service/**
-#              filters:
-#                - AuthenticationFilter
+            #              filters:
+            #                - AuthenticationFilter
 
             - id: investment
               uri: lb://investment
               predicates:
                 - Path=/investment/**
-#              filters:
-#                - AuthenticationFilter
+            #              filters:
+            #                - AuthenticationFilter
 
 
             - id: investment-crypto
               uri: lb://investment
               predicates:
                 - Path=/crypto/**
-#              filters:
-#                - AuthenticationFilter
+            #              filters:
+            #                - AuthenticationFilter
 
             - id: investment-stock
               uri: lb://investment
               predicates:
                 - Path=/stock/**
-#              filters:
-#                - AuthenticationFilter
+            #              filters:
+            #                - AuthenticationFilter
 
             - id: benefits
               uri: lb://benefits

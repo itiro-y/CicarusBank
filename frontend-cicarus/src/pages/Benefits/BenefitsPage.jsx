@@ -15,7 +15,7 @@ import {
 import MuiAlert from '@mui/material/Alert';
 import { useTheme } from '@mui/material/styles';
 import AppAppBar from "../../components/AppAppBar";
-import { CardGiftcard, MonetizationOn, Event, CheckCircleOutline } from '@mui/icons-material';
+import { CardGiftcard, MonetizationOn, Event, CheckCircleOutline, ContentCopy } from '@mui/icons-material';
 
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -28,11 +28,9 @@ export default function BenefitsPage() {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
-    const [coupons, setCoupons] = useState({}); // Novo estado para cupons
+    const [coupons, setCoupons] = useState({});
 
     const theme = useTheme();
-    // Você não precisa mais do isDark para controlar a cor do texto do título principal se usar text.primary ou text.secondary
-    // const isDark = theme.palette.mode === 'dark';
 
     const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -43,6 +41,15 @@ export default function BenefitsPage() {
                 setPageError(null);
                 const response = await axios.get(`${API_URL}/benefits/list/all`);
                 setBenefits(response.data);
+
+                const initialCoupons = {};
+                response.data.forEach(benefit => {
+                    if (benefit.active) {
+                        initialCoupons[benefit.id] = `CICARUS-${benefit.id}-${Math.floor(Math.random() * 9000 + 1000)}`;
+                    }
+                });
+                setCoupons(initialCoupons);
+
             } catch (err) {
                 console.error("Erro ao buscar benefícios:", err);
                 setPageError("Não foi possível carregar os benefícios.");
@@ -75,6 +82,9 @@ export default function BenefitsPage() {
     const copyToClipboard = (text) => {
         navigator.clipboard.writeText(text).then(() => {
             handleOpenSnackbar("Cupom copiado para a área de transferência!", "success");
+        }).catch(err => {
+            console.error('Erro ao copiar:', err);
+            handleOpenSnackbar("Erro ao copiar o cupom.", "error");
         });
     };
 
@@ -92,19 +102,19 @@ export default function BenefitsPage() {
 
             const response = await axios.put(`${API_URL}/benefits/${benefitToActivate.id}`, updatedBenefitData);
 
-            setBenefits(prevBenefits =>
-                prevBenefits.map(b =>
-                    b.id === benefitToActivate.id ? { ...b, active: response.data.active } : b
-                )
-            );
 
-            // Simula cupom (em vez de pegar do backend)
             const fakeCoupon = `CICARUS-${benefitToActivate.id}-${Math.floor(Math.random() * 9000 + 1000)}`;
 
             setCoupons(prev => ({
                 ...prev,
                 [benefitToActivate.id]: fakeCoupon,
             }));
+
+            setBenefits(prevBenefits =>
+                prevBenefits.map(b =>
+                    b.id === benefitToActivate.id ? { ...b, active: response.data.active } : b
+                )
+            );
 
             handleOpenSnackbar(`Benefício "${response.data.name}" resgatado com sucesso!`, 'success');
         } catch (err) {
@@ -115,6 +125,8 @@ export default function BenefitsPage() {
                     errorMessage = "Você não está autorizado a resgatar este benefício. Faça login ou verifique suas permissões.";
                 } else if (err.response.status === 404) {
                     errorMessage = "Benefício não encontrado.";
+                } else if (err.response.status === 409) {
+                    errorMessage = "Este benefício já foi resgatado.";
                 }
             }
             handleOpenSnackbar(errorMessage, 'error');
@@ -136,7 +148,7 @@ export default function BenefitsPage() {
         <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
             <AppAppBar title="Benefícios Disponíveis Para Todos" />
             <Container maxWidth="md" sx={{ py: 4, pt: 16 }}>
-                <Typography variant="h4" gutterBottom sx={{ mb: 4 }} color="text.primary"> {/* Alterado para text.primary */}
+                <Typography variant="h4" gutterBottom sx={{ mb: 4 }} color="text.primary">
                     Benefícios Disponíveis Para Todos
                 </Typography>
 
@@ -166,19 +178,18 @@ export default function BenefitsPage() {
                         {benefits.map((benefit) => (
                             <Paper
                                 key={benefit.id}
-                                elevation={0} // Alterado para 0, como na Dashboard
+                                elevation={0}
                                 sx={{
                                     p: 3,
                                     borderRadius: '16px',
-                                    // Utiliza as cores do tema para o fundo e borda, como na Dashboard
                                     backgroundColor: 'background.paper',
                                     border: '1px solid',
                                     borderColor: 'divider',
-                                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)', // Um boxShadow mais suave
+                                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                                     transition: 'all 0.3s ease-in-out',
                                     '&:hover': {
                                         transform: 'translateY(-4px)',
-                                        boxShadow: '0 6px 20px rgba(0,0,0,0.15)', // Um boxShadow mais suave no hover
+                                        boxShadow: '0 6px 20px rgba(0,0,0,0.15)',
                                     },
                                 }}
                             >
@@ -234,13 +245,16 @@ export default function BenefitsPage() {
                                                         variant="filled"
                                                     />
                                                     {coupons[benefit.id] && (
-                                                        <Chip
-                                                            label={`Cupom: ${coupons[benefit.id]}`}
+                                                        <Button
                                                             variant="outlined"
                                                             color="primary"
+                                                            size="small"
+                                                            startIcon={<ContentCopy />}
                                                             onClick={() => copyToClipboard(coupons[benefit.id])}
-                                                            sx={{ cursor: 'pointer' }}
-                                                        />
+                                                            sx={{ mt: { xs: 1, sm: 0 } }}
+                                                        >
+                                                            Copiar Cupom
+                                                        </Button>
                                                     )}
                                                 </Stack>
                                             ) : (

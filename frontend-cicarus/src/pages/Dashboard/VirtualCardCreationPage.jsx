@@ -111,7 +111,7 @@ export default function VirtualCardCreationPage() {
                         <Typography variant="h5" sx={{ fontWeight: 'bold' }}>Estamos construindo seu cartão...</Typography>
                         <Typography color="text.secondary">Aguarde um momento.</Typography>
                         <img
-                            src="https://i.postimg.cc/sXG9j1z8/undraw-logic-re-2j2s-unscreen.gif"
+                            src="https://i.postimg.cc/26BXBX5g/credit-card-2.gif"
                             alt="Criando cartão"
                             style={{ width: '80%', maxWidth: '300px', margin: '2rem 0' }}
                         />

@@ -49,7 +49,7 @@ public class AccountController {
                 acc.getBalance(),
                 acc.getUsdWallet(),
                 acc.getEurWallet(),
-                List.of() // Empty list for history to avoid lazy loading issues
+                List.of() 
         );
     }
 
@@ -70,12 +70,12 @@ public class AccountController {
         Account acc = accountRepository.findByIdWithHistory(id)
                                         .orElseThrow(() -> new ResourceNotFoundException("Conta não encontrada"));
 
-        // Mapeia balanceHistory → BalanceHistoryDTO
+        
         List<BalanceHistoryDTO> historyDto = acc.getBalanceHistory().stream()
                                                                     .map(this::toHistoryDto)
                                                                     .toList();
 
-        // Monta e retorna o AccountDTO
+        
         AccountDTO dto = new AccountDTO(acc.getId(),
                                         acc.getUserId(),
                                         acc.getType().name(),
@@ -96,10 +96,10 @@ public class AccountController {
     public ResponseEntity<AccountDTO> createAccount(@RequestBody CreateAccountRequest request){
         Account account = new Account();
         account.setUserId(request.getUserId());
-        account.setType(AccountType.valueOf(request.getAccountType())); // Convert String to Enum
+        account.setType(AccountType.valueOf(request.getAccountType())); 
         account.setBalance(request.getBalance() != null ? request.getBalance() : BigDecimal.ZERO);
-        account.setUsdWallet(BigDecimal.ZERO); // Initialize as per Account constructor
-        account.setEurWallet(BigDecimal.ZERO); // Initialize as per Account constructor
+        account.setUsdWallet(BigDecimal.ZERO); 
+        account.setEurWallet(BigDecimal.ZERO); 
 
         Account savedAccount = accountRepository.save(account);
         return ResponseEntity.status(HttpStatus.CREATED).body(toDtoWithoutHistory(savedAccount));
@@ -144,7 +144,7 @@ public class AccountController {
             @PathVariable BigDecimal amount,
             @PathVariable TransactionType transactionType
     ) {
-        // 1) atualiza o saldo e salva
+        
         Account acc = accountRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         if (transactionType == TransactionType.DEPOSIT) {
@@ -154,17 +154,17 @@ public class AccountController {
         }
         accountRepository.save(acc);
 
-        // 2) registra o history
+        
         balanceHistoryRepository.save(new BalanceHistory(acc, acc.getBalance(), new Date()));
 
-        // 3) recarrega com fetch-join e mapeia para DTO
+        
         Account withHist = accountRepository.findByIdWithHistory(id)
                 .orElseThrow();
         return toDto(withHist);
     }
 
     private AccountDTO toDto(Account acc) {
-        // mapeia cada BalanceHistory → BalanceHistoryDTO
+        
         List<BalanceHistoryDTO> historyDto = acc.getBalanceHistory().stream()
                 .map(h -> new BalanceHistoryDTO(
                         h.getId(),
@@ -173,7 +173,7 @@ public class AccountController {
                 ))
                 .toList();
 
-        // monta e retorna o AccountDTO
+        
         return new AccountDTO(
                 acc.getId(),
                 acc.getUserId(),

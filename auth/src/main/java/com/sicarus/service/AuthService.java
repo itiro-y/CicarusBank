@@ -19,18 +19,18 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-//    private final CustomerServiceClient customerServiceClient;
+
 
 
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        JwtUtil jwtUtil
-//                       CustomerServiceClient customerServiceClient) {
+
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
-//        this.customerServiceClient = customerServiceClient;
+
     }
 
     public AuthResponse authenticate(AuthRequest request) {
@@ -42,7 +42,7 @@ public class AuthService {
         }
 
 
-        // gera o token com o JwtUtil atualizado
+        
         String token = jwtUtil.generateToken(user.getUsername(), user.getRoles());
         return new AuthResponse(token);
     }

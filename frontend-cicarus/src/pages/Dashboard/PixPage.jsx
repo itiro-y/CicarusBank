@@ -12,7 +12,6 @@ import {
     ArrowBack as ArrowBackIcon,
     CheckCircle as CheckCircleIcon,
     ErrorOutline as ErrorOutlineIcon,
-    ArrowForward as ArrowForwardIcon,
     Add as AddIcon,
     Close as CloseIcon,
     PhotoCamera,
@@ -22,15 +21,27 @@ import {
 import { FaPix } from "react-icons/fa6";
 import AppAppBar from '../../components/AppAppBar.jsx';
 import Swal from 'sweetalert2';
+import { useUser } from '../../context/UserContext.jsx';
 
-// --- DADOS E TIPOS ---
+const accountId = localStorage.getItem('accountId');
+
+const API_URL = import.meta.env.VITE_API_URL || '';
+
+const authHeader = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') || ''}` });
+
 const initialFavoriteContacts = [
-    { id: 1, name: 'Maria Silva', avatarUrl: 'https://i.pravatar.cc/150?u=maria', pixKey: 'maria.silva@email.com' },
-    { id: 2, name: 'João Santos', avatarUrl: 'https://i.pravatar.cc/150?u=joao', pixKey: '11987654321' },
-    { id: 3, name: 'Ana Costa', avatarUrl: 'https://i.pravatar.cc/150?u=ana', pixKey: '123.456.789-00' },
-    { id: 4, name: 'Lucas Souza', avatarUrl: 'https://i.pravatar.cc/150?u=lucas', pixKey: '8a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d' },
-    { id: 5, name: 'Beatriz Lima', avatarUrl: 'https://i.pravatar.cc/150?u=bia', pixKey: 'beatriz.lima@email.com' },
+    { id: 1, name: 'Maria Silva', avatarUrl: 'https://i.pravatar.cc/150?u=654', pixKey: 'maria.silva@email.com' },
+    { id: 2, name: 'João Santos', avatarUrl: 'https://i.pravatar.cc/150?u=657', pixKey: '11987654321' },
+    { id: 3, name: 'Ana Costa', avatarUrl: 'https://i.pravatar.cc/150?u=622', pixKey: '123.456.789-00' },
+    { id: 4, name: 'Lucas Souza', avatarUrl: 'https://i.pravatar.cc/150?u=b', pixKey: '8a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d' },
+    { id: 5, name: 'Beatriz Lima', avatarUrl: 'https://i.pravatar.cc/150?u=34', pixKey: 'beatriz.lima@email.com' },
 ];
+
+const LoadingDialog = ({ open }) => (
+    <Dialog open={open} PaperProps={{ style: { backgroundColor: 'transparent', boxShadow: 'none' } }}>
+        <img src="https://i.ibb.co/X697RzH/User.gif" alt="Carregando contatos..." style={{ width: '150px', height: '150px' }} />
+    </Dialog>
+);
 
 // --- COMPONENTES DE UI REFINADOS ---
 
@@ -137,13 +148,52 @@ const FavoritesModal = ({ open, onClose, contacts, onAddContact, onSelect }) => 
     );
 };
 
-// --- COMPONENTES PRINCIPAIS DA TELA ---
-
 const SendPixCard = ({ onContinue, onSelectFavorite, onShowAll, favorites }) => {
     const [pixKey, setPixKey] = useState('');
     const [amount, setAmount] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const theme = useTheme();
+    const { user } = useUser();                                // ← pega o usuário logado
+
+
+    async function handleTransaction() {
+        if (!accountId) return;
+
+        try {
+            localStorage.setItem("fromTransactionEmail", user.name);
+
+            const profileRes = await fetch(
+                `${API_URL}/customers/profile/${pixKey}`,
+                { headers: authHeader() }
+            );
+            if (!profileRes.ok) {
+                throw new Error(`Failed to fetch customer data (${profileRes.status})`);
+            }
+            const profileResponse = await profileRes.json();
+            localStorage.setItem("toTransactionEmail", profileResponse.email);
+
+            const payload = {
+                accountId: accountId,
+                accountToId: profileResponse.id,
+                transactionType: 'TRANSFER',
+                amount: amount
+            };
+
+            console.log('Payload:', payload);
+
+            const res = await fetch(`${API_URL}/transaction`, {
+                method: 'POST',
+                headers: authHeader(),
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok)
+                throw new Error(`Erro ${res.status}: ${await res.text()}`);
+
+        } catch (error) {
+            console.error(`Erro ao realizar PIX:`, error);
+        }
+    }
 
     const handlePaste = async () => {
         try {
@@ -160,7 +210,9 @@ const SendPixCard = ({ onContinue, onSelectFavorite, onShowAll, favorites }) => 
             return;
         }
         setIsLoading(true);
-        setTimeout(() => { // Simula verificação
+        handleTransaction();
+
+        setTimeout(() => {
             setIsLoading(false);
             onContinue(pixKey, amount);
         }, 1000);
@@ -256,17 +308,20 @@ const ActionsCard = () => (
     </Paper>
 );
 
-
-// --- TELAS DE CONFIRMAÇÃO E RESULTADO ---
-const ConfirmationScreen = ({ amount, onConfirm, onBack, isLoading }) => (
-    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}>
-        <Paper elevation={0} sx={{ p: 4, borderRadius: '24px', border: '1px solid', borderColor: 'divider', textAlign: 'center', position: 'relative' }}>
+const ConfirmationScreen = ({ amount, onConfirm, onBack, isLoading, nome, email }) => (
+    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} style={{
+        position: 'fixed',
+        top: '30%',
+        left: '35%',
+        zIndex: 1300
+    }}>
+        <Paper elevation={0} sx={{ p: 4, width: '500px', borderRadius: '24px', border: '1px solid', borderColor: 'divider', textAlign: 'center', position: 'relative' }}>
             <IconButton onClick={onBack} sx={{ position: 'absolute', top: 16, left: 16 }}>
                 <ArrowBackIcon />
             </IconButton>
             <Avatar sx={{ width: 80, height: 80, margin: 'auto', mb: 2, bgcolor: 'primary.light' }}>{'M'}</Avatar>
-            <Typography variant="h5" sx={{ fontWeight: 'bold' }}>Maria Joaquina</Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>CPF: ***.123.456-**</Typography>
+            <Typography variant="h5" sx={{ fontWeight: 'bold' }}>{nome}</Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>email: {email}</Typography>
             <Typography variant="h3" sx={{ fontWeight: 'bold', mb: 4, color: 'primary.main' }}>
                 R$ {parseFloat(amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </Typography>
@@ -291,13 +346,13 @@ const ResultScreen = ({ success, onReset }) => (
 );
 
 
-// --- COMPONENTE PAI DA PÁGINA ---
 export default function PixPage() {
     const [screen, setScreen] = useState('main'); // main, confirm, result
     const [paymentData, setPaymentData] = useState({ key: '', amount: '' });
     const [isSuccess, setIsSuccess] = useState(false);
     const [favoriteContacts, setFavoriteContacts] = useState(initialFavoriteContacts);
     const [favoritesModalOpen, setFavoritesModalOpen] = useState(false);
+    const [favoritesLoading, setFavoritesLoading] = useState(false);
     const [selectedFavorite, setSelectedFavorite] = useState({ key: null, id: null })
 
     const handleContinue = (key, amount) => {
@@ -305,8 +360,15 @@ export default function PixPage() {
         setScreen('confirm');
     };
 
+    const handleShowAll = () => {
+        setFavoritesLoading(true);
+        setTimeout(() => {
+            setFavoritesLoading(false);
+            setFavoritesModalOpen(true);
+        }, 2000); // Simula 2 segundos de carregamento
+    };
+
     const handleConfirmPayment = () => {
-        // Simulação de chamada de API
         setTimeout(() => {
             const paymentSucceeded = Math.random() > 0.2;
             setIsSuccess(paymentSucceeded);
@@ -346,7 +408,7 @@ export default function PixPage() {
                                             <Grid item xs={12} sm={8} md={6} lg={5}>
                                                 <SendPixCard
                                                     onContinue={handleContinue}
-                                                    onShowAll={() => setFavoritesModalOpen(true)}
+                                                    onShowAll={handleShowAll}
                                                     favorites={favoriteContacts}
                                                     onSelectFavorite={selectedFavorite}
                                                 />
@@ -360,7 +422,7 @@ export default function PixPage() {
                             )}
                             {screen === 'confirm' && (
                                 <motion.div key="confirm">
-                                    <ConfirmationScreen amount={paymentData.amount} onConfirm={handleConfirmPayment} onBack={handleReset} />
+                                    <ConfirmationScreen amount={paymentData.amount} onConfirm={handleConfirmPayment} onBack={handleReset} nome={localStorage.getItem('username')} email={localStorage.getItem("toTransactionEmail")} />
                                 </motion.div>
                             )}
                             {screen === 'result' && (
@@ -372,6 +434,7 @@ export default function PixPage() {
                     </Container>
                 </Box>
             </Box>
+            <LoadingDialog open={favoritesLoading} />
             <FavoritesModal
                 open={favoritesModalOpen}
                 onClose={() => setFavoritesModalOpen(false)}

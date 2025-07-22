@@ -114,6 +114,7 @@ function SignUpCard({ onSwitchToSignIn }) {
             });
             if (response.ok) {
                 handleOpenDialog('Sucesso!', 'Cadastro realizado com sucesso!');
+                localStorage.setItem('username', formData.name);
             } else {
                 handleOpenDialog("Erro no Cadastro", 'Não foi possível realizar o cadastro. Verifique se os dados estão corretos.');
             }

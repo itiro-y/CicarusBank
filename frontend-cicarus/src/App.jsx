@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import SignInPage from './pages/SignIn/SignIn.jsx';
 import DashboardPage from './pages/Dashboard/DashboardPage.jsx';
 import ProfilePage from './pages/Profile/ProfilePage.jsx';
@@ -9,7 +9,7 @@ import ExchangePage from './pages/CurrencyExchange/ExchangePage.jsx';
 import CardManagementPage from "./pages/Cards/CardManagementPage.jsx";
 import LoanSimulationPage from "./pages/Loans/LoanSimulationPage.jsx";
 import LoanTrackingPage from "./pages/Loans/LoanTrackingPage.jsx";
-import AdminDashboardPage from './pages/Dashboard/AdminDashboardPage.jsx';
+// import AdminDashboardPage from './pages/Dashboard/AdminDashboardPage.jsx';
 import AdminRoute from './components/AdminRoute.jsx';
 import NearbyAgenciesPage from './pages/NearbyAgencies/NearbyAgenciesPage.jsx';
 import PixPage from './pages/Dashboard/PixPage.jsx';
@@ -17,6 +17,7 @@ import MobileRechargePage from './pages/Dashboard/MobileRechargePage.jsx';
 import BenefitsPage from './pages/Benefits/BenefitsPage.jsx';
 import UserInvestmentsPage from "./pages/Investments/UserInvestmentsPage.jsx";
 import AdminInvestmentsPage from "./pages/Investments/AdminInvestmentsPage.jsx";
+import VoiceAssistant from './components/VoiceAssistant';
 // import InvestmentsPage from './pages/InvestmentsPage.jsx';
 import VirtualCardCreationPage from './pages/Dashboard/VirtualCardCreationPage.jsx';
 import ConnectedDevicesPage from "./pages/Profile/ConnectedDevicesPage.jsx";
@@ -29,6 +30,9 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { UserProvider } from './context/UserContext.jsx';
 
 function App() {
+    const location = useLocation();
+    const isSignInPage = location.pathname === '/' || location.pathname === '/login';
+
     return (
         <AppTheme>
             <UserProvider>
@@ -53,22 +57,23 @@ function App() {
                 <Route path="/connected-devices" element={<ConnectedDevicesPage />} />
                 <Route path="/investments/acoes" element={<StockInvestmentsPage />} />
 
-                <Route
-                    path="/admin/dashboard"
-                    element={
-                        <ProtectedRoute>
-                        <AdminRoute>
-                            <AdminDashboardPage />
-                        </AdminRoute>
-                        </ProtectedRoute>
-                    }
-                />
+                {/*<Route*/}
+                {/*    path="/admin/dashboard"*/}
+                {/*    element={*/}
+                {/*        <ProtectedRoute>*/}
+                {/*        <AdminRoute>*/}
+                {/*            <AdminDashboardPage />*/}
+                {/*        </AdminRoute>*/}
+                {/*        </ProtectedRoute>*/}
+                {/*    }*/}
+                {/*/>*/}
                 <Route path="/agencias" element={<ProtectedRoute><NearbyAgenciesPage /></ProtectedRoute>} />
                 <Route path="/virtual-card" element={<ProtectedRoute><VirtualCardCreationPage /></ProtectedRoute>} />
                 <Route path="/investments/criptomoeda" element={<ProtectedRoute><CryptoInvestmentsPage /></ProtectedRoute>} />
 
                 </Routes>
             </UserProvider>
+            {!isSignInPage && <VoiceAssistant />}
         </AppTheme>
     );
 }

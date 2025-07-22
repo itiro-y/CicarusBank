@@ -27,7 +27,7 @@ public class BenefitResponse {
         this.active = active;
     }
 
-    // Getters e Setters
+    
     public Long getId() {
         return id;
     }

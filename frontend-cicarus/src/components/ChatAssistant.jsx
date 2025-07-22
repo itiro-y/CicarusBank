@@ -6,7 +6,6 @@ import {
 import SendIcon from '@mui/icons-material/Send';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 
-// --- ANIMAÇÃO (Sem alterações) ---
 const bounce = keyframes`
     0%, 80%, 100% { transform: scale(0); }
     40% { transform: scale(1.0); }
@@ -22,7 +21,6 @@ const TypingIndicator = () => (
     </ListItem>
 );
 
-// --- CÉREBRO DO BOT: CHAMADA À API (Sem alterações) ---
 const getBotResponse = async (userMessage, chatHistory) => {
     try {
         const response = await fetch('http://localhost:3001/api/chat', {

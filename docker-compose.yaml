@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     container_name: frontend-cicarus
     ports:
-      - "80:80"        # Mapeia a porta 80 do container para 80 da máquina host
+      - "3000:80"        # Mapeia a porta 80 do container para 80 da máquina host
     depends_on:
       - customer-service  # Se quiser garantir que o backend esteja rodando antes
     networks:
@@ -186,7 +186,7 @@ services:
     build:
       context: ./api-gateway # Path to api-gateway project
     ports:
-      - "443:8443"
+      - "8765:8765"
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka/
     depends_on:

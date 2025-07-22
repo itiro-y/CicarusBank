@@ -229,12 +229,8 @@ export default function UserInvestmentsPage() {
     const [successFundoDialog, setSuccessFundoDialog] = useState(false);
 
 
-    const [historicoBRL, setHistoricoBRL] = useState(
-        generateHourlyMock(8_000, 10_000)
-    );
-    const [historicoUSD, setHistoricoUSD] = useState(
-        generateHourlyMock(0, 800)
-    );
+    const [historicoBRL, setHistoricoBRL] = useState([{ hour: '00:00', valor: 0 }]);
+    const [historicoUSD, setHistoricoUSD] = useState([{ hour: '00:00', valor: 0 }]);
     function ResumoSaldosInvestidos(){
         return(
             <Box sx={{ mt: 3, mb: 4}}>
@@ -509,17 +505,15 @@ export default function UserInvestmentsPage() {
         setLoading(true);
         try {
             const res = await fetch(`${API_URL}/investment/history-brl/${accountId}`, { headers: authHeader() });
-            const data = await res.json();               // { sumOfAllBrlInvestments, dateOfLastInvestment }
+            const data = await res.json();
             const items = Array.isArray(data) ? data : [data];
 
-            const shaped = items.map(item => {
-                const d = new Date(item.dateOfLastInvestment);
-                return {
-                    hour: new Date(item.dateOfLastInvestment).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-                    valor: item.sumOfAllBrlInvestments.toFixed(2)
-                };
-            });
-            setHistoricoBRL(prev => [...prev, ...shaped]);
+            const shaped = items.map(item => ({
+                hour: new Date(item.dateOfLastInvestment).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                valor: item.sumOfAllBrlInvestments.toFixed(2)
+            }));
+
+            setHistoricoBRL([{ hour: '00:00', valor: 0 }, ...shaped]); // Adiciona o ponto inicial
         } finally {
             setLoading(false);
         }
@@ -531,15 +525,13 @@ export default function UserInvestmentsPage() {
             const res = await fetch(`${API_URL}/investment/history-usd/${accountId}`, { headers: authHeader() });
             const data = await res.json();
             const items = Array.isArray(data) ? data : [data];
-            console.log(items);
-            const shaped = items.map(item => {
-                const d = new Date(item.dateOfLastInvestment);
-                return {
-                    hour: new Date(item.dateOfLastInvestment).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-                    valor: item.sumOfAllUsdInvestments.toFixed(2)
-                };
-            });
-            setHistoricoUSD(prev => [...prev, ...shaped]);
+
+            const shaped = items.map(item => ({
+                hour: new Date(item.dateOfLastInvestment).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                valor: item.sumOfAllUsdInvestments.toFixed(2)
+            }));
+
+            setHistoricoUSD([{ hour: '00:00', valor: 0 }, ...shaped]); // Adiciona o ponto inicial
         } catch (error) {
             console.error(error);
         } finally {

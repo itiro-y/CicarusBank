@@ -69,80 +69,80 @@ graph TD
                 naming_server[Naming Server]
             end
 
-            subgraph "Account Service Container"
+            subgraph "Account Container"
                 account_service[Account Service]
             end
-            subgraph "Account DB Container"
+            subgraph "Account DB"
                 account_db[(Account DB)]
             end
 
-            subgraph "Auth Service Container"
+            subgraph "Auth Container"
                 auth_service[Auth Service]
             end
-            subgraph "Auth DB Container"
+            subgraph "Auth DB"
                 auth_db[(Auth DB)]
             end
 
-            subgraph "Benefits Service Container"
+            subgraph "Benefits Container"
                 benefits_service[Benefits Service]
             end
-            subgraph "Benefits DB Container"
+            subgraph "Benefits DB"
                 benefits_db[(Benefits DB)]
             end
 
-            subgraph "Card Service Container"
+            subgraph "Card Container"
                 card_service[Card Service]
             end
-            subgraph "Card DB Container"
+            subgraph "Card DB"
                 card_db[(Card DB)]
             end
 
-            subgraph "Currency Exchange Service Container"
+            subgraph "Currency Exchange Container"
                 currency_exchange_service[Currency Exchange Service]
             end
-            subgraph "Currency Exchange DB Container"
+            subgraph "Currency Exchange DB"
                 currency_exchange_db[(Currency Exchange DB)]
             end
 
-            subgraph "Customer Service Container"
+            subgraph "Customer Container"
                 customer_service[Customer Service]
             end
-            subgraph "Customer DB Container"
+            subgraph "Customer DB"
                 customer_db[(Customer DB)]
             end
 
-            subgraph "Investment Service Container"
+            subgraph "Investment Container"
                 investment_service[Investment Service]
             end
-            subgraph "Investment DB Container"
+            subgraph "Investment DB"
                 investment_db[(Investment DB)]
             end
 
-            subgraph "Loan Service Container"
+            subgraph "Loan Container"
                 loan_service[Loan Service]
             end
-            subgraph "Loan DB Container"
+            subgraph "Loan DB"
                 loan_db[(Loan DB)]
             end
 
-            subgraph "Notification Service Container"
+            subgraph "Notification Container"
                 notification_service[Notification Service]
             end
-            subgraph "Notification DB Container"
+            subgraph "Notification DB"
                 notification_db[(Notification DB)]
             end
 
-            subgraph "Statement Service Container"
+            subgraph "Statement Container"
                 statement_service[Statement Service]
             end
-            subgraph "Statement DB Container"
+            subgraph "Statement DB"
                 statement_db[(Statement DB)]
             end
 
-            subgraph "Transaction Service Container"
+            subgraph "Transaction Container"
                 transaction_service[Transaction Service]
             end
-            subgraph "Transaction DB Container"
+            subgraph "Transaction DB"
                 transaction_db[(Transaction DB)]
             end
         end

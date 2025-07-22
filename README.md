@@ -195,15 +195,26 @@ graph TD
 
 ## System Architecture Diagram (Architecture Beta)
 
-```mermaid
-architecture-beta
-    group AccountDbContainer[Container]
-    service accountMs(internet)[AccountMs] in AccountDbContainer
+[//]: # (```mermaid)
 
+[//]: # (architecture-beta)
 
-    group accountMsContainer[Container]
-    service accountDb(database)[MySqlDb] in accountMsContainer
+[//]: # (    group AccountDbContainer[Container])
 
-    accountDb:L -- R:accountMs
+[//]: # (    service accountMs&#40;internet&#41;[AccountMs] in AccountDbContainer)
 
-```
+[//]: # ()
+
+[//]: # ()
+
+[//]: # (    group accountMsContainer[Container])
+
+[//]: # (    service accountDb&#40;database&#41;[MySqlDb] in accountMsContainer)
+
+[//]: # ()
+
+[//]: # (    accountDb:L -- R:accountMs)
+
+[//]: # ()
+
+[//]: # (```)

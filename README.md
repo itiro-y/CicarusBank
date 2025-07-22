@@ -193,7 +193,7 @@ graph TD
     currency_exchange_service --> account_service
 ```
 
-## System Architecture Diagram (Architecture Beta)
+[//]: # (## System Architecture Diagram &#40;Architecture Beta&#41;)
 
 [//]: # (```mermaid)
 

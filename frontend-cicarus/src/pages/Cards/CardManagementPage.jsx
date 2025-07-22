@@ -109,9 +109,12 @@ export default function CardManagementPage() {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const physicalCards = await res.json();
-            const storedVirtualCards = JSON.parse(localStorage.getItem('virtualCards')) || [];
+
+            const allVirtualCards = JSON.parse(localStorage.getItem('virtualCards')) || {};
+            const userVirtualCards = allVirtualCards[accountId] || [];
+
             const now = new Date().getTime();
-            const activeVirtualCards = storedVirtualCards.filter(card => card.expiryTimestamp > now);
+            const activeVirtualCards = userVirtualCards.filter(card => card.expiryTimestamp > now);
 
             // Combina todos os cartões, incluindo os cancelados, para exibição
             const allCards = [...physicalCards, ...activeVirtualCards];
@@ -119,8 +122,9 @@ export default function CardManagementPage() {
 
         } catch (err) {
             console.error('Erro ao buscar cartões:', err);
-            const storedVirtualCards = JSON.parse(localStorage.getItem('virtualCards')) || [];
-            const activeVirtualCards = storedVirtualCards.filter(card => new Date(card.expiryTimestamp) > new Date());
+            const allVirtualCards = JSON.parse(localStorage.getItem('virtualCards')) || {};
+            const userVirtualCards = allVirtualCards[accountId] || [];
+            const activeVirtualCards = userVirtualCards.filter(card => new Date(card.expiryTimestamp) > new Date());
             setCards(activeVirtualCards);
         } finally {
             setLoading(false);
@@ -190,8 +194,11 @@ export default function CardManagementPage() {
     const handleAction = async (id, action) => {
         if (String(id).startsWith('virtual-')) {
             if (action === 'cancel') {
-                const updatedVirtualCards = (JSON.parse(localStorage.getItem('virtualCards')) || []).filter(card => card.id !== id);
-                localStorage.setItem('virtualCards', JSON.stringify(updatedVirtualCards));
+                const allVirtualCards = JSON.parse(localStorage.getItem('virtualCards')) || {};
+                const userVirtualCards = allVirtualCards[accountId] || [];
+                const updatedUserCards = userVirtualCards.filter(card => card.id !== id);
+                allVirtualCards[accountId] = updatedUserCards;
+                localStorage.setItem('virtualCards', JSON.stringify(allVirtualCards));
                 await fetchCards();
             }
             handleDetailsDialogClose();

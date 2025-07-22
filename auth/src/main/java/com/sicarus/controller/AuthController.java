@@ -2,6 +2,7 @@ package com.sicarus.controller;
 
 import com.sicarus.dto.AuthRequest;
 import com.sicarus.dto.AuthResponse;
+import com.sicarus.dto.ChangePasswordRequest;
 import com.sicarus.dto.UserCreateRequest;
 import com.sicarus.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,6 +32,13 @@ public class AuthController {
     public ResponseEntity<Void> createUser(@RequestBody UserCreateRequest request) {
         authService.createUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @Operation(summary = "Changes the user's password")
+    @PostMapping("/change-password")
+    public ResponseEntity<Void> changePassword(@RequestBody ChangePasswordRequest request) {
+        authService.changePassword(request);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @Operation(summary = "Get that returns pong. It is for testing purposes")

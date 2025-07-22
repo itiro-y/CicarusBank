@@ -27,7 +27,7 @@ const WelcomeHeader = ({ customerData, loading }) => {
     const { user } = useUser();
 
     const userAvatar = user?.avatar || localStorage.getItem('userAvatar') || customerData?.avatar;
-    const userName = user?.name || customerData?.name || 'Usuário';
+    const userName = user?.name || 'Usuário';
 
     if (loading) {
         return (

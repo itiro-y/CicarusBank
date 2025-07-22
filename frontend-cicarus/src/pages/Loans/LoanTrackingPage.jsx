@@ -19,6 +19,7 @@ import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import TodayIcon from '@mui/icons-material/Today';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
+const userId = localStorage.getItem('accountId');
 
 // --- Componente para uma linha de parcela ---
 const InstallmentRow = ({ inst, onPay, loanStatus }) => (
@@ -149,7 +150,7 @@ export default function LoanTrackingPage() {
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState(0);
 
-    const customerId = 1;
+    const customerId = localStorage.getItem('accountId');
 
     const fetchLoans = async () => {
         setLoading(true);

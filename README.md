@@ -69,13 +69,6 @@ graph TD
                 naming_server[Naming Server]
             end
 
-            subgraph "Auth Service Container"
-                auth_service[Auth Service]
-            end
-            subgraph "Auth DB Container"
-                auth_db[(Auth DB)]
-            end
-
             subgraph "Account Service Container"
                 account_service[Account Service]
             end
@@ -83,39 +76,18 @@ graph TD
                 account_db[(Account DB)]
             end
 
-            subgraph "Customer Service Container"
-                customer_service[Customer Service]
+            subgraph "Auth Service Container"
+                auth_service[Auth Service]
             end
-            subgraph "Customer DB Container"
-                customer_db[(Customer DB)]
-            end
-
-            subgraph "Loan Service Container"
-                loan_service[Loan Service]
-            end
-            subgraph "Loan DB Container"
-                loan_db[(Loan DB)]
+            subgraph "Auth DB Container"
+                auth_db[(Auth DB)]
             end
 
-            subgraph "Transaction Service Container"
-                transaction_service[Transaction Service]
+            subgraph "Benefits Service Container"
+                benefits_service[Benefits Service]
             end
-            subgraph "Transaction DB Container"
-                transaction_db[(Transaction DB)]
-            end
-
-            subgraph "Currency Exchange Service Container"
-                currency_exchange_service[Currency Exchange Service]
-            end
-            subgraph "Currency Exchange DB Container"
-                currency_exchange_db[(Currency Exchange DB)]
-            end
-
-            subgraph "Notification Service Container"
-                notification_service[Notification Service]
-            end
-            subgraph "Notification DB Container"
-                notification_db[(Notification DB)]
+            subgraph "Benefits DB Container"
+                benefits_db[(Benefits DB)]
             end
 
             subgraph "Card Service Container"
@@ -125,11 +97,53 @@ graph TD
                 card_db[(Card DB)]
             end
 
+            subgraph "Currency Exchange Service Container"
+                currency_exchange_service[Currency Exchange Service]
+            end
+            subgraph "Currency Exchange DB Container"
+                currency_exchange_db[(Currency Exchange DB)]
+            end
+
+            subgraph "Customer Service Container"
+                customer_service[Customer Service]
+            end
+            subgraph "Customer DB Container"
+                customer_db[(Customer DB)]
+            end
+
+            subgraph "Investment Service Container"
+                investment_service[Investment Service]
+            end
+            subgraph "Investment DB Container"
+                investment_db[(Investment DB)]
+            end
+
+            subgraph "Loan Service Container"
+                loan_service[Loan Service]
+            end
+            subgraph "Loan DB Container"
+                loan_db[(Loan DB)]
+            end
+
+            subgraph "Notification Service Container"
+                notification_service[Notification Service]
+            end
+            subgraph "Notification DB Container"
+                notification_db[(Notification DB)]
+            end
+
             subgraph "Statement Service Container"
                 statement_service[Statement Service]
             end
             subgraph "Statement DB Container"
                 statement_db[(Statement DB)]
+            end
+
+            subgraph "Transaction Service Container"
+                transaction_service[Transaction Service]
+            end
+            subgraph "Transaction DB Container"
+                transaction_db[(Transaction DB)]
             end
         end
     end
@@ -138,25 +152,29 @@ graph TD
     frontend --> api_gateway
     api_gateway --> naming_server
 
-    naming_server --> auth_service
     naming_server --> account_service
-    naming_server --> customer_service
-    naming_server --> loan_service
-    naming_server --> transaction_service
-    naming_server --> currency_exchange_service
-    naming_server --> notification_service
+    naming_server --> auth_service
+    naming_server --> benefits_service
     naming_server --> card_service
+    naming_server --> currency_exchange_service
+    naming_server --> customer_service
+    naming_server --> investment_service
+    naming_server --> loan_service
+    naming_server --> notification_service
     naming_server --> statement_service
+    naming_server --> transaction_service
 
-    auth_service --> auth_db
     account_service --> account_db
-    customer_service --> customer_db
-    loan_service --> loan_db
-    transaction_service --> transaction_db
-    currency_exchange_service --> currency_exchange_db
-    notification_service --> notification_db
+    auth_service --> auth_db
+    benefits_service --> benefits_db
     card_service --> card_db
+    currency_exchange_service --> currency_exchange_db
+    customer_service --> customer_db
+    investment_service --> investment_db
+    loan_service --> loan_db
+    notification_service --> notification_db
     statement_service --> statement_db
+    transaction_service --> transaction_db
 ```
 
 docker-compose up mysql-auth mysql-customer mysql-emailModel mysql-statement mysql-currency mysql-account

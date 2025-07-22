@@ -9,8 +9,6 @@ import ExchangePage from './pages/CurrencyExchange/ExchangePage.jsx';
 import CardManagementPage from "./pages/Cards/CardManagementPage.jsx";
 import LoanSimulationPage from "./pages/Loans/LoanSimulationPage.jsx";
 import LoanTrackingPage from "./pages/Loans/LoanTrackingPage.jsx";
-// import AdminDashboardPage from './pages/Dashboard/AdminDashboardPage.jsx';
-import AdminRoute from './components/AdminRoute.jsx';
 import NearbyAgenciesPage from './pages/NearbyAgencies/NearbyAgenciesPage.jsx';
 import PixPage from './pages/Dashboard/PixPage.jsx';
 import MobileRechargePage from './pages/Dashboard/MobileRechargePage.jsx';
@@ -18,13 +16,13 @@ import BenefitsPage from './pages/Benefits/BenefitsPage.jsx';
 import UserInvestmentsPage from "./pages/Investments/UserInvestmentsPage.jsx";
 import AdminInvestmentsPage from "./pages/Investments/AdminInvestmentsPage.jsx";
 import VoiceAssistant from './components/VoiceAssistant';
-// import InvestmentsPage from './pages/InvestmentsPage.jsx';
 import VirtualCardCreationPage from './pages/Dashboard/VirtualCardCreationPage.jsx';
 import ConnectedDevicesPage from "./pages/Profile/ConnectedDevicesPage.jsx";
 import BillPaymentPage from "./pages/Dashboard/BillPaymentPage.jsx";
 import CryptoInvestmentsPage from "./pages/Investments/CryptoInvestmentsPage.jsx";
 import CardLimitPage from "./pages/Cards/CardLimitPage.jsx";
 import StockInvestmentsPage from "./pages/Investments/StockInvestmentsPage.jsx";
+import ScrollToTop from './components/ScrollToTop.jsx';
 
 import ProtectedRoute from './components/ProtectedRoute';
 import { UserProvider } from './context/UserContext.jsx';
@@ -35,6 +33,7 @@ function App() {
 
     return (
         <AppTheme>
+            <ScrollToTop />
             <UserProvider>
             <Routes>
                 <Route path="/" element={<SignInPage />} />

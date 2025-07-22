@@ -562,11 +562,8 @@ export default function UserInvestmentsPage() {
                                         boxShadow: 'none',
                                     }}
                                     onClick={
-                                        card.title === 'Renda Fixa'
-                                            ? () => setOpenRendaFixa(true)
-                                            : card.title === 'Fundo Imobiliário'
-                                                ? () => setOpenFundoImob(true)
-                                                : undefined
+                                        card.title === 'Renda Fixa' ? () => setOpenRendaFixa(true) : card.title === 'Fundo Imobiliário'
+                                                ? () => setOpenFundoImob(true) : undefined
                                     }
                                 >
                                     Investir

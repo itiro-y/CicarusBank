@@ -22,6 +22,8 @@ import { useUser } from '../../context/UserContext.jsx';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
+
+
 // --- COMPONENTES DO DASHBOARD ---
 const WelcomeHeader = ({ customerData, loading }) => {
     const { user } = useUser();
@@ -325,8 +327,8 @@ const RecentTransactions = ({ transactions, loading }) => (
                                 secondaryTypographyProps={{ component: 'div' }}
                             />
                             <Box sx={{ textAlign: 'right' }}>
-                                <Typography variant="body1" sx={{ fontWeight: 'bold', color: tx.amount > 0 ? 'success.main' : 'error.main' }}>
-                                    {tx.amount > 0 ? '+' : '-'} R$ {Math.abs(tx.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                <Typography variant="body1" sx={{ fontWeight: 'bold', color: tx.transactionType === 'DEPOSIT' || tx.transactionType === 'TRANSFER_RECEIVED' ? 'success.main' : 'error.main' }}>
+                                    {tx.transactionType === 'DEPOSIT' || tx.transactionType === 'TRANSFER_RECEIVED' ? '+' : '-'} R$ {Math.abs(tx.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                                 </Typography>
                                 <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                                     {new Date(tx.timestamp).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
@@ -377,6 +379,10 @@ export default function DashboardPage() {
     const [loadingBalance, setLoadingBalance] = useState(false);
     const [loadingHistory, setLoadingHistory] = useState(false);
     const [loadingTransactions, setLoadingTransactions] = useState(false);
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     const authHeader = () => {
         const token = localStorage.getItem('token') || '';

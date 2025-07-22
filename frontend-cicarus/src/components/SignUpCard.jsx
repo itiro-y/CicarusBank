@@ -107,7 +107,7 @@ function SignUpCard({ onSwitchToSignIn }) {
         };
         try {
 //             const response = await fetch('http://localhost:8300/customers/create', {
-            const response = await fetch('http://172.203.234.78:8765/customers/create', {
+            const response = await fetch('https://cicarusbank.app/customers/create', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),

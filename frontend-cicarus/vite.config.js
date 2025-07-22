@@ -8,7 +8,8 @@ export default defineConfig({
     proxy: {
       // tudo que vier em /api será mandado para o gateway na porta 8765
       '/api': {
-        target: 'http://172.203.234.78:8765',
+        // target: 'http://172.203.234.78:8765',
+        target: 'http://cicarusbank.app',
         changeOrigin: true,
         rewrite: path => path.replace(/^\/api/, '')
       }

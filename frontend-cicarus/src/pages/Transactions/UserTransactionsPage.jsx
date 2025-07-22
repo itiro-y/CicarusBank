@@ -25,6 +25,8 @@ import { useUser } from '../../context/UserContext.jsx';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
+const accountId = localStorage.getItem('accountId');
+
 // --- Componentes de UI ---
 
 function BalanceCard({ balance, loading }) {
@@ -114,17 +116,30 @@ function StatusChip({ status }) {
 function TransactionsTable({ transactions, loading, accountId }) {
     if (loading) return <CircularProgress />;
 
-    const getTransactionDetails = (tx) => {
-        const isSender = tx.accountId === accountId;
+        const getTransactionDetails = (tx) => {
+            const currentAccountId = Number(accountId);
+            const isSender = tx.accountId === currentAccountId;
         switch (tx.transactionType) {
             case 'DEPOSIT':
-                return { icon: <SouthWest color="success" />, label: 'Depósito Recebido', color: 'success.main', prefix: '+ ', otherAccount: '-' };
+                return { icon: <SouthWest color="success" />, label: 'Depósito Recebido', color: 'success.main', prefix: '+ ', otherAccount: useUser().user.name };
             case 'WITHDRAWAL':
-                return { icon: <NorthEast color="error" />, label: 'Saque Efetuado', color: 'error.main', prefix: '- ', otherAccount: '-' };
+                return { icon: <NorthEast color="error" />, label: 'Saque Efetuado', color: 'error.main', prefix: '- ', otherAccount: useUser().user.name };
             case 'TRANSFER':
-                return isSender
-                    ? { icon: <NorthEast color="error" />, label: 'Transferência Enviada', color: 'error.main', prefix: '- ', otherAccount: `Conta ${tx.accountToId}` }
-                    : { icon: <SouthWest color="success" />, label: 'Transferência Recebida', color: 'success.main', prefix: '+ ', otherAccount: `Conta ${tx.accountId}` };
+                return {
+                      icon: <NorthEast color="error" />,     // quem envia, ícone de saída
+                      label: 'Transferência Enviada',
+                      color: 'error.main',
+                      prefix: '- ',
+                      otherAccount: localStorage.getItem('toTransactionEmail') || '—'
+                 }
+            case 'TRANSFER_RECEIVED':
+                return {
+                icon: <SouthWest color="success" />,
+                label: 'Transferência Recebida',
+                color: 'success.main',
+                prefix: '+ ',
+                otherAccount: localStorage.getItem('fromTransactionEmail') || '—'
+                }
             case 'PAYMENT':
                 return { icon: <ReceiptLong color="error" />, label: 'Pagamento de Empréstimo', color: 'error.main', prefix: '- ', otherAccount: 'Empréstimo' };
             default:
@@ -243,7 +258,6 @@ export default function UserTransactionsPage() {
     const { user } = useUser();
     const [customerData, setCustomerData] = useState(null);
     const [loadingCustomerData, setLoadingCustomerData] = useState(true);
-    const [accountId, setAccountId] = useState(null);
     const [openWithdraw, setOpenWithdraw] = useState(false);
     const [openDeposit,  setOpenDeposit]  = useState(false);
     const [openTransfer, setOpenTransfer] = useState(false);
@@ -253,6 +267,8 @@ export default function UserTransactionsPage() {
     const [loadingBalance, setLoadingBalance] = useState(false);
     const [loadingHistory, setLoadingHistory] = useState(false);
     const [loadingTransactions, setLoadingTransactions] = useState(false);
+
+    const accountId = localStorage.getItem('accountId') || null;
 
     const authHeader = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') || ''}` });
 

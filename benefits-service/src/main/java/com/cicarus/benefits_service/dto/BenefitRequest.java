@@ -25,7 +25,7 @@ public class BenefitRequest {
         this.active = active;
     }
 
-    // Getters e Setters
+    
     public String getName() {
         return name;
     }

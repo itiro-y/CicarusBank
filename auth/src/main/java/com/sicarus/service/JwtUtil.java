@@ -29,13 +29,13 @@ public class JwtUtil {
 
     public String generateToken(String username,
                                 UserRoles roles) {
-//            , Map<String, Object> claims) {
+
         return Jwts.builder()
                 .setSubject(username)
                 .claim("roles", roles)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(getSigninKey())          // <-- aqui uso a key gerada
+                .signWith(getSigninKey())          
                 .compact();
     }
 

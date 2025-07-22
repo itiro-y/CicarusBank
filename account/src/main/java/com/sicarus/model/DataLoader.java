@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Component
-//@Profile("dev")
+
 public class DataLoader implements CommandLineRunner {
     private final AccountRepository accountRepository;
     public DataLoader(AccountRepository accountRepository){

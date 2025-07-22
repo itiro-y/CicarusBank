@@ -1,4 +1,4 @@
-package dtos;// AccountDTO.java
+package dtos;
 
 
 import java.math.BigDecimal;

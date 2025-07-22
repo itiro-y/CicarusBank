@@ -5,7 +5,7 @@ import java.time.LocalDate;
 public class CustomerBenefitRequest {
     private Long customerId;
     private Long benefitId;
-    private LocalDate expirationDate; // Pode ser nulo
+    private LocalDate expirationDate; 
     private boolean activated;
 
     public CustomerBenefitRequest() {
@@ -18,7 +18,7 @@ public class CustomerBenefitRequest {
         this.activated = activated;
     }
 
-    // Getters e Setters
+    
     public Long getCustomerId() {
         return customerId;
     }

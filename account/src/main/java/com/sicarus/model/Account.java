@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
-//id userId type balance
+
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

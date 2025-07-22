@@ -4,7 +4,6 @@ import { Paper, Typography, Box } from '@mui/material';
 import { FaSimCard } from "react-icons/fa";
 import { SiVisa, SiMastercard } from "react-icons/si";
 
-// Função para determinar o ícone da bandeira do cartão
 const getNetworkIcon = (network) => {
     if (network?.toLowerCase().includes('visa')) {
         return <SiVisa size={40} color="white" />;
@@ -16,6 +15,10 @@ const getNetworkIcon = (network) => {
 };
 
 export default function CreditCard({ card, onClick }) {
+    // --- ALTERAÇÃO CORRIGIDA AQUI ---
+    // Verifica a propriedade `cardType` para definir o texto do campo.
+    const nameLabel = card.cardType === 'VIRTUAL' ? 'Nome do Cartão' : 'Nome do Titular';
+
     return (
         <Paper
             onClick={onClick}
@@ -35,7 +38,6 @@ export default function CreditCard({ card, onClick }) {
             }}
         >
             <Box display="flex" justifyContent="space-between" alignItems="center">
-                {/* LOGO ADICIONADA AQUI */}
                 <img
                     src="https://i.postimg.cc/jjZF98Pp/download-1.png"
                     alt="Bank Logo"
@@ -55,7 +57,8 @@ export default function CreditCard({ card, onClick }) {
             <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mt: 2 }}>
                 <Box>
                     <Typography variant="caption" display="block" sx={{ color: '#d1d5db' }}>
-                        Nome do Titular
+                        {/* O texto agora usa a variável correta */}
+                        {nameLabel}
                     </Typography>
                     <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
                         {card.cardholderName}

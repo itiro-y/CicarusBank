@@ -24,6 +24,10 @@ public class EmailNotificationService {
         this.sender = sender;
     }
 
+    public void processNotification(EmailDto emailDto) {
+        sendNotification(emailDto);
+    }
+
     public void processNotification(DepositNotificationDto DepositNotificationDto) {
         DepositNotificationDto.setBody(emailBodyService.generateDepositBody(DepositNotificationDto));
         sendNotification(new EmailDto(DepositNotificationDto));

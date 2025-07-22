@@ -24,7 +24,7 @@ public class ExchangeController {
         this.service = service;
     }
 
-    // localhost:8500/exchange/rate?from={MOEDA_ORIGEM}&to={MOEDA_DESTINO}
+    
     @Operation(summary = "Obtem a taxa de câmbio entre duas moedas")
     @GetMapping("/rate")
     public BigDecimal getRate(@RequestParam String from, @RequestParam String to) {

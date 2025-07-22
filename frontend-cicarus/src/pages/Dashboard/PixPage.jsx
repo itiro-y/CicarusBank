@@ -30,12 +30,20 @@ const API_URL = import.meta.env.VITE_API_URL || '';
 const authHeader = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') || ''}` });
 
 const initialFavoriteContacts = [
-    { id: 1, name: 'Maria Silva', avatarUrl: 'https://i.pravatar.cc/150?u=maria', pixKey: 'maria.silva@email.com' },
-    { id: 2, name: 'João Santos', avatarUrl: 'https://i.pravatar.cc/150?u=joao', pixKey: '11987654321' },
-    { id: 3, name: 'Ana Costa', avatarUrl: 'https://i.pravatar.cc/150?u=ana', pixKey: '123.456.789-00' },
-    { id: 4, name: 'Lucas Souza', avatarUrl: 'https://i.pravatar.cc/150?u=lucas', pixKey: '8a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d' },
-    { id: 5, name: 'Beatriz Lima', avatarUrl: 'https://i.pravatar.cc/150?u=bia', pixKey: 'beatriz.lima@email.com' },
+    { id: 1, name: 'Maria Silva', avatarUrl: 'https://i.pravatar.cc/150?u=654', pixKey: 'maria.silva@email.com' },
+    { id: 2, name: 'João Santos', avatarUrl: 'https://i.pravatar.cc/150?u=657', pixKey: '11987654321' },
+    { id: 3, name: 'Ana Costa', avatarUrl: 'https://i.pravatar.cc/150?u=622', pixKey: '123.456.789-00' },
+    { id: 4, name: 'Lucas Souza', avatarUrl: 'https://i.pravatar.cc/150?u=b', pixKey: '8a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d' },
+    { id: 5, name: 'Beatriz Lima', avatarUrl: 'https://i.pravatar.cc/150?u=34', pixKey: 'beatriz.lima@email.com' },
 ];
+
+const LoadingDialog = ({ open }) => (
+    <Dialog open={open} PaperProps={{ style: { backgroundColor: 'transparent', boxShadow: 'none' } }}>
+        <img src="https://i.ibb.co/X697RzH/User.gif" alt="Carregando contatos..." style={{ width: '150px', height: '150px' }} />
+    </Dialog>
+);
+
+// --- COMPONENTES DE UI REFINADOS ---
 
 const PageHeader = () => (
     <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
@@ -344,11 +352,20 @@ export default function PixPage() {
     const [isSuccess, setIsSuccess] = useState(false);
     const [favoriteContacts, setFavoriteContacts] = useState(initialFavoriteContacts);
     const [favoritesModalOpen, setFavoritesModalOpen] = useState(false);
+    const [favoritesLoading, setFavoritesLoading] = useState(false);
     const [selectedFavorite, setSelectedFavorite] = useState({ key: null, id: null })
 
     const handleContinue = (key, amount) => {
         setPaymentData({ key, amount });
         setScreen('confirm');
+    };
+
+    const handleShowAll = () => {
+        setFavoritesLoading(true);
+        setTimeout(() => {
+            setFavoritesLoading(false);
+            setFavoritesModalOpen(true);
+        }, 2000); // Simula 2 segundos de carregamento
     };
 
     const handleConfirmPayment = () => {
@@ -391,7 +408,7 @@ export default function PixPage() {
                                             <Grid item xs={12} sm={8} md={6} lg={5}>
                                                 <SendPixCard
                                                     onContinue={handleContinue}
-                                                    onShowAll={() => setFavoritesModalOpen(true)}
+                                                    onShowAll={handleShowAll}
                                                     favorites={favoriteContacts}
                                                     onSelectFavorite={selectedFavorite}
                                                 />
@@ -417,6 +434,7 @@ export default function PixPage() {
                     </Container>
                 </Box>
             </Box>
+            <LoadingDialog open={favoritesLoading} />
             <FavoritesModal
                 open={favoritesModalOpen}
                 onClose={() => setFavoritesModalOpen(false)}

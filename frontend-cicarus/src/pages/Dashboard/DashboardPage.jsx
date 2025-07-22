@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react'; // Add this import
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Box, Container, Typography, Grid, Paper, IconButton,
@@ -20,23 +20,14 @@ import PromotionalCarousel from '../../components/PromotionalCarousel.jsx';
 
 import { useUser } from '../../context/UserContext.jsx';
 
-// --- DADOS MOCK E API URL ---
-const accountData = { balance: 15840.75 };
-const recentTransactions = [
-    { id: 1, type: "Compra Online", store: "Amazon", amount: -150.00, icon: <ArrowDownward color="error" /> },
-    { id: 2, type: "Salário", store: "Cicarus Corp", amount: 7500.00, icon: <ArrowUpward color="success" /> },
-    { id: 3, type: "Transferência PIX", store: "Maria Silva", amount: -850.00, icon: <ArrowDownward color="error" /> },
-];
-const balanceHistory = [
-    { name: 'Jan', saldo: 12000 }, { name: 'Fev', saldo: 14500 }, { name: 'Mar', saldo: 13000 },
-    { name: 'Abr', saldo: 16000 }, { name: 'Mai', saldo: 15500 }, { name: 'Jun', saldo: 15840 },
-];
 const API_URL = import.meta.env.VITE_API_URL || '';
-
-
 
 // --- COMPONENTES DO DASHBOARD ---
 const WelcomeHeader = ({ customerData, loading }) => {
+    const { user } = useUser();
+
+    const userAvatar = user?.avatar || localStorage.getItem('userAvatar') || customerData?.avatar;
+    const userName = user?.name || customerData?.name || 'Usuário';
 
     if (loading) {
         return (
@@ -53,10 +44,22 @@ const WelcomeHeader = ({ customerData, loading }) => {
     return (
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                <Avatar sx={{ width: 56, height: 56, mr: 2, border: '2px solid', borderColor: 'primary.main' }} />
+                <Avatar
+                    src={userAvatar}
+                    sx={{
+                        width: 56,
+                        height: 56,
+                        mr: 2,
+                        border: '2px solid',
+                        borderColor: 'primary.main',
+                        fontSize: '1.75rem'
+                    }}
+                >
+                    {!userAvatar && userName.charAt(0).toUpperCase()}
+                </Avatar>
                 <div>
                     <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
-                        Bom dia, {customerData?.name || 'Usuário'}!
+                        Bom dia, {userName}!
                     </Typography>
                     <Typography variant="body1" sx={{ color: 'text.secondary' }}>
                         Bem-vindo de volta ao seu painel CicarusBank.
@@ -66,6 +69,7 @@ const WelcomeHeader = ({ customerData, loading }) => {
         </motion.div>
     );
 };
+
 
 const BalanceCard = ({ balance, loading }) => {
     const [showBalance, setShowBalance] = React.useState(true);
@@ -89,11 +93,11 @@ const BalanceCard = ({ balance, loading }) => {
 };
 
 const QuickActions = () => {
-    const navigate = useNavigate(); // 2. INICIALIZADO O HOOK
+    const navigate = useNavigate();
     const actions = [
         { label: 'Transferir', icon: <TrendingUp sx={{ fontSize: 28 }} />, path: '/user-transactions' },
         { label: 'Pagar', icon: <ReceiptLong sx={{ fontSize: 28 }} />, path: '/payment' },
-        { label: 'Pix', icon: <Pix sx={{ fontSize: 28 }} />, path: '/pix' }, // 3. ADICIONADO O CAMINHO (path)
+        { label: 'Pix', icon: <Pix sx={{ fontSize: 28 }} />, path: '/pix' },
         { label: 'Recarga', icon: <Smartphone sx={{ fontSize: 28 }} />, path: '/recharge' },
     ];
     return (
@@ -138,12 +142,10 @@ const getNetworkIcon = (network, theme) => {
     return <FaCreditCard size={35} color="white" />;
 };
 
-// --- NOVA FUNÇÃO PARA CONVERTER HASH EM CVV ---
 const hashToCvv = (hash) => {
-    if (!hash) return '123'; // Retorna um padrão caso o hash não exista
-    const digits = hash.match(/\d/g); // Encontra todos os caracteres numéricos no hash
-    if (!digits) return '123'; // Retorna um padrão se não encontrar dígitos
-    // Pega os 3 primeiros dígitos e os une. Se tiver menos de 3, usa os que encontrar.
+    if (!hash) return '123';
+    const digits = hash.match(/\d/g);
+    if (!digits) return '123';
     return digits.slice(0, 3).join('');
 };
 
@@ -170,7 +172,7 @@ const CreditCardComponent = ({ customerName }) => {
                 if (allCards && allCards.length > 0) {
                     setCardData(allCards[0]);
                 } else {
-                    throw new Error("Nenhum cartão encontrado.");
+                    setCardData(null)
                 }
             } catch (err) {
                 console.error("Falha ao buscar dados do cartão:", err);
@@ -197,12 +199,14 @@ const CreditCardComponent = ({ customerName }) => {
         );
     }
 
-    if (error) {
+    if (error || !cardData) {
         return (
             <Paper elevation={0} sx={{ p: 2, borderRadius: '16px', border: '1px solid', borderColor: 'divider', maxWidth: 400, mx: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 280}}>
                 <ErrorOutline color="error" sx={{ fontSize: 40, mb: 1 }} />
                 <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 'bold' }}>Oops!</Typography>
-                <Typography variant="body2" color="text.secondary" textAlign="center">Não foi possível carregar o cartão.</Typography>
+                <Typography variant="body2" color="text.secondary" textAlign="center">
+                    { !cardData ? "Nenhum cartão encontrado." : "Não foi possível carregar o cartão."}
+                </Typography>
             </Paper>
         );
     }
@@ -250,7 +254,6 @@ const CreditCardComponent = ({ customerName }) => {
                         <Box sx={{ display: 'flex', alignItems: 'center', p: 2, mt: 2, backgroundColor: 'white' }}>
                             <Typography sx={{ flexGrow: 1, fontStyle: 'italic', color: 'grey.700' }}>Assinatura</Typography>
                             <Typography sx={{ fontFamily: 'monospace', backgroundColor: 'rgba(0,0,0,0.1)', p: '2px 4px' }}>
-                                {/* CVV GERADO A PARTIR DO HASH */}
                                 {hashToCvv(cardData.cvvHash)}
                             </Typography>
                         </Box>
@@ -264,14 +267,12 @@ const CreditCardComponent = ({ customerName }) => {
 
 const CardManagementActions = () => {
     const navigate = useNavigate();
-
     const actions = [
         { label: "Ver Fatura", icon: <Article /> },
         { label: "Ajustar Limite", icon: <Tune />, path: '/card-limit' },
         { label: "Bloquear Cartão", icon: <Lock /> },
         { label: "Cartão Virtual", icon: <AddCard />, path: '/virtual-card' },
     ];
-
     return (
         <Paper elevation={0} sx={{p:2, borderRadius: '16px', backgroundColor: 'background.paper', border: '1px solid', borderColor: 'divider', maxWidth: 400, mx: 'auto'}}>
             <Stack divider={<Divider flexItem />}>
@@ -279,17 +280,8 @@ const CardManagementActions = () => {
                     <Button
                         key={action.label}
                         startIcon={action.icon}
-                        onClick={() => {
-                            if (action.path) {
-                                navigate(action.path);
-                            }
-                        }}
-                        sx={{
-                            justifyContent: 'flex-start',
-                            p: 1.5,
-                            color: 'text.primary',
-                            textTransform: 'none'
-                        }}
+                        onClick={() => action.path && navigate(action.path) }
+                        sx={{ justifyContent: 'flex-start', p: 1.5, color: 'text.primary', textTransform: 'none' }}
                     >
                         {action.label}
                     </Button>
@@ -299,7 +291,6 @@ const CardManagementActions = () => {
     );
 };
 
-// --- NOVO COMPONENTE DE STATUS ---
 function StatusChip({ status }) {
     let color = 'default';
     let label = status;
@@ -307,32 +298,19 @@ function StatusChip({ status }) {
 
     switch (status) {
         case 'COMPLETED':
-            color = 'success';
-            label = 'Completa';
-            icon = <CheckCircleOutline sx={{ fontSize: '1rem' }} />;
-            break;
+            color = 'success'; label = 'Completa'; icon = <CheckCircleOutline sx={{ fontSize: '1rem' }} />; break;
         case 'PENDING':
-            color = 'warning';
-            label = 'Pendente';
-            icon = <HourglassTop sx={{ fontSize: '1rem' }} />;
-            break;
+            color = 'warning'; label = 'Pendente'; icon = <HourglassTop sx={{ fontSize: '1rem' }} />; break;
         case 'FAILED':
-            color = 'error';
-            label = 'Falhou';
-            icon = <ErrorOutline sx={{ fontSize: '1rem' }} />;
-            break;
+            color = 'error'; label = 'Falhou'; icon = <ErrorOutline sx={{ fontSize: '1rem' }} />; break;
     }
-
     return <Chip icon={icon} label={label} color={color} size="small" variant="outlined" sx={{ height: 24, fontSize: '0.75rem'}} />;
 }
 
 const RecentTransactions = ({ transactions, loading }) => (
     <Paper elevation={0} sx={{ p: 3, borderRadius: '16px', backgroundColor: 'background.paper', border: '1px solid', borderColor: 'divider', height: '100%' }}>
         <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>Últimas Transações</Typography>
-
-        {loading ? (
-            <Skeleton variant="rectangular" height={150} />
-        ) : (
+        {loading ? ( <Skeleton variant="rectangular" height={150} /> ) : (
             <List disablePadding>
                 {transactions.map((tx, index) => (
                     <React.Fragment key={tx.id}>
@@ -340,11 +318,11 @@ const RecentTransactions = ({ transactions, loading }) => (
                             <ListItemAvatar>
                                 <Avatar sx={{ bgcolor: 'action.hover' }}>{tx.icon}</Avatar>
                             </ListItemAvatar>
-                            <ListItemText 
-                                primaryTypographyProps={{ fontWeight: 'medium' }} 
-                                primary={tx.store || tx.type} // Fallback para tx.type se store não existir
+                            <ListItemText
+                                primaryTypographyProps={{ fontWeight: 'medium' }}
+                                primary={tx.store || tx.type}
                                 secondary={<StatusChip status={tx.transactionStatus} />}
-                                secondaryTypographyProps={{ component: 'div' }} // Evita erro de hidratação
+                                secondaryTypographyProps={{ component: 'div' }}
                             />
                             <Box sx={{ textAlign: 'right' }}>
                                 <Typography variant="body1" sx={{ fontWeight: 'bold', color: tx.amount > 0 ? 'success.main' : 'error.main' }}>
@@ -365,14 +343,10 @@ const RecentTransactions = ({ transactions, loading }) => (
 
 const BalanceChart = ({ history, loading }) => {
     const theme = useTheme();
-
     return (
         <Paper elevation={0} sx={{ p: 3, borderRadius: '16px', backgroundColor: 'background.paper', border: '1px solid', borderColor: 'divider', height: 250 }}>
             <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>Evolução do Saldo</Typography>
-
-            {loading ? (
-                <Skeleton variant="rectangular" width="100%" height="85%" />
-            ) : (
+            {loading ? ( <Skeleton variant="rectangular" width="100%" height="85%" /> ) : (
                 <ResponsiveContainer width="100%" height="85%">
                     <AreaChart data={history} margin={{ top: 10, right: 20, left: -20, bottom: 0 }}>
                         <defs>
@@ -392,7 +366,6 @@ const BalanceChart = ({ history, loading }) => {
     );
 };
 
-// --- PÁGINA PRINCIPAL DO DASHBOARD (Layout original mantido) ---
 export default function DashboardPage() {
     const { user } = useUser();
     const [customerData, setCustomerData] = useState(null);
@@ -412,36 +385,27 @@ export default function DashboardPage() {
 
     useEffect(() => {
         const fetchAllData = async () => {
+            if (!user?.name) {
+                setLoadingCustomerData(false);
+                return;
+            }
             setLoadingCustomerData(true);
             try {
-                const email = user?.name;
-                if (!email) {
-                    setLoadingCustomerData(false);
-                    return;
-                }
-
-                const response = await fetch(`${API_URL}/customers/profile/${email}`, {
-                    headers: authHeader()
-                });
-
+                const response = await fetch(`${API_URL}/customers/profile/${user.name}`, { headers: authHeader() });
                 if (!response.ok) throw new Error('Failed to fetch customer data');
-
                 const data = await response.json();
                 setCustomerData(data);
-                setLoadingCustomerData(false);
-
-                const currentAccountId = data.id; // Assuming data.id is the accountId
-                if (currentAccountId) {
-                    fetchBalance(currentAccountId);
-                    fetchHistory(currentAccountId);
-                    fetchTransactions(currentAccountId);
+                if (data.id) {
+                    fetchBalance(data.id);
+                    fetchHistory(data.id);
+                    fetchTransactions(data.id);
                 }
             } catch (error) {
                 console.error('Error fetching initial data:', error);
+            } finally {
                 setLoadingCustomerData(false);
             }
         };
-
         fetchAllData();
     }, [user]);
 
@@ -451,11 +415,8 @@ export default function DashboardPage() {
             const res = await fetch(`${API_URL}/account/${currentAccountId}`, { headers: authHeader() });
             const data = await res.json();
             setBalance(data.balance);
-        } catch (err) {
-            console.error('Erro ao buscar saldo:', err);
-        } finally {
-            setLoadingBalance(false);
-        }
+        } catch (err) { console.error('Erro ao buscar saldo:', err); }
+        finally { setLoadingBalance(false); }
     }
 
     async function fetchHistory(currentAccountId) {
@@ -464,18 +425,10 @@ export default function DashboardPage() {
             const res = await fetch(`${API_URL}/account/balance-history/${currentAccountId}`, { headers: authHeader() });
             if (!res.ok) throw new Error(`Erro ${res.status}`);
             const raw = await res.json();
-            const formatted = raw.map(item => ({
-                name: new Date(item.timestamp).toLocaleDateString('pt-BR', {
-                    day: '2-digit', month: '2-digit', year: 'numeric'
-                }),
-                saldo: item.balance
-            }));
+            const formatted = raw.map(item => ({ name: new Date(item.timestamp).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }), saldo: item.balance }));
             setHistory(formatted);
-        } catch (e) {
-            console.error('Erro ao buscar histórico:', e);
-        } finally {
-            setLoadingHistory(false);
-        }
+        } catch (e) { console.error('Erro ao buscar histórico:', e); }
+        finally { setLoadingHistory(false); }
     }
 
     async function fetchTransactions(currentAccountId) {
@@ -484,35 +437,16 @@ export default function DashboardPage() {
             const res = await fetch(`${API_URL}/transaction/accounts/${currentAccountId}`, { headers: authHeader() });
             if (!res.ok) throw new Error(`Failed to fetch transactions: ${res.status}`);
             const rawTransactions = await res.json();
-
             const processedTransactions = rawTransactions.map(tx => {
-                let isDebit;
-                const transactionType = tx.transactionType || '';
-
-                // Prioritize structured transactionType for core types
-                if (transactionType === 'TRANSFER') {
-                    isDebit = tx.accountId === currentAccountId; // Debit only if user is the sender
-                } else if (transactionType === 'WITHDRAWAL' || transactionType === 'PAYMENT') {
-                    isDebit = true;
-                } else if (transactionType === 'DEPOSIT') {
-                    isDebit = false;
-                } else {
-                    // Fallback to keyword-based check for other types (e.g., PIX, compra)
-                    const descriptiveType = (tx.type || '').toLowerCase();
-                    // Note: 'transferência' is removed to avoid conflict with the specific check above.
-                    const DEBIT_KEYWORDS = ['compra', 'pagamento', 'pix', 'recarga', 'saque', 'débito', 'withdrawal'];
-                    isDebit = DEBIT_KEYWORDS.some(keyword => descriptiveType.includes(keyword));
-                }
-
+                const isDebit = tx.accountId === currentAccountId;
                 const amount = isDebit ? -Math.abs(tx.amount) : Math.abs(tx.amount);
                 const icon = isDebit ? <ArrowDownward color="error" /> : <ArrowUpward color="success" />;
                 return { ...tx, amount, icon };
             });
-
             setTransactions(processedTransactions);
         } catch (err) {
             console.error('Erro ao buscar transações:', err);
-            setTransactions([]); // Limpa as transações em caso de erro.
+            setTransactions([]);
         } finally {
             setLoadingTransactions(false);
         }
@@ -529,6 +463,7 @@ export default function DashboardPage() {
                     <Grid item xs={12} lg={8}>
                         <Stack spacing={3}>
                             <WelcomeHeader customerData={customerData} loading={loadingCustomerData} />
+                            {/* --- LAYOUT ORIGINAL RESTAURADO --- */}
                             <Grid container spacing={3}>
                                 <BalanceCard balance={balance} loading={loadingBalance}/>
                                 <QuickActions />

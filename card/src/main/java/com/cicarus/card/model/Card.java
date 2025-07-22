@@ -35,10 +35,10 @@ public class Card {
     private String cardholderName;
 
     @Column
-    private String network; // “VISA”, “MASTERCARD”, “AMEX”…
+    private String network; 
 
     @Column(name = "card_type")
-    private String cardType;  // “DEBIT”, “CREDIT”, “PREPAID”…
+    private String cardType;  
 
     @Column(name = "cvv_hash")
     private String cvvHash;

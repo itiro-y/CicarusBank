@@ -58,6 +58,6 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
     }
 
     public static class Config {
-        // Put the configuration properties here
+        
     }
 }

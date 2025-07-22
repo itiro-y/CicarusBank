@@ -63,7 +63,7 @@ const Card3D = ({ card, isSelected, onClick }) => {
                         {card.cardholderName}
                     </Typography>
                     <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
-                        {new Date(card.expiry).toLocaleDateString('pt-BR', { month: '2-digit', year: '2-digit' })}
+                        {new Date(card.expiry + 'T00:00:00').toLocaleDateString('pt-BR', { month: '2-digit', year: '2-digit' })}
                     </Typography>
                 </Box>
             </Paper>
@@ -85,14 +85,37 @@ export default function CardLimitPage() {
         fetchCards();
     }, []);
 
+    // LÓGICA DE BUSCA ALTERADA
     async function fetchCards() {
         setLoading(true);
+        // 1. Obter dados do usuário logado do localStorage
+        const accountId = localStorage.getItem('accountId');
+        const token = localStorage.getItem('token');
+
+        if (!accountId) {
+            console.error('ID da conta não encontrado.');
+            setLoading(false);
+            // Opcional: Redirecionar para o login ou mostrar um erro
+            return;
+        }
+
         try {
-            // Fetch only physical cards that can have their limits adjusted
-            const res = await fetch(`${API_URL}/card/list/1`);
+            // 2. Usar o ID dinâmico e o token na chamada
+            const res = await fetch(`${API_URL}/card/list/${accountId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!res.ok) {
+                throw new Error('Falha ao buscar os cartões.');
+            }
+
             const allCards = await res.json();
-            const physicalCards = allCards.filter(c => c.cardType !== 'VIRTUAL');
+            // Filtra apenas os cartões físicos que podem ter o limite ajustado
+            const physicalCards = allCards.filter(c => c.cardType !== 'VIRTUAL' && c.status === 'ACTIVE');
             setCards(physicalCards);
+
             if (physicalCards.length > 0) {
                 handleCardSelect(physicalCards[0]);
             }
@@ -112,20 +135,37 @@ export default function CardLimitPage() {
         setNewLimit(value);
     };
 
+    // LÓGICA DE ATUALIZAÇÃO ALTERADA
     const handleUpdateLimit = async () => {
-        setUpdating(true);
-        try {
-            // Mock API call
-            console.log(`Updating limit for card ${selectedCard.id} to ${newLimit}`);
-            await new Promise(resolve => setTimeout(resolve, 1500));
+        if (!selectedCard) return;
 
-            // Update card in local state for immediate feedback
+        setUpdating(true);
+        const token = localStorage.getItem('token');
+
+        try {
+            // Lógica de mock substituída pela chamada real à API
+            const response = await fetch(`${API_URL}/card/limit`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    cardId: selectedCard.id,
+                    newLimit: newLimit,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('A resposta da rede não foi bem-sucedida.');
+            }
+
+            // Atualiza o cartão no estado local para feedback imediato
             const updatedCards = cards.map(c =>
                 c.id === selectedCard.id ? { ...c, creditLimit: newLimit } : c
             );
             setCards(updatedCards);
             setSelectedCard(prev => ({ ...prev, creditLimit: newLimit }));
-
 
             Swal.fire({
                 icon: 'success',
@@ -136,6 +176,7 @@ export default function CardLimitPage() {
             });
 
         } catch (error) {
+            console.error('Erro ao atualizar o limite:', error);
             Swal.fire({
                 icon: 'error',
                 title: 'Erro!',
@@ -225,7 +266,7 @@ export default function CardLimitPage() {
                     </AnimatePresence>
                     {!loading && cards.length === 0 && (
                         <Alert severity="info" sx={{ mt: 4 }}>
-                            Você não possui cartões físicos disponíveis para ajuste de limite.
+                            Você não possui cartões físicos ativos para ajuste de limite.
                         </Alert>
                     )}
                 </motion.div>

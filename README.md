@@ -63,6 +63,16 @@ graph TD
         card_service[Card]
         naming_server[Naming Server]
         statement_service[Statement]
+
+        auth_db[(Auth DB)]
+        account_db[(Account DB)]
+        customer_db[(Customer DB)]
+        loan_db[(Loan DB)]
+        transaction_db[(Transaction DB)]
+        currency_exchange_db[(Currency Exchange DB)]
+        notification_db[(Notification DB)]
+        card_db[(Card DB)]
+        statement_db[(Statement DB)]
     end
 
     user --> frontend
@@ -78,5 +88,15 @@ graph TD
     naming_server --> notification_service
     naming_server --> card_service
     naming_server --> statement_service
+
+    auth_service --> auth_db
+    account_service --> account_db
+    customer_service --> customer_db
+    loan_service --> loan_db
+    transaction_service --> transaction_db
+    currency_exchange_service --> currency_exchange_db
+    notification_service --> notification_db
+    card_service --> card_db
+    statement_service --> statement_db
 ```
 docker-compose up mysql-auth mysql-customer mysql-emailModel mysql-statement mysql-currency mysql-account mysql-transaction mysql-loan mysql-card --build -d

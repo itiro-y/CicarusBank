@@ -168,6 +168,13 @@ public class TransactionController {
             tranferenceNotificationDto.setAccountToId(accountTo.getId());
             tranferenceNotificationDto.setCustomerToId(accountTo.getUserId());
             notificationProducer.sendNotification(tranferenceNotificationDto);
+
+            Transaction toTransaction = transactionService.createAndSetTransaction( accountTo.getUserId(),
+                                                                                    request.getAmount(),
+                                                                                    TransactionType.TRANSFER_RECEIVED,
+                                                                                    TransactionStatus.COMPLETED);
+
+            transactionRepository.save(toTransaction);
         }
 
         if(request.getTransactionType().equals(TransactionType.PAYMENT)){

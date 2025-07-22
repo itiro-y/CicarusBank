@@ -1,82 +1,238 @@
 # CicarusBank
 
 ## About CicarusBank
-CicarusBank is a collaborative project that implements a comprehensive banking system. It is designed and developed 
-using a  microservices architecture.
+
+CicarusBank is a collaborative project that implements a comprehensive banking system. It is designed and developed
+using a microservices architecture.
 
 ## Tech Stack
+
 This project utilizes the following key technologies:
 
-*   **Frontend:** React
-*   **Backend:** Spring Boot
-*   **Containerization:** Docker
-*   **Database:** MySQL
-
+* **Frontend:** React
+* **Backend:** Spring Boot
+* **Containerization:** Docker
+* **Database:** MySQL
 
 ## How to Run
 
 To run the CicarusBank application, follow these steps:
 
 ### Prerequisites
+
 Before you begin, ensure you have the following installed:
-*   **Docker** and **Docker Compose**: For containerizing and orchestrating the microservices.
-*   **Maven**: For building the Spring Boot microservices.
+
+* **Docker** and **Docker Compose**: For containerizing and orchestrating the microservices.
+* **Maven**: For building the Spring Boot microservices.
 
 ### Running the Application
 
-1.  **Navigate to the project root:**
-    ```bash
-    cd .../CicarusBank
-    ```
+1. **Navigate to the project root:**
+   ```bash
+   cd .../CicarusBank
+   ```
 
-2.  **Execute the `runapp.sh` script:**
-    This script automates the process of building the microservices and starting the Docker containers.
-    ```bash
-    ./runapp.sh
-    ```
+2. **Execute the `runapp.sh` script:**
+   This script automates the process of building the microservices and starting the Docker containers.
+   ```bash
+   ./runapp.sh
+   ```
 
-    The script performs the following actions:
-    *   Shuts down any currently running Docker containers for the project.
-    *   Runs `mvnw clean package` to clean and package all Maven-based microservices.
-    *   Builds and starts all services using `docker compose up --build -d` in detached mode.
+   The script performs the following actions:
+    * Shuts down any currently running Docker containers for the project.
+    * Runs `mvnw clean package` to clean and package all Maven-based microservices.
+    * Builds and starts all services using `docker compose up --build -d` in detached mode.
 
-3.  **Verify containers (Optional):**
-    You can check the status of your running containers using:
-    ```bash
-    docker compose ps
-    ```
+3. **Verify containers (Optional):**
+   You can check the status of your running containers using:
+   ```bash
+   docker compose ps
+   ```
 
 ## System Architecture Diagram
+
 ```mermaid
 graph TD
-    subgraph "CicarusBank System"
-        user[Bank Customer]
-        frontend[Frontend]
-        api_gateway[API Gateway]
-        auth_service[Auth]
-        account_service[Account]
-        customer_service[Customer]
-        loan_service[Loan]
-        transaction_service[Transaction]
-        currency_exchange_service[Currency Exchange]
-        notification_service[Notification]
-        card_service[Card]
-        naming_server[Naming Server]
-        statement_service[Statement]
+    subgraph "Azure Cloud"
+        subgraph "CicarusBank System"
+            user[Bank Customer]
+
+            subgraph "Frontend Container"
+                frontend[Frontend]
+            end
+
+            subgraph "API Gateway Container"
+                api_gateway[API Gateway]
+            end
+
+            subgraph "Naming Server Container"
+                naming_server[Naming Server]
+            end
+
+            subgraph "Account Container"
+                account_service[Account Service]
+            end
+            subgraph "Account DB"
+                account_db[(Account DB)]
+            end
+
+            subgraph "Auth Container"
+                auth_service[Auth Service]
+            end
+            subgraph "Auth DB"
+                auth_db[(Auth DB)]
+            end
+
+            subgraph "Benefits Container"
+                benefits_service[Benefits Service]
+            end
+            subgraph "Benefits DB"
+                benefits_db[(Benefits DB)]
+            end
+
+            subgraph "Card Container"
+                card_service[Card Service]
+            end
+            subgraph "Card DB"
+                card_db[(Card DB)]
+            end
+
+            subgraph "Currency Exchange Container"
+                currency_exchange_service[Currency Exchange Service]
+            end
+            subgraph "Currency Exchange DB"
+                currency_exchange_db[(Currency Exchange DB)]
+            end
+
+            subgraph "Customer Container"
+                customer_service[Customer Service]
+            end
+            subgraph "Customer DB"
+                customer_db[(Customer DB)]
+            end
+
+            subgraph "Investment Container"
+                investment_service[Investment Service]
+            end
+            subgraph "Investment DB"
+                investment_db[(Investment DB)]
+            end
+
+            subgraph "Loan Container"
+                loan_service[Loan Service]
+            end
+            subgraph "Loan DB"
+                loan_db[(Loan DB)]
+            end
+
+            subgraph "Notification Container"
+                notification_service[Notification Service]
+            end
+            subgraph "Notification DB"
+                notification_db[(Notification DB)]
+            end
+
+            subgraph "Statement Container"
+                statement_service[Statement Service]
+            end
+            subgraph "Statement DB"
+                statement_db[(Statement DB)]
+            end
+
+            subgraph "Transaction Container"
+                transaction_service[Transaction Service]
+            end
+            subgraph "Transaction DB"
+                transaction_db[(Transaction DB)]
+            end
+        end
     end
 
     user --> frontend
     frontend --> api_gateway
     api_gateway --> naming_server
 
-    naming_server --> auth_service
     naming_server --> account_service
-    naming_server --> customer_service
-    naming_server --> loan_service
-    naming_server --> transaction_service
-    naming_server --> currency_exchange_service
-    naming_server --> notification_service
+    naming_server --> auth_service
+    naming_server --> benefits_service
     naming_server --> card_service
+    naming_server --> currency_exchange_service
+    naming_server --> customer_service
+    naming_server --> investment_service
+    naming_server --> loan_service
+    naming_server --> notification_service
     naming_server --> statement_service
+    naming_server --> transaction_service
+
+    account_service --> account_db
+    auth_service --> auth_db
+    benefits_service --> benefits_db
+    card_service --> card_db
+    currency_exchange_service --> currency_exchange_db
+    customer_service --> customer_db
+    investment_service --> investment_db
+    loan_service --> loan_db
+    notification_service --> notification_db
+    statement_service --> statement_db
+    transaction_service --> transaction_db
 ```
-docker-compose up mysql-auth mysql-customer mysql-emailModel mysql-statement mysql-currency mysql-account mysql-transaction mysql-loan mysql-card --build -d
+
+docker-compose up mysql-auth mysql-customer mysql-emailModel mysql-statement mysql-currency mysql-account
+mysql-transaction mysql-loan mysql-card --build -d
+
+## Microservice Communication Diagram
+
+```mermaid
+graph TD
+    subgraph "Communication"
+        loan_service[Loan Service]
+        transaction_service[Transaction Service]
+        customer_service[Customer Service]
+        account_service[Account Service]
+        auth_service[Auth Service]
+        statement_service[Statement Service]
+        notification_service[Notification Service]
+        investment_service[Investment Service]
+        currency_exchange_service[Currency Exchange Service]
+    end
+
+    loan_service --> transaction_service
+    loan_service --> customer_service
+    loan_service --> account_service
+    transaction_service --> customer_service
+    transaction_service --> account_service
+    auth_service --> customer_service
+    statement_service --> transaction_service
+    notification_service --> loan_service
+    notification_service --> customer_service
+    investment_service --> account_service
+    customer_service --> auth_service
+    customer_service --> account_service
+    currency_exchange_service --> account_service
+```
+
+[//]: # (## System Architecture Diagram &#40;Architecture Beta&#41;)
+
+[//]: # (```mermaid)
+
+[//]: # (architecture-beta)
+
+[//]: # (    group AccountDbContainer[Container])
+
+[//]: # (    service accountMs&#40;internet&#41;[AccountMs] in AccountDbContainer)
+
+[//]: # ()
+
+[//]: # ()
+
+[//]: # (    group accountMsContainer[Container])
+
+[//]: # (    service accountDb&#40;database&#41;[MySqlDb] in accountMsContainer)
+
+[//]: # ()
+
+[//]: # (    accountDb:L -- R:accountMs)
+
+[//]: # ()
+
+[//]: # (```)

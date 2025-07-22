@@ -11,6 +11,10 @@ import WalletIcon from '@mui/icons-material/Wallet';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import AddIcon from '@mui/icons-material/Add';
 import {useUser} from "../../context/UserContext.jsx";
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 const STOCKS = [
@@ -76,6 +80,8 @@ export default function StockInvestmentsPage() {
     const [accountId, setAccountId] = useState(0);
     const [customerData, setCustomerData] = useState(null);
     const [loadingCustomerData, setLoadingCustomerData] = useState(false);
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [successOpen, setSuccessOpen] = useState(false);
 
     useEffect(() => {
         if (!user) return;  // só roda quando 'user' estiver disponível
@@ -240,6 +246,8 @@ export default function StockInvestmentsPage() {
         }
 
         setBuyLoading(true);
+        setConfirmOpen(false); // Fechar o diálogo de confirmação
+
         try {
             // Buscar dados da ação com Alpha Vantage
             const OV_API_KEY = "05OPBVBUATY9EPP1";
@@ -278,8 +286,9 @@ export default function StockInvestmentsPage() {
                 qty: result.qty,
                 price: result.price
             });
+            setSuccessOpen(true); // Abrir o diálogo de sucesso
             await fetchWallet();
-            await fetchUsdWallet()
+            await fetchUsdWallet();
         } catch (error) {
             console.error(error);
             setBuyError(error.message || 'Erro inesperado.');
@@ -529,7 +538,7 @@ export default function StockInvestmentsPage() {
                                 variant="contained"
                                 color="primary"
                                 fullWidth
-                                onClick={handleBuy}
+                                onClick={() => setConfirmOpen(true)} // Abrir o diálogo de confirmação
                                 disabled={buyLoading || accountId == 0}
                                 sx={{
                                     fontWeight: 700,
@@ -542,28 +551,44 @@ export default function StockInvestmentsPage() {
                             >
                                 {buyLoading ? 'Processando...' : `Comprar ${STOCKS.find(s => s.symbol === selectedStock)?.name}`}
                             </Button>
-                            {buyError && (
-                                <Typography color="error" sx={{ mt: 2 }}>{buyError}</Typography>)}
-                            {buyResult && (
-                                <Paper
-                                    elevation={0}
-                                    sx={{
-                                        mt: 3,
-                                        p: 2,
-                                        bgcolor: 'success.lighter',
-                                        borderRadius: 2,
-                                        textAlign: 'center',
-                                        width: '100%',
-                                    }}
-                                >
-                                    <Typography variant="subtitle1" sx={{ fontWeight: 700, color: 'success.main' }}>
-                                        Compra Realizada
-                                    </Typography>
+
+                            {/* Diálogo de confirmação */}
+                            <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
+                                <DialogTitle>Confirmar Compra</DialogTitle>
+                                <DialogContent>
                                     <Typography>
-                                        Você comprou <b>{buyVolume}</b> {selectedStock} a US$ {Number(prices[selectedStock]).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} cada.
+                                        Tem certeza que deseja comprar {buyVolume || '--'} ações de {STOCKS.find(s => s.symbol === selectedStock)?.name} ({selectedStock}) a US$ {prices[selectedStock] ? Number(prices[selectedStock]).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--'} cada?
                                     </Typography>
-                                </Paper>
-                            )}
+                                </DialogContent>
+                                <DialogActions>
+                                    <Button onClick={() => setConfirmOpen(false)} color="inherit">
+                                        Cancelar
+                                    </Button>
+                                    <Button
+                                        onClick={handleBuy}
+                                        color="primary"
+                                        variant="contained"
+                                        disabled={buyLoading}
+                                    >
+                                        Confirmar
+                                    </Button>
+                                </DialogActions>
+                            </Dialog>
+
+                            {/* Diálogo de sucesso */}
+                            <Dialog open={successOpen} onClose={() => setSuccessOpen(false)}>
+                                <DialogTitle>Compra Realizada</DialogTitle>
+                                <DialogContent>
+                                    <Typography>
+                                        Sua compra de {buyVolume || '--'} ações de {STOCKS.find(s => s.symbol === selectedStock)?.name} ({selectedStock}) foi realizada com sucesso!
+                                    </Typography>
+                                </DialogContent>
+                                <DialogActions>
+                                    <Button onClick={() => setSuccessOpen(false)} color="primary" autoFocus>
+                                        Fechar
+                                    </Button>
+                                </DialogActions>
+                            </Dialog>
                         </Card>
                     )}
                     {tab === 1 && (

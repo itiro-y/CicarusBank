@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Box, Container, Typography, Paper, Stack, Button,
     TableContainer, Table, TableHead, TableBody, TableRow, TableCell,
-    Toolbar, CircularProgress, Grid, Card, CardContent
+    Toolbar, CircularProgress, Grid, Card, CardContent, Chip
 } from '@mui/material';
 import AppAppBar from '../../components/AppAppBar.jsx';
 import { Link } from 'react-router-dom';
@@ -44,6 +44,21 @@ function InvestmentTable({ investments, loading }) {
         );
     };
 
+    const getTypeDetails = (type) => {
+        switch (type) {
+            case 'RENDA_FIXA':
+                return { icon: <AccountBalanceIcon color="primary" />, color: 'primary', label: 'Renda Fixa' };
+            case 'FUNDO_IMOBILIARIO':
+                return { icon: <HomeWorkIcon color="secondary" />, color: 'secondary', label: 'Fundo Imobiliário' };
+            case 'ACOES':
+                return { icon: <TrendingUpIcon color="success" />, color: 'success', label: 'Ações' };
+            case 'CRIPTOMOEDA':
+                return { icon: <CurrencyBitcoinIcon color="warning" />, color: 'warning', label: 'Criptomoeda' };
+            default:
+                return { icon: null, color: 'default', label: 'Outro' };
+        }
+    };
+
     if (loading) return <CircularProgress />;
     return (
         <TableContainer component={Paper}>
@@ -61,22 +76,57 @@ function InvestmentTable({ investments, loading }) {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {investments.map(inv => (
-                        <TableRow key={inv.id}>
-                            <TableCell>{inv.accountId}</TableCell>
-                            <TableCell>{inv.type}</TableCell>
-                            <TableCell>{inv.status}</TableCell>
-                            <TableCell>
-                                { formatCurrency(inv.amountInvested, inv.type) }
-                            </TableCell>
-                            <TableCell>
-                                { formatCurrency(inv.currentValue,   inv.type) }
-                            </TableCell>
-                            <TableCell>{Number(inv.expectedReturnRate).toLocaleString('pt-BR')}%</TableCell>
-                            <TableCell>{new Date(inv.startDate).toLocaleDateString('pt-BR')}</TableCell>
-                            <TableCell>{inv.autoRenew ? 'Sim' : 'Não'}</TableCell>
-                        </TableRow>
-                    ))}
+                    {investments.map(inv => {
+                        const { icon, color, label } = getTypeDetails(inv.type);
+                        return (
+                            <TableRow key={inv.id}>
+                                <TableCell>{inv.accountId}</TableCell>
+                                <TableCell>
+                                    <Chip
+                                        icon={icon}
+                                        label={label}
+                                        color={color}
+                                        variant="outlined"
+                                        sx={{ fontWeight: 'bold' }}
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <Typography
+                                        sx={{
+                                            color: inv.status === 'ATIVO' ? 'success.main' : 'error.main',
+                                            fontWeight: 'bold'
+                                        }}
+                                    >
+                                        {inv.status}
+                                    </Typography>
+                                </TableCell>
+                                <TableCell>
+                                    {formatCurrency(inv.amountInvested, inv.type)}
+                                </TableCell>
+                                <TableCell>
+                                    {formatCurrency(inv.currentValue, inv.type)}
+                                </TableCell>
+                                <TableCell>
+                                    <Typography sx={{ fontWeight: 'bold', color: 'info.main' }}>
+                                        {Number(inv.expectedReturnRate).toLocaleString('pt-BR')}%
+                                    </Typography>
+                                </TableCell>
+                                <TableCell>
+                                    {new Date(inv.startDate).toLocaleDateString('pt-BR')}
+                                </TableCell>
+                                <TableCell>
+                                    <Typography
+                                        sx={{
+                                            fontWeight: 'bold',
+                                            color: inv.autoRenew ? 'success.main' : 'text.secondary'
+                                        }}
+                                    >
+                                        {inv.autoRenew ? 'Sim' : 'Não'}
+                                    </Typography>
+                                </TableCell>
+                            </TableRow>
+                        );
+                    })}
                 </TableBody>
             </Table>
         </TableContainer>
@@ -179,12 +229,26 @@ export default function UserInvestmentsPage() {
     const [successFundoDialog, setSuccessFundoDialog] = useState(false);
 
 
-    const [historicoBRL, setHistoricoBRL] = useState(
-        generateHourlyMock(8_000, 10_000)
-    );
-    const [historicoUSD, setHistoricoUSD] = useState(
-        generateHourlyMock(0, 800)
-    );
+    const [historicoBRL, setHistoricoBRL] = useState([{ hour: '00:00', valor: 0 }]);
+    const [historicoUSD, setHistoricoUSD] = useState([{ hour: '00:00', valor: 0 }]);
+    const [userBalanceBRL, setUserBalanceBRL] = useState(0); // Saldo em reais do usuário
+
+    useEffect(() => {
+        if (accountId) {
+            fetchUserBalanceBRL();
+        }
+    }, [accountId]);
+
+    async function fetchUserBalanceBRL() {
+        try {
+            const res = await fetch(`${API_URL}/account/${accountId}`, { headers: authHeader() });
+            const data = await res.json();
+            setUserBalanceBRL(data.balance || 0);
+        } catch (error) {
+            console.error('Erro ao buscar saldo em reais:', error);
+        }
+    }
+
     function ResumoSaldosInvestidos(){
         return(
             <Box sx={{ mt: 3, mb: 4}}>
@@ -280,7 +344,7 @@ export default function UserInvestmentsPage() {
                 },
                 body: JSON.stringify(payload)
             });
-            await fetchInvestments()
+            await fetchInvestments();
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error("Erro ao depositar renda fixa:", errorData);
@@ -288,8 +352,8 @@ export default function UserInvestmentsPage() {
                 const result = await response.json();
                 console.log("Depósito realizado com sucesso:", result);
             }
-            await fetchBRLInverstments();
-            await fetchUSDInverstments();
+            await fetchInvestmentRendaFixa(); // Atualiza o total de Renda Fixa
+            await fetchBRLInverstments(); // Atualiza o total investido em BRL
         } catch (error) {
             console.error("Erro na requisição de renda fixa:", error);
         } finally {
@@ -316,22 +380,22 @@ export default function UserInvestmentsPage() {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    ...authHeader() // adiciona Authorization: Bearer <token>
+                    ...authHeader()
                 },
                 body: JSON.stringify(payload)
             });
-            await fetchInvestments()
+            await fetchInvestments();
             if (!response.ok) {
                 const errorData = await response.json();
-                console.error("Erro ao depositar renda fixa:", errorData);
+                console.error("Erro ao aplicar em fundo imobiliário:", errorData);
             } else {
                 const result = await response.json();
-                console.log("Depósito realizado com sucesso:", result);
+                console.log("Aplicação realizada com sucesso:", result);
             }
-            await fetchBRLInverstments();
-            await fetchUSDInverstments();
+            await fetchInvestmentFundoImobiliario(); // Atualiza o total de Fundos Imobiliários
+            await fetchBRLInverstments(); // Atualiza o total investido em BRL
         } catch (error) {
-            console.error("Erro na requisição de renda fixa:", error);
+            console.error("Erro na requisição de fundo imobiliário:", error);
         } finally {
             setOpenFundoImob(false);
             setSuccessFundoDialog(true);
@@ -459,17 +523,15 @@ export default function UserInvestmentsPage() {
         setLoading(true);
         try {
             const res = await fetch(`${API_URL}/investment/history-brl/${accountId}`, { headers: authHeader() });
-            const data = await res.json();               // { sumOfAllBrlInvestments, dateOfLastInvestment }
+            const data = await res.json();
             const items = Array.isArray(data) ? data : [data];
 
-            const shaped = items.map(item => {
-                const d = new Date(item.dateOfLastInvestment);
-                return {
-                    hour: new Date(item.dateOfLastInvestment).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-                    valor: item.sumOfAllBrlInvestments.toFixed(2)
-                };
-            });
-            setHistoricoBRL(prev => [...prev, ...shaped]);
+            const shaped = items.map(item => ({
+                hour: new Date(item.dateOfLastInvestment).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                valor: item.sumOfAllBrlInvestments.toFixed(2)
+            }));
+
+            setHistoricoBRL([{ hour: '00:00', valor: 0 }, ...shaped]); // Adiciona o ponto inicial
         } finally {
             setLoading(false);
         }
@@ -481,15 +543,13 @@ export default function UserInvestmentsPage() {
             const res = await fetch(`${API_URL}/investment/history-usd/${accountId}`, { headers: authHeader() });
             const data = await res.json();
             const items = Array.isArray(data) ? data : [data];
-            console.log(items);
-            const shaped = items.map(item => {
-                const d = new Date(item.dateOfLastInvestment);
-                return {
-                    hour: new Date(item.dateOfLastInvestment).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-                    valor: item.sumOfAllUsdInvestments.toFixed(2)
-                };
-            });
-            setHistoricoUSD(prev => [...prev, ...shaped]);
+
+            const shaped = items.map(item => ({
+                hour: new Date(item.dateOfLastInvestment).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                valor: item.sumOfAllUsdInvestments.toFixed(2)
+            }));
+
+            setHistoricoUSD([{ hour: '00:00', valor: 0 }, ...shaped]); // Adiciona o ponto inicial
         } catch (error) {
             console.error(error);
         } finally {
@@ -592,6 +652,9 @@ export default function UserInvestmentsPage() {
                             <b>Liquidez:</b> Resgate a qualquer momento após 30 dias.<br />
                             <b>Garantia:</b> Fundo Garantidor de Créditos (FGC) até R$ 250.000,00.
                         </Typography>
+                        <Typography sx={{ mb: 2, fontWeight: 'bold', color: 'text.primary' }}>
+                            Saldo disponível: R$ {userBalanceBRL.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </Typography>
                         <TextField
                             label="Valor para depositar (R$)"
                             type="number"
@@ -609,7 +672,7 @@ export default function UserInvestmentsPage() {
                             onClick={handleRendaFixaDeposit}
                             color="primary"
                             variant="contained"
-                            disabled={!depositValue || Number(depositValue) <= 0}
+                            disabled={!depositValue || Number(depositValue) <= 0 || Number(depositValue) > userBalanceBRL}
                         >
                             Depositar
                         </Button>
@@ -641,6 +704,9 @@ export default function UserInvestmentsPage() {
                             <b>Dividendos:</b> Pagos mensalmente direto na sua conta.<br />
                             <b>Risco:</b> Moderado. O valor pode oscilar conforme o mercado imobiliário.
                         </Typography>
+                        <Typography sx={{ mb: 2, fontWeight: 'bold', color: 'text.secondary' }}>
+                            Saldo disponível: R$ {userBalanceBRL.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </Typography>
                         <TextField
                             label="Valor para aplicar (R$)"
                             type="number"
@@ -658,7 +724,7 @@ export default function UserInvestmentsPage() {
                             onClick={handleFundoImobDeposit}
                             color="primary"
                             variant="contained"
-                            disabled={!fundoValue || Number(fundoValue) <= 0}
+                            disabled={!fundoValue || Number(fundoValue) <= 0 || Number(fundoValue) > userBalanceBRL}
                         >
                             Aplicar
                         </Button>

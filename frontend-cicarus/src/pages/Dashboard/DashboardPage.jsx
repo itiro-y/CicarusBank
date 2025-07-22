@@ -59,7 +59,7 @@ const WelcomeHeader = ({ customerData, loading }) => {
                 </Avatar>
                 <div>
                     <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
-                        Bom dia, {userName}!
+                        Bom dia, {localStorage.getItem('customerName')}!
                     </Typography>
                     <Typography variant="body1" sx={{ color: 'text.secondary' }}>
                         Bem-vindo de volta ao seu painel CicarusBank.

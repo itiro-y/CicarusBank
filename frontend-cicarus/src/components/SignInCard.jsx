@@ -60,7 +60,7 @@ export default function SignInCard({ onSwitchToSignUp }) {
             }
             const profileData = await profileRes.json();
             localStorage.setItem("accountId", profileData.id);
-
+            localStorage.setItem("customerName", profileData.name);
             // 3) Notifica e navega
             Swal.fire({
                 title: "Login Efetuado!",

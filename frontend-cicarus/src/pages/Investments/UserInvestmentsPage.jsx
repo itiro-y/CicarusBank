@@ -231,6 +231,24 @@ export default function UserInvestmentsPage() {
 
     const [historicoBRL, setHistoricoBRL] = useState([{ hour: '00:00', valor: 0 }]);
     const [historicoUSD, setHistoricoUSD] = useState([{ hour: '00:00', valor: 0 }]);
+    const [userBalanceBRL, setUserBalanceBRL] = useState(0); // Saldo em reais do usuário
+
+    useEffect(() => {
+        if (accountId) {
+            fetchUserBalanceBRL();
+        }
+    }, [accountId]);
+
+    async function fetchUserBalanceBRL() {
+        try {
+            const res = await fetch(`${API_URL}/account/${accountId}`, { headers: authHeader() });
+            const data = await res.json();
+            setUserBalanceBRL(data.balance || 0);
+        } catch (error) {
+            console.error('Erro ao buscar saldo em reais:', error);
+        }
+    }
+
     function ResumoSaldosInvestidos(){
         return(
             <Box sx={{ mt: 3, mb: 4}}>
@@ -634,6 +652,9 @@ export default function UserInvestmentsPage() {
                             <b>Liquidez:</b> Resgate a qualquer momento após 30 dias.<br />
                             <b>Garantia:</b> Fundo Garantidor de Créditos (FGC) até R$ 250.000,00.
                         </Typography>
+                        <Typography sx={{ mb: 2, fontWeight: 'bold', color: 'text.primary' }}>
+                            Saldo disponível: R$ {userBalanceBRL.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </Typography>
                         <TextField
                             label="Valor para depositar (R$)"
                             type="number"
@@ -651,7 +672,7 @@ export default function UserInvestmentsPage() {
                             onClick={handleRendaFixaDeposit}
                             color="primary"
                             variant="contained"
-                            disabled={!depositValue || Number(depositValue) <= 0}
+                            disabled={!depositValue || Number(depositValue) <= 0 || Number(depositValue) > userBalanceBRL}
                         >
                             Depositar
                         </Button>
@@ -683,6 +704,9 @@ export default function UserInvestmentsPage() {
                             <b>Dividendos:</b> Pagos mensalmente direto na sua conta.<br />
                             <b>Risco:</b> Moderado. O valor pode oscilar conforme o mercado imobiliário.
                         </Typography>
+                        <Typography sx={{ mb: 2, fontWeight: 'bold', color: 'text.secondary' }}>
+                            Saldo disponível: R$ {userBalanceBRL.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </Typography>
                         <TextField
                             label="Valor para aplicar (R$)"
                             type="number"
@@ -700,7 +724,7 @@ export default function UserInvestmentsPage() {
                             onClick={handleFundoImobDeposit}
                             color="primary"
                             variant="contained"
-                            disabled={!fundoValue || Number(fundoValue) <= 0}
+                            disabled={!fundoValue || Number(fundoValue) <= 0 || Number(fundoValue) > userBalanceBRL}
                         >
                             Aplicar
                         </Button>

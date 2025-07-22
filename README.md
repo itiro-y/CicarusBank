@@ -1,52 +1,56 @@
 # CicarusBank
 
 ## About CicarusBank
-CicarusBank is a collaborative project that implements a comprehensive banking system. It is designed and developed 
-using a  microservices architecture.
+
+CicarusBank is a collaborative project that implements a comprehensive banking system. It is designed and developed
+using a microservices architecture.
 
 ## Tech Stack
+
 This project utilizes the following key technologies:
 
-*   **Frontend:** React
-*   **Backend:** Spring Boot
-*   **Containerization:** Docker
-*   **Database:** MySQL
-
+* **Frontend:** React
+* **Backend:** Spring Boot
+* **Containerization:** Docker
+* **Database:** MySQL
 
 ## How to Run
 
 To run the CicarusBank application, follow these steps:
 
 ### Prerequisites
+
 Before you begin, ensure you have the following installed:
-*   **Docker** and **Docker Compose**: For containerizing and orchestrating the microservices.
-*   **Maven**: For building the Spring Boot microservices.
+
+* **Docker** and **Docker Compose**: For containerizing and orchestrating the microservices.
+* **Maven**: For building the Spring Boot microservices.
 
 ### Running the Application
 
-1.  **Navigate to the project root:**
-    ```bash
-    cd .../CicarusBank
-    ```
+1. **Navigate to the project root:**
+   ```bash
+   cd .../CicarusBank
+   ```
 
-2.  **Execute the `runapp.sh` script:**
-    This script automates the process of building the microservices and starting the Docker containers.
-    ```bash
-    ./runapp.sh
-    ```
+2. **Execute the `runapp.sh` script:**
+   This script automates the process of building the microservices and starting the Docker containers.
+   ```bash
+   ./runapp.sh
+   ```
 
-    The script performs the following actions:
-    *   Shuts down any currently running Docker containers for the project.
-    *   Runs `mvnw clean package` to clean and package all Maven-based microservices.
-    *   Builds and starts all services using `docker compose up --build -d` in detached mode.
+   The script performs the following actions:
+    * Shuts down any currently running Docker containers for the project.
+    * Runs `mvnw clean package` to clean and package all Maven-based microservices.
+    * Builds and starts all services using `docker compose up --build -d` in detached mode.
 
-3.  **Verify containers (Optional):**
-    You can check the status of your running containers using:
-    ```bash
-    docker compose ps
-    ```
+3. **Verify containers (Optional):**
+   You can check the status of your running containers using:
+   ```bash
+   docker compose ps
+   ```
 
 ## System Architecture Diagram
+
 ```mermaid
 graph TD
     subgraph "Azure Cloud"
@@ -154,4 +158,52 @@ graph TD
     card_service --> card_db
     statement_service --> statement_db
 ```
-docker-compose up mysql-auth mysql-customer mysql-emailModel mysql-statement mysql-currency mysql-account mysql-transaction mysql-loan mysql-card --build -d
+
+docker-compose up mysql-auth mysql-customer mysql-emailModel mysql-statement mysql-currency mysql-account
+mysql-transaction mysql-loan mysql-card --build -d
+
+## Microservice Communication Diagram
+
+```mermaid
+graph TD
+    subgraph "Microservice Communication"
+        loan_service[Loan Service]
+        transaction_service[Transaction Service]
+        customer_service[Customer Service]
+        account_service[Account Service]
+        auth_service[Auth Service]
+        statement_service[Statement Service]
+        notification_service[Notification Service]
+        investment_service[Investment Service]
+        currency_exchange_service[Currency Exchange Service]
+    end
+
+    loan_service --> transaction_service
+    loan_service --> customer_service
+    loan_service --> account_service
+    transaction_service --> customer_service
+    transaction_service --> account_service
+    auth_service --> customer_service
+    statement_service --> transaction_service
+    notification_service --> loan_service
+    notification_service --> customer_service
+    investment_service --> account_service
+    customer_service --> auth_service
+    customer_service --> account_service
+    currency_exchange_service --> account_service
+```
+
+## System Architecture Diagram (Architecture Beta)
+
+```mermaid
+architecture-beta
+    group AccountDbContainer[Container]
+    service accountMs(internet)[AccountMs] in AccountDbContainer
+
+
+    group accountMsContainer[Container]
+    service accountDb(database)[MySqlDb] in accountMsContainer
+
+    accountDb:L -- R:accountMs
+
+```

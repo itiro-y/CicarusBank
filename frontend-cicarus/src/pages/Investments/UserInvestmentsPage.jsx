@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Box, Container, Typography, Paper, Stack, Button,
     TableContainer, Table, TableHead, TableBody, TableRow, TableCell,
-    Toolbar, CircularProgress, Grid, Card, CardContent
+    Toolbar, CircularProgress, Grid, Card, CardContent, Chip
 } from '@mui/material';
 import AppAppBar from '../../components/AppAppBar.jsx';
 import { Link } from 'react-router-dom';
@@ -44,6 +44,21 @@ function InvestmentTable({ investments, loading }) {
         );
     };
 
+    const getTypeDetails = (type) => {
+        switch (type) {
+            case 'RENDA_FIXA':
+                return { icon: <AccountBalanceIcon color="primary" />, color: 'primary', label: 'Renda Fixa' };
+            case 'FUNDO_IMOBILIARIO':
+                return { icon: <HomeWorkIcon color="secondary" />, color: 'secondary', label: 'Fundo Imobiliário' };
+            case 'ACOES':
+                return { icon: <TrendingUpIcon color="success" />, color: 'success', label: 'Ações' };
+            case 'CRIPTOMOEDA':
+                return { icon: <CurrencyBitcoinIcon color="warning" />, color: 'warning', label: 'Criptomoeda' };
+            default:
+                return { icon: null, color: 'default', label: 'Outro' };
+        }
+    };
+
     if (loading) return <CircularProgress />;
     return (
         <TableContainer component={Paper}>
@@ -61,22 +76,57 @@ function InvestmentTable({ investments, loading }) {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {investments.map(inv => (
-                        <TableRow key={inv.id}>
-                            <TableCell>{inv.accountId}</TableCell>
-                            <TableCell>{inv.type}</TableCell>
-                            <TableCell>{inv.status}</TableCell>
-                            <TableCell>
-                                { formatCurrency(inv.amountInvested, inv.type) }
-                            </TableCell>
-                            <TableCell>
-                                { formatCurrency(inv.currentValue,   inv.type) }
-                            </TableCell>
-                            <TableCell>{Number(inv.expectedReturnRate).toLocaleString('pt-BR')}%</TableCell>
-                            <TableCell>{new Date(inv.startDate).toLocaleDateString('pt-BR')}</TableCell>
-                            <TableCell>{inv.autoRenew ? 'Sim' : 'Não'}</TableCell>
-                        </TableRow>
-                    ))}
+                    {investments.map(inv => {
+                        const { icon, color, label } = getTypeDetails(inv.type);
+                        return (
+                            <TableRow key={inv.id}>
+                                <TableCell>{inv.accountId}</TableCell>
+                                <TableCell>
+                                    <Chip
+                                        icon={icon}
+                                        label={label}
+                                        color={color}
+                                        variant="outlined"
+                                        sx={{ fontWeight: 'bold' }}
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <Typography
+                                        sx={{
+                                            color: inv.status === 'ATIVO' ? 'success.main' : 'error.main',
+                                            fontWeight: 'bold'
+                                        }}
+                                    >
+                                        {inv.status}
+                                    </Typography>
+                                </TableCell>
+                                <TableCell>
+                                    {formatCurrency(inv.amountInvested, inv.type)}
+                                </TableCell>
+                                <TableCell>
+                                    {formatCurrency(inv.currentValue, inv.type)}
+                                </TableCell>
+                                <TableCell>
+                                    <Typography sx={{ fontWeight: 'bold', color: 'info.main' }}>
+                                        {Number(inv.expectedReturnRate).toLocaleString('pt-BR')}%
+                                    </Typography>
+                                </TableCell>
+                                <TableCell>
+                                    {new Date(inv.startDate).toLocaleDateString('pt-BR')}
+                                </TableCell>
+                                <TableCell>
+                                    <Typography
+                                        sx={{
+                                            fontWeight: 'bold',
+                                            color: inv.autoRenew ? 'success.main' : 'text.secondary'
+                                        }}
+                                    >
+                                        {inv.autoRenew ? 'Sim' : 'Não'}
+                                    </Typography>
+                                </TableCell>
+                            </TableRow>
+                        );
+                    })}
                 </TableBody>
             </Table>
         </TableContainer>
@@ -280,7 +330,7 @@ export default function UserInvestmentsPage() {
                 },
                 body: JSON.stringify(payload)
             });
-            await fetchInvestments()
+            await fetchInvestments();
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error("Erro ao depositar renda fixa:", errorData);
@@ -288,8 +338,8 @@ export default function UserInvestmentsPage() {
                 const result = await response.json();
                 console.log("Depósito realizado com sucesso:", result);
             }
-            await fetchBRLInverstments();
-            await fetchUSDInverstments();
+            await fetchInvestmentRendaFixa(); // Atualiza o total de Renda Fixa
+            await fetchBRLInverstments(); // Atualiza o total investido em BRL
         } catch (error) {
             console.error("Erro na requisição de renda fixa:", error);
         } finally {
@@ -316,22 +366,22 @@ export default function UserInvestmentsPage() {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    ...authHeader() // adiciona Authorization: Bearer <token>
+                    ...authHeader()
                 },
                 body: JSON.stringify(payload)
             });
-            await fetchInvestments()
+            await fetchInvestments();
             if (!response.ok) {
                 const errorData = await response.json();
-                console.error("Erro ao depositar renda fixa:", errorData);
+                console.error("Erro ao aplicar em fundo imobiliário:", errorData);
             } else {
                 const result = await response.json();
-                console.log("Depósito realizado com sucesso:", result);
+                console.log("Aplicação realizada com sucesso:", result);
             }
-            await fetchBRLInverstments();
-            await fetchUSDInverstments();
+            await fetchInvestmentFundoImobiliario(); // Atualiza o total de Fundos Imobiliários
+            await fetchBRLInverstments(); // Atualiza o total investido em BRL
         } catch (error) {
-            console.error("Erro na requisição de renda fixa:", error);
+            console.error("Erro na requisição de fundo imobiliário:", error);
         } finally {
             setOpenFundoImob(false);
             setSuccessFundoDialog(true);

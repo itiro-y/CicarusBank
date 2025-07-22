@@ -166,7 +166,7 @@ mysql-transaction mysql-loan mysql-card --build -d
 
 ```mermaid
 graph TD
-    subgraph "Microservice Communication"
+    subgraph "Communication"
         loan_service[Loan Service]
         transaction_service[Transaction Service]
         customer_service[Customer Service]

@@ -52,9 +52,13 @@ Before you begin, ensure you have the following installed:
 ## System Architecture Diagram
 
 ```mermaid
+
 graph TD
     subgraph "Azure Cloud"
         subgraph "CicarusBank System"
+
+            nginx[Nginx]
+                                       
             user[Bank Customer]
 
             subgraph "Frontend Container"
@@ -97,7 +101,7 @@ graph TD
                 card_db[(Card DB)]
             end
 
-            subgraph "Currency Exchange Container"
+            subgraph "Currency Container"
                 currency_exchange_service[Currency Exchange Service]
             end
             subgraph "Currency Exchange DB"
@@ -149,6 +153,7 @@ graph TD
     end
 
     user --> frontend
+    nginx --> frontend
     frontend --> api_gateway
     api_gateway --> naming_server
 

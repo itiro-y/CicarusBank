@@ -51,28 +51,81 @@ Before you begin, ensure you have the following installed:
 graph TD
     subgraph "CicarusBank System"
         user[Bank Customer]
-        frontend[Frontend]
-        api_gateway[API Gateway]
-        auth_service[Auth]
-        account_service[Account]
-        customer_service[Customer]
-        loan_service[Loan]
-        transaction_service[Transaction]
-        currency_exchange_service[Currency Exchange]
-        notification_service[Notification]
-        card_service[Card]
-        naming_server[Naming Server]
-        statement_service[Statement]
 
-        auth_db[(Auth DB)]
-        account_db[(Account DB)]
-        customer_db[(Customer DB)]
-        loan_db[(Loan DB)]
-        transaction_db[(Transaction DB)]
-        currency_exchange_db[(Currency Exchange DB)]
-        notification_db[(Notification DB)]
-        card_db[(Card DB)]
-        statement_db[(Statement DB)]
+        subgraph "Frontend Container"
+            frontend[Frontend]
+        end
+
+        subgraph "API Gateway Container"
+            api_gateway[API Gateway]
+        end
+
+        subgraph "Naming Server Container"
+            naming_server[Naming Server]
+        end
+
+        subgraph "Auth Service Container"
+            auth_service[Auth Service]
+        end
+        subgraph "Auth DB Container"
+            auth_db[(Auth DB)]
+        end
+
+        subgraph "Account Service Container"
+            account_service[Account Service]
+        end
+        subgraph "Account DB Container"
+            account_db[(Account DB)]
+        end
+
+        subgraph "Customer Service Container"
+            customer_service[Customer Service]
+        end
+        subgraph "Customer DB Container"
+            customer_db[(Customer DB)]
+        end
+
+        subgraph "Loan Service Container"
+            loan_service[Loan Service]
+        end
+        subgraph "Loan DB Container"
+            loan_db[(Loan DB)]
+        end
+
+        subgraph "Transaction Service Container"
+            transaction_service[Transaction Service]
+        end
+        subgraph "Transaction DB Container"
+            transaction_db[(Transaction DB)]
+        end
+
+        subgraph "Currency Exchange Service Container"
+            currency_exchange_service[Currency Exchange Service]
+        end
+        subgraph "Currency Exchange DB Container"
+            currency_exchange_db[(Currency Exchange DB)]
+        end
+
+        subgraph "Notification Service Container"
+            notification_service[Notification Service]
+        end
+        subgraph "Notification DB Container"
+            notification_db[(Notification DB)]
+        end
+
+        subgraph "Card Service Container"
+            card_service[Card Service]
+        end
+        subgraph "Card DB Container"
+            card_db[(Card DB)]
+        end
+
+        subgraph "Statement Service Container"
+            statement_service[Statement Service]
+        end
+        subgraph "Statement DB Container"
+            statement_db[(Statement DB)]
+        end
     end
 
     user --> frontend

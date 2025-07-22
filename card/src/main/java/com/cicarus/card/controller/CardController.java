@@ -1,6 +1,7 @@
 package com.cicarus.card.controller;
 
 import com.cicarus.card.dtos.CardDto;
+import com.cicarus.card.dtos.CardLimitRequestDto;
 import com.cicarus.card.dtos.CardRequestDto;
 import com.cicarus.card.dtos.CardStatusRequestDto; 
 import com.cicarus.card.service.CardService;
@@ -57,9 +58,29 @@ public class CardController {
         return cardService.block(id);
     }
 
+    @Operation(summary = "Put that sets a Card Status to ACTIVE")
+    @PutMapping("/activate/{id}")
+    public ResponseEntity<String> activateCard(@PathVariable Long id){
+        return cardService.activate(id);
+    }
+
+
+
     @Operation(summary = "Altera o status de um cartão (ex: ACTIVE, BLOCKED, CANCELED)")
     @PostMapping("/status")
     public ResponseEntity<String> updateCardStatus(@RequestBody CardStatusRequestDto statusRequest) {
         return cardService.updateStatus(statusRequest.cardId(), statusRequest.newStatus());
+    }
+
+    @Operation(summary = "Altera o limite de um cartão")
+    @PutMapping("/limit")
+    public ResponseEntity<String> updateCardLimit(@RequestBody CardLimitRequestDto limitRequest) {
+        return cardService.updateLimit(limitRequest.cardId(), limitRequest.newLimit());
+    }
+
+    @Operation(summary = "Deleta um cartão pelo ID")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteCard(@PathVariable Long id) {
+        return cardService.delete(id);
     }
 }

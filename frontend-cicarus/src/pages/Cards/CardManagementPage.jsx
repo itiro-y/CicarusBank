@@ -20,10 +20,8 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import TuneIcon from '@mui/icons-material/Tune';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
-
 const accountId = localStorage.getItem('accountId');
 
-// --- Componente do Dialog de 2FA ---
 const TwoFactorAuthDialog = ({ open, onClose, onSubmit, loading, error }) => {
     const [code, setCode] = useState('');
 
@@ -45,7 +43,7 @@ const TwoFactorAuthDialog = ({ open, onClose, onSubmit, loading, error }) => {
             <DialogContent sx={{ textAlign: 'center' }}>
                 <LockIcon color="primary" sx={{ fontSize: 40, mb: 2 }} />
                 <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-                    Enviamos um código de 6 dígitos para o seu e-mail. Insira-o abaixo para continuar.
+                    Para sua segurança, insira o código iSafe gerado na sua página de perfil.
                 </Typography>
                 <TextField
                     label="Código de Verificação"
@@ -54,10 +52,7 @@ const TwoFactorAuthDialog = ({ open, onClose, onSubmit, loading, error }) => {
                     value={code}
                     onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
                     disabled={loading}
-                    inputProps={{
-                        maxLength: 6,
-                        style: { textAlign: 'center', letterSpacing: '0.5rem' }
-                    }}
+                    inputProps={{ maxLength: 6, style: { textAlign: 'center', letterSpacing: '0.5rem' } }}
                 />
                 {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
             </DialogContent>
@@ -71,7 +66,6 @@ const TwoFactorAuthDialog = ({ open, onClose, onSubmit, loading, error }) => {
     );
 };
 
-// --- Função para extrair o CVV do Hash ---
 const hashToCvv = (hash) => {
     if (!hash) return 'N/A';
     const digits = hash.match(/\d/g);
@@ -79,36 +73,29 @@ const hashToCvv = (hash) => {
     return digits.slice(0, 3).join('');
 };
 
-// --- Componente para Status do Cartão ---
 const StatusChip = ({ status }) => {
     const statusConfig = {
         ACTIVE: { label: 'Ativo', color: 'success', icon: <CheckCircleIcon /> },
         BLOCKED: { label: 'Bloqueado', color: 'warning', icon: <BlockIcon /> },
         CANCELED: { label: 'Cancelado', color: 'error', icon: <CancelIcon /> }
     };
-
     const config = statusConfig[status] || { label: status, color: 'default' };
-
     return <Chip label={config.label} color={config.color} icon={config.icon} size="small" />;
 };
 
 
-// --- Página Principal ---
 export default function CardManagementPage() {
     const [cards, setCards] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [selectedCard, setSelectedCard] = useState(null);
     const [fullCardDetails, setFullCardDetails] = useState(null);
-    const navigate = useNavigate();
-
     const [addDialogOpen, setAddDialogOpen] = useState(false);
     const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
     const [twoFaDialogOpen, setTwoFaDialogOpen] = useState(false);
     const [twoFaLoading, setTwoFaLoading] = useState(false);
     const [twoFaError, setTwoFaError] = useState('');
-    const [otpCode, setOtpCode] = useState(null);
     const { user } = useUser();
-
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchCards();
@@ -119,16 +106,17 @@ export default function CardManagementPage() {
         try {
             const token = localStorage.getItem('token');
             const res = await fetch(`${API_URL}/card/list/${accountId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
             const physicalCards = await res.json();
             const storedVirtualCards = JSON.parse(localStorage.getItem('virtualCards')) || [];
             const now = new Date().getTime();
             const activeVirtualCards = storedVirtualCards.filter(card => card.expiryTimestamp > now);
-            localStorage.setItem('virtualCards', JSON.stringify(activeVirtualCards));
-            setCards([...physicalCards, ...activeVirtualCards]);
+
+            // Combina todos os cartões, incluindo os cancelados, para exibição
+            const allCards = [...physicalCards, ...activeVirtualCards];
+            setCards(allCards);
+
         } catch (err) {
             console.error('Erro ao buscar cartões:', err);
             const storedVirtualCards = JSON.parse(localStorage.getItem('virtualCards')) || [];
@@ -140,72 +128,52 @@ export default function CardManagementPage() {
     }
 
     const handleCardClick = (card) => {
-        if (card.status === 'CANCELED') {
-            Swal.fire({
-                icon: 'error',
-                title: 'Cartão Cancelado',
-                text: 'Este cartão foi cancelado e não pode ser gerenciado ou reativado. Para continuar, solicite um novo cartão.',
-                confirmButtonText: 'Entendi'
-            });
-            return;
-        }
-
-        if (!user || !user.email) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Erro',
-                text: 'Não foi possível encontrar o e-mail do usuário para enviar o código.',
-            });
-            return;
-        }
-
-        const accountId = localStorage.getItem('accountId'); // ou de onde você obtiver o ID
-        const token = localStorage.getItem('token');
-
-        fetch(`${API_URL}/notification/email/send/${accountId}`, { // <-- ID NA URL
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            // Corpo SEM o e-mail do destinatário
-            body: JSON.stringify({
-                channel: 'EMAIL',
-                message: `Olá, seu código de acesso para o cartão é: ${code}`
-            })
-        }).catch(console.error);
-
         setSelectedCard(card);
         setTwoFaDialogOpen(true);
     };
 
     const handleVerify2FA = async (code) => {
         if (!selectedCard) return;
+
         if (selectedCard.cardType === 'VIRTUAL') {
-            setTwoFaLoading(true);
-            await new Promise(resolve => setTimeout(resolve, 500));
             setFullCardDetails(selectedCard);
             setTwoFaDialogOpen(false);
             setDetailsDialogOpen(true);
-            setTwoFaLoading(false);
             return;
         }
+
         setTwoFaLoading(true);
         setTwoFaError('');
         try {
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            if (code !== otpCode) throw new Error('Código de verificação inválido.');
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            const storedISafe = JSON.parse(localStorage.getItem('isafeCode'));
+
+            if (!storedISafe) {
+                throw new Error('Nenhum código iSafe ativo. Gere um na página de perfil.');
+            }
+            if (Date.now() > storedISafe.expiry) {
+                localStorage.removeItem('isafeCode');
+                throw new Error('O código iSafe expirou. Por favor, gere um novo.');
+            }
+            if (code !== storedISafe.code) {
+                throw new Error('Código de verificação inválido.');
+            }
+
             const token = localStorage.getItem('token');
             const res = await fetch(`${API_URL}/card/${selectedCard.id}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
-            if (!res.ok) throw new Error('Falha ao buscar os detalhes do cartão.');
+
+            if (!res.ok) {
+                throw new Error('Falha ao buscar os detalhes do cartão.');
+            }
+
             const fullDetails = await res.json();
             setFullCardDetails(fullDetails);
             setTwoFaDialogOpen(false);
             setDetailsDialogOpen(true);
+
         } catch (err) {
             setTwoFaError(err.message || 'Ocorreu um erro.');
         } finally {
@@ -229,18 +197,54 @@ export default function CardManagementPage() {
             handleDetailsDialogClose();
             return;
         }
+
         try {
             const token = localStorage.getItem('token');
-            await fetch(`${API_URL}/card/${action}/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+            let url = `${API_URL}/card/${action}/${id}`;
+            let method = 'PUT';
+
+            if (action === 'delete') {
+                url = `${API_URL}/card/${id}`;
+                method = 'DELETE';
+            }
+
+            await fetch(url, {
+                method: method,
+                headers: { 'Authorization': `Bearer ${token}` }
             });
             await fetchCards();
             handleDetailsDialogClose();
         } catch (err) {
             console.error(`Erro ao ${action} cartão:`, err);
+        }
+    };
+
+    const handleDeleteCard = async (id) => {
+        const result = await Swal.fire({
+            title: 'Tem certeza?',
+            text: "O cartão será removido permanentemente da sua visualização. Esta ação não pode ser desfeita.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sim, excluir!',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (result.isConfirmed) {
+            // AQUI VOCÊ DEVE ADICIONAR A LÓGICA PARA CHAMAR A API DE EXCLUSÃO
+            // Ex: await fetch(`${API_URL}/card/delete/${id}`, { method: 'DELETE', ... });
+
+            console.log(`Simulando exclusão do cartão ${id} no backend.`);
+
+            handleDetailsDialogClose();
+            await fetchCards(); // Re-carrega a lista de cartões
+
+            Swal.fire(
+                'Excluído!',
+                'O cartão foi removido com sucesso.',
+                'success'
+            );
         }
     };
 
@@ -267,6 +271,16 @@ export default function CardManagementPage() {
 
                 {loading ? (
                     <Box display="flex" justifyContent="center" mt={4}><CircularProgress /></Box>
+                ) : cards.length === 0 ? (
+                    <Box textAlign="center" mt={10}>
+                        <img src="https://i.ibb.co/Fb11BLwx/credit-card-4.gif" alt="Sem cartões" style={{ width: '100px', opacity: 0.6 }} />
+                        <Typography variant="h6" color="text.secondary" mt={2}>
+                            Você ainda não possui cartões.
+                        </Typography>
+                        <Typography variant="body1" color="text.secondary">
+                            Crie um cartão virtual ou adicione um cartão físico para começar.
+                        </Typography>
+                    </Box>
                 ) : (
                     <Grid container spacing={4}>
                         {cards.map(card => (
@@ -277,7 +291,6 @@ export default function CardManagementPage() {
                     </Grid>
                 )}
 
-                {/* --- DIALOGS --- */}
                 <AddPhysicalCardDialog
                     open={addDialogOpen}
                     onClose={handleAddDialogClose}
@@ -297,27 +310,17 @@ export default function CardManagementPage() {
                         <DialogTitle sx={{fontWeight: 'bold'}}>Detalhes do Cartão</DialogTitle>
                         <DialogContent>
                             <List disablePadding>
-                                <ListItem>
-                                    <ListItemText primary="Apelido/Nome" secondary={fullCardDetails.cardholderName} />
-                                </ListItem>
+                                <ListItem><ListItemText primary="Apelido/Nome" secondary={fullCardDetails.cardholderName} /></ListItem>
                                 <Divider component="li" />
-                                <ListItem>
-                                    <ListItemText primary="Número do Cartão" secondary={fullCardDetails.cardNumber} />
-                                </ListItem>
+                                <ListItem><ListItemText primary="Número do Cartão" secondary={fullCardDetails.cardNumber} /></ListItem>
                                 <Divider component="li" />
-                                <ListItem>
-                                    <ListItemText primary="Validade" secondary={new Date(fullCardDetails.expiry + 'T00:00:00').toLocaleDateString('pt-BR', {month: '2-digit', year: 'numeric'})} />
-                                </ListItem>
+                                <ListItem><ListItemText primary="Validade" secondary={new Date(fullCardDetails.expiry + 'T00:00:00').toLocaleDateString('pt-BR', {month: '2-digit', year: 'numeric'})} /></ListItem>
                                 <Divider component="li" />
-                                <ListItem>
-                                    <ListItemText primary="CVV" secondary={hashToCvv(fullCardDetails.cvvHash)} />
-                                </ListItem>
+                                <ListItem><ListItemText primary="CVV" secondary={hashToCvv(fullCardDetails.cvvHash)} /></ListItem>
                                 {fullCardDetails.cardType !== 'VIRTUAL' && (
                                     <>
                                         <Divider component="li" />
-                                        <ListItem>
-                                            <ListItemText primary="Limite" secondary={fullCardDetails.creditLimit.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} />
-                                        </ListItem>
+                                        <ListItem><ListItemText primary="Limite" secondary={fullCardDetails.creditLimit.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} /></ListItem>
                                     </>
                                 )}
                                 <Divider component="li" />
@@ -327,16 +330,40 @@ export default function CardManagementPage() {
                                 </ListItem>
                             </List>
                         </DialogContent>
-                        <DialogActions sx={{ p: '16px 24px', justifyContent: 'space-between', gap: 1 }}>
-                            {fullCardDetails.cardType !== 'VIRTUAL' && fullCardDetails.status === 'ACTIVE' &&
-                                <Button fullWidth variant="outlined" color="warning" onClick={() => handleAction(fullCardDetails.id, 'block')}>Bloquear</Button>
-                            }
-                            {fullCardDetails.cardType !== 'VIRTUAL' && fullCardDetails.status === 'BLOCKED' &&
-                                <Button fullWidth variant="outlined" color="success" onClick={() => handleAction(fullCardDetails.id, 'activate')}>Ativar Cartão</Button>
-                            }
-                            <Button fullWidth variant="outlined" color="error" onClick={() => handleAction(fullCardDetails.id, 'cancel')}>
-                                {fullCardDetails.cardType === 'VIRTUAL' ? 'Excluir' : 'Cancelar'}
-                            </Button>
+                        {/* LÓGICA DE AÇÕES CONDICIONAL BASEADA NO STATUS DO CARTÃO */}
+                        <DialogActions sx={{ p: '16px 24px', justifyContent: 'center', gap: 1 }}>
+
+                            {fullCardDetails.status === 'CANCELED' && (
+                                <Button fullWidth variant="contained" color="error" onClick={() => handleDeleteCard(fullCardDetails.id)}>
+                                    Excluir Cartão
+                                </Button>
+                            )}
+
+                            {fullCardDetails.cardType !== 'VIRTUAL' && fullCardDetails.status === 'ACTIVE' && (
+                                <>
+                                    <Button fullWidth variant="outlined" color="warning" onClick={() => handleAction(fullCardDetails.id, 'block')}>Bloquear</Button>
+                                    <Button fullWidth variant="outlined" color="error" onClick={() => handleAction(fullCardDetails.id, 'cancel')}>Cancelar</Button>
+                                </>
+                            )}
+
+                            {fullCardDetails.cardType !== 'VIRTUAL' && fullCardDetails.status === 'BLOCKED' && (
+                                <>
+                                    <Button fullWidth variant="outlined" color="success" onClick={() => handleAction(fullCardDetails.id, 'activate')}>Ativar Cartão</Button>
+                                    <Button fullWidth variant="outlined" color="error" onClick={() => handleAction(fullCardDetails.id, 'cancel')}>Cancelar</Button>
+                                </>
+                            )}
+
+                            {fullCardDetails.status === 'CANCELLED' && (
+                                <Button fullWidth variant="outlined" color="error" onClick={() => handleAction(fullCardDetails.id, 'delete')}>
+                                    Excluir Cartão
+                                </Button>
+                            )}
+
+                            {fullCardDetails.cardType === 'VIRTUAL' && (
+                                <Button fullWidth variant="outlined" color="error" onClick={() => handleAction(fullCardDetails.id, 'cancel')}>
+                                    Excluir
+                                </Button>
+                            )}
                         </DialogActions>
                     </Dialog>
                 )}

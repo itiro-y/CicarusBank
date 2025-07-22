@@ -13,7 +13,7 @@ const getAuthenticatedUser = () => {
     // Exemplo: dados do usuário logado
     return {
         id: localStorage.getItem('accountId'), // ID como string, que será convertido para número
-        name: localStorage.getItem('userName') || 'Usuário Anônimo',
+        name: localStorage.getItem('username'),
     };
 };
 

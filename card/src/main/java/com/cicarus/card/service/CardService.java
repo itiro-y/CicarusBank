@@ -2,7 +2,6 @@ package com.cicarus.card.service;
 
 import com.cicarus.card.dtos.CardDto;
 import com.cicarus.card.dtos.CardRequestDto;
-import com.cicarus.card.dtos.CardStatusRequestDto; 
 import com.cicarus.card.model.Card;
 import com.cicarus.card.model.CardStatus;
 import com.cicarus.card.repository.CardRepository;
@@ -11,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -67,6 +67,16 @@ public class CardService {
         }
     }
 
+    public ResponseEntity<String> activate(Long id){
+        if(cardRepository.findById(id).isPresent()){
+            Card card = cardRepository.findById(id).get();
+            card.setStatus(CardStatus.ACTIVE);
+            cardRepository.save(card);
+            return ResponseEntity.ok("Card activated - ID: " + id);
+        } else{
+            return ResponseEntity.badRequest().body("Card of " + id + " not found");
+        }
+    }
     
     public ResponseEntity<String> updateStatus(Long cardId, CardStatus newStatus) {
         return cardRepository.findById(cardId)
@@ -76,6 +86,29 @@ public class CardService {
                     return ResponseEntity.ok("Status do cartão com ID " + cardId + " atualizado para " + newStatus);
                 })
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cartão com ID " + cardId + " não encontrado"));
+    }
+
+    public ResponseEntity<String> updateLimit(Long cardId, BigDecimal newLimit) {
+        return cardRepository.findById(cardId)
+                .map(card -> {
+                    card.setCreditLimit(newLimit);
+                    cardRepository.save(card);
+                    return ResponseEntity.ok("Limite do cartão com ID " + cardId + " atualizado para " + newLimit);
+                })
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cartão com ID " + cardId + " não encontrado"));
+    }
+
+    public ResponseEntity<String> delete(Long id) {
+        return cardRepository.findById(id)
+                .map(card -> {
+                    if (card.getStatus() == CardStatus.CANCELLED) {
+                        cardRepository.delete(card);
+                        return ResponseEntity.ok("Cartão com ID " + id + " foi deletado.");
+                    } else {
+                        return ResponseEntity.badRequest().body("O cartão com ID " + id + " não pode ser deletado, pois seu status não é CANCELLED.");
+                    }
+                })
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cartão com ID " + id + " não encontrado."));
     }
 
     private CardDto toDto(Card c) {

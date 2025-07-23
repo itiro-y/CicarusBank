@@ -23,7 +23,7 @@ const TypingIndicator = () => (
 
 const getBotResponse = async (userMessage, chatHistory) => {
     try {
-        const response = await fetch('http://cicarusbank.app/ia', {
+        const response = await fetch('https://cicarusbank.app/ia', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: userMessage, history: chatHistory }),

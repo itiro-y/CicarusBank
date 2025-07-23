@@ -290,7 +290,6 @@ export default function UserTransactionsPage() {
 
                 const data = await response.json();
                 setCustomerData(data);
-                setAccountId(data.id);
                 setLoadingCustomerData(false);
             } catch (error) {
                 console.error('Error fetching initial data:', error);

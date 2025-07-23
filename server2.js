@@ -33,7 +33,7 @@ app.post('/api/generate-avatar', async (req, res) => {
             method: 'POST',
             headers: {
                 // A autorização usa o token que você gerou
-                "Authorization": `Bearer ${process.env.HUGGINGFACE_TOKEN}`,
+                "Authorization": `Bearer ${process.env.AI_API_KEY}`,
                 "Content-Type": "application/json",
             },
             // O corpo da requisição é um JSON com o prompt

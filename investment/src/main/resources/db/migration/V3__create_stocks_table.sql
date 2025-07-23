@@ -1,4 +1,4 @@
--- src/main/resources/db/migration/V5__create_stocks_table.sql
+-- src/main/resources/db/migration/V3__create_stocks_table.sql
 CREATE TABLE IF NOT EXISTS stocks (
                                       id BIGINT AUTO_INCREMENT PRIMARY KEY,
                                       account_id BIGINT,

@@ -365,6 +365,30 @@ services:
     networks:
       - cicarus-net
 
+  cicarus-ai-server1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cicarus-ai-server1
+    ports:
+      - "3001:3001"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    networks:
+      - cicarus-net
+
+  cicarus-ai-server2:
+    build:
+      context: .
+      dockerfile: Dockerfile2
+    container_name: cicarus-ai-server2
+    ports:
+      - "3002:3002"
+    environment:
+      - HUGGINGFACE_TOKEN=${HUGGINGFACE_TOKEN}
+    networks:
+      - cicarus-net
+
 volumes:
   auth-data:
   account-data:

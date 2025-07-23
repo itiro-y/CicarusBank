@@ -22,12 +22,14 @@ import { useUser } from '../../context/UserContext.jsx';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
+
+
 // --- COMPONENTES DO DASHBOARD ---
 const WelcomeHeader = ({ customerData, loading }) => {
     const { user } = useUser();
 
     const userAvatar = user?.avatar || localStorage.getItem('userAvatar') || customerData?.avatar;
-    const userName = user?.name || customerData?.name || 'Usuário';
+    const userName = user?.name || 'Usuário';
 
     if (loading) {
         return (
@@ -59,7 +61,7 @@ const WelcomeHeader = ({ customerData, loading }) => {
                 </Avatar>
                 <div>
                     <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
-                        Bom dia, {userName}!
+                        Bom dia, {localStorage.getItem('customerName')}!
                     </Typography>
                     <Typography variant="body1" sx={{ color: 'text.secondary' }}>
                         Bem-vindo de volta ao seu painel CicarusBank.
@@ -149,7 +151,7 @@ const hashToCvv = (hash) => {
     return digits.slice(0, 3).join('');
 };
 
-const CreditCardComponent = ({ customerName }) => {
+const CreditCardComponent = ({ customerName, accountId }) => {
     const theme = useTheme();
     const [isFlipped, setIsFlipped] = React.useState(false);
     const [cardData, setCardData] = React.useState(null);
@@ -163,16 +165,26 @@ const CreditCardComponent = ({ customerName }) => {
 
     React.useEffect(() => {
         const fetchPrimaryCard = async () => {
+            if (!accountId) {
+                setIsLoading(false);
+                return;
+            }
             try {
                 setIsLoading(true);
                 setError(null);
-                const res = await fetch(`${API_URL}/card/list/1`, { headers: authHeader() });
+                const res = await fetch(`${API_URL}/card/list/${accountId}`, { headers: authHeader() });
                 if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
                 const allCards = await res.json();
-                if (allCards && allCards.length > 0) {
-                    setCardData(allCards[0]);
+
+                // Filtrar por cartões físicos e ativos, se possível
+                const physicalAndActiveCards = allCards.filter(card => card.cardType !== 'VIRTUAL' && card.status === 'ACTIVE');
+
+                if (physicalAndActiveCards.length > 0) {
+                    setCardData(physicalAndActiveCards[0]); // Pega o primeiro cartão físico e ativo
+                } else if (allCards.length > 0) {
+                    setCardData(allCards[0]); // Fallback para o primeiro cartão qualquer
                 } else {
-                    setCardData(null)
+                    setCardData(null);
                 }
             } catch (err) {
                 console.error("Falha ao buscar dados do cartão:", err);
@@ -182,7 +194,7 @@ const CreditCardComponent = ({ customerName }) => {
             }
         };
         fetchPrimaryCard();
-    }, []);
+    }, [accountId]);
 
     const cardFrontBg = theme.palette.mode === 'dark' ? 'linear-gradient(45deg, #111010 0%, #282d34 100%)' : 'linear-gradient(45deg, #424242 0%, #616161 100%)';
     const cardBackBg = theme.palette.mode === 'dark' ? 'linear-gradient(45deg, #BDBDBD 0%, #E0E0E0 100%)' : 'linear-gradient(45deg, #E0E0E0 0%, #F5F5F5 100%)';
@@ -325,8 +337,8 @@ const RecentTransactions = ({ transactions, loading }) => (
                                 secondaryTypographyProps={{ component: 'div' }}
                             />
                             <Box sx={{ textAlign: 'right' }}>
-                                <Typography variant="body1" sx={{ fontWeight: 'bold', color: tx.amount > 0 ? 'success.main' : 'error.main' }}>
-                                    {tx.amount > 0 ? '+' : '-'} R$ {Math.abs(tx.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                <Typography variant="body1" sx={{ fontWeight: 'bold', color: tx.transactionType === 'DEPOSIT' || tx.transactionType === 'TRANSFER_RECEIVED' ? 'success.main' : 'error.main' }}>
+                                    {tx.transactionType === 'DEPOSIT' || tx.transactionType === 'TRANSFER_RECEIVED' ? '+' : '-'} R$ {Math.abs(tx.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                                 </Typography>
                                 <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                                     {new Date(tx.timestamp).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
@@ -377,6 +389,10 @@ export default function DashboardPage() {
     const [loadingBalance, setLoadingBalance] = useState(false);
     const [loadingHistory, setLoadingHistory] = useState(false);
     const [loadingTransactions, setLoadingTransactions] = useState(false);
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     const authHeader = () => {
         const token = localStorage.getItem('token') || '';
@@ -474,7 +490,7 @@ export default function DashboardPage() {
                     </Grid>
                     <Grid item xs={12} lg={4}>
                         <Stack spacing={3}>
-                            <CreditCardComponent customerName={customerData?.name} />
+                            <CreditCardComponent customerName={customerData?.name} accountId={customerData?.id} />
                             <CardManagementActions />
                             <ChatAssistant />
                         </Stack>

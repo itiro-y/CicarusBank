@@ -89,7 +89,7 @@ export default function CreateCardDialog({ open, onClose, onCardAdded }) {
             // DTO ajustado para corresponder ao JSON do backend
             const cardRequestDto = {
                 customerId: parseInt(user.id, 10), // Convertido para número
-                cardholderName: user.name,
+                cardholderName: localStorage.getItem('customerName'),
                 cardNumber: rawCardNumber,
                 cvvHash: formData.cvv, // Enviando o CVV; o backend deve hasheá-lo
                 last4Digits: rawCardNumber.slice(-4),

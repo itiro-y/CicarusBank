@@ -37,11 +37,11 @@ public class CustomerService {
         BeanUtils.copyProperties(Request, customer);
         Customer saved = repository.save(customer);
 
-        
+        System.out.println("Chamando openfeign para criar auth");
         AuthCreateRequest authRequest = new AuthCreateRequest(Request.getEmail(), Request.getPassword());
         authClient.createUser(authRequest);
 
-        
+        System.out.println("Chamando openfeign para criar account");
         AccountRequest accountRequest = new AccountRequest(customer.getId(),
                 "CHECKING");
 

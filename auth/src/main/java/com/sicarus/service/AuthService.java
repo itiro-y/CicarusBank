@@ -50,6 +50,7 @@ public class AuthService {
 
     public void createUser(UserCreateRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+            System.out.println("Se caiu aqui, quer dizer que já existe username no banco de dados");
             throw new RuntimeException("Username already exists");
         }
 
@@ -58,7 +59,9 @@ public class AuthService {
         user.setHashPassword(passwordEncoder.encode(request.getPassword()));
         user.setRoles(UserRoles.ROLE_USER);
 
+        System.out.println("Salvando o auth criado...");
         userRepository.save(user);
+        System.out.println("Auth salvo!");
     }
 
     public void changePassword(ChangePasswordRequest request) {

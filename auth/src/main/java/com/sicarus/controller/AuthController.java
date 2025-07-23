@@ -30,6 +30,7 @@ public class AuthController {
     @Operation(summary = "Creates a new user")
     @PostMapping("/create")
     public ResponseEntity<Void> createUser(@RequestBody UserCreateRequest request) {
+        System.out.println("Chegou no controller de Auth/create");
         authService.createUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

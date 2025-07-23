@@ -31,6 +31,7 @@ public class CustomerController {
     @Operation(summary = "Cria um novo cliente", description = "Cria um novo registro de cliente no sistema.")
     @PostMapping("/create")
     public ResponseEntity<CustomerResponse> create(@RequestBody CustomerRequest request) {
+        System.out.println("Entrou no controler de customer service para criar usuario");
         return ResponseEntity.ok(service.create(request));
     }
 

@@ -1,13 +1,14 @@
 // Arquivo: backend/server.js
 
 const express = require('express');
-const dotenv = require('dotenv');
 const cors = require('cors');
 
 // 1. Configurar o ambiente
-dotenv.config();
 const app = express();
 const port = 3002;
+
+// Adicione sua chave de API do Hugging Face aqui
+const HUGGING_FACE_API_KEY = "SUA_CHAVE_DE_API_AQUI";
 
 // 2. Configurar Middlewares
 app.use(cors());
@@ -33,7 +34,7 @@ app.post('/api/generate-avatar', async (req, res) => {
             method: 'POST',
             headers: {
                 // A autorização usa o token que você gerou
-                "Authorization": `Bearer ${process.env.HUGGINGFACE_TOKEN}`,
+                "Authorization": `Bearer ${HUGGING_FACE_API_KEY}`,
                 "Content-Type": "application/json",
             },
             // O corpo da requisição é um JSON com o prompt

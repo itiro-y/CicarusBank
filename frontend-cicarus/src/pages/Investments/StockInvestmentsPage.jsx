@@ -5,7 +5,6 @@ import {
 } from '@mui/material';
 import AppAppBar from '../../components/AppAppBar.jsx';
 import { Link } from 'react-router-dom';
-import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import { useTheme } from '@mui/material/styles';
 import WalletIcon from '@mui/icons-material/Wallet';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
@@ -84,7 +83,7 @@ export default function StockInvestmentsPage() {
     const [successOpen, setSuccessOpen] = useState(false);
 
     useEffect(() => {
-        if (!user) return;  // só roda quando 'user' estiver disponível
+        if (!user) return;
 
         const fetchCustomerData = async () => {
             setLoadingCustomerData(true);
@@ -118,12 +117,12 @@ export default function StockInvestmentsPage() {
     }, [user, setAccountId]);
 
     useEffect(() => {
-        fetchAll();                // cotação do Finnhub
+        fetchAll();
     }, []);
 
     // 2) Quando accountId for atualizado, dispara só os fetches que precisam dele:
     useEffect(() => {
-        if (!accountId) return;    // evita accountId=0
+        if (!accountId) return;
 
         fetchWallet();
         fetchUsdWallet();
@@ -212,7 +211,6 @@ export default function StockInvestmentsPage() {
                 }
             }
 
-            // Apenas tente ler o corpo se houver
             let result = null;
             const contentType = response.headers.get('content-type');
             if (contentType && contentType.includes('application/json')) {
@@ -249,7 +247,6 @@ export default function StockInvestmentsPage() {
         setConfirmOpen(false); // Fechar o diálogo de confirmação
 
         try {
-            // Buscar dados da ação com Alpha Vantage
             const OV_API_KEY = "05OPBVBUATY9EPP1";
             const overviewRes = await fetch(`https://www.alphavantage.co/query?function=OVERVIEW&symbol=${selectedStock}&apikey=${OV_API_KEY}`);
             const overviewData = await overviewRes.json();
@@ -552,7 +549,6 @@ export default function StockInvestmentsPage() {
                                 {buyLoading ? 'Processando...' : `Comprar ${STOCKS.find(s => s.symbol === selectedStock)?.name}`}
                             </Button>
 
-                            {/* Diálogo de confirmação */}
                             <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
                                 <DialogTitle>Confirmar Compra</DialogTitle>
                                 <DialogContent>

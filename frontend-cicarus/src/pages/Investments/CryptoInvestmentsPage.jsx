@@ -14,6 +14,8 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import WalletIcon from '@mui/icons-material/Wallet';
 import {useUser} from "../../context/UserContext.jsx";
+import { Line } from 'react-chartjs-2';
+import 'chart.js/auto';
 
 // Lista de moedas para exibir
 const CRYPTOS = [
@@ -65,7 +67,6 @@ export default function CryptoInvestmentsPage() {
         fetchHistory();
     }, []);
 
-    // 2) Busca os dados do usuário e define accountId
     useEffect(() => {
         if (!user) return;
 
@@ -93,7 +94,7 @@ export default function CryptoInvestmentsPage() {
         fetchCustomerData();
     }, [user]);
 
-    // 3) Só quando accountId mudar e for diferente de 0, busca carteira e saldo USD
+
     useEffect(() => {
         if (!accountId) return;
 
@@ -231,11 +232,11 @@ export default function CryptoInvestmentsPage() {
         }
 
         const payload = {
-            accountId,                                 // Long accountId
-            type: selectedCrypto,                           // CryptoType, ex: 'BTCUSDT'
-            status: 'ACTIVE',                       // CryptoStatus, ex: 'PURCHASED'
-            amountInvested: Number(buyValue),          // BigDecimal amountInvested
-            currentValue: Number(buyValue) / Number(prices[selectedCrypto]),   // BigDecimal currentValue
+            accountId,
+            type: selectedCrypto,
+            status: 'ACTIVE',
+            amountInvested: Number(buyValue),
+            currentValue: Number(buyValue) / Number(prices[selectedCrypto]),
             cryptoMultiplier: 0
         };
 
@@ -271,10 +272,44 @@ export default function CryptoInvestmentsPage() {
         return CRYPTOS.find(c => c.symbol === symbol) || { name: symbol, icon: '' };
     }
 
-    const chartHistory = history[selectedChartCrypto] || [];
-    const chartChange = chartHistory.length > 1
-        ? ((chartHistory[chartHistory.length - 1].price - chartHistory[0].price) / chartHistory[0].price) * 100
-        : 0;
+    const chartHistory = history[selectedCrypto] || [];
+    const chartData = {
+        labels: chartHistory.map(item => item.date),
+        datasets: [
+            {
+                label: `Histórico de Preço (${selectedCrypto})`,
+                data: chartHistory.map(item => item.price),
+                borderColor: theme.palette.primary.main,
+                backgroundColor: theme.palette.primary.light,
+                fill: true,
+                tension: 0.4,
+            },
+        ],
+    };
+
+    const chartOptions = {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top',
+            },
+        },
+        scales: {
+            x: {
+                title: {
+                    display: true,
+                    text: 'Data',
+                },
+            },
+            y: {
+                title: {
+                    display: true,
+                    text: 'Preço (USD)',
+                },
+            },
+        },
+    };
 
     return (
         <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
@@ -410,10 +445,18 @@ export default function CryptoInvestmentsPage() {
                     </Box>
                     {tab === 0 && (
                         <>
+                            {chartHistory.length > 0 && (
+                                <Box sx={{ mt: 4, mb: 4, maxWidth: 600, mx: 'auto' }}>
+                                    <Typography variant="h6" sx={{ mb: 2, textAlign: 'center' }}>
+                                        Histórico de Preço - Últimos 7 Dias ({selectedCrypto})
+                                    </Typography>
+                                    <Line data={chartData} options={chartOptions} />
+                                </Box>
+                            )}
                             <Card
                                 elevation={8}
                                 sx={{
-                                    mt: 10,
+                                    mt: 8,
                                     mb: 4,
                                     maxWidth: 520,
                                     mx: 'auto',
@@ -425,7 +468,7 @@ export default function CryptoInvestmentsPage() {
                                     flexDirection: 'column',
                                     alignItems: 'center',
                                     position: 'relative',
-                                    overflow: 'visible'
+                                    overflow: 'visible',
                                 }}
                             >
                                 <Box

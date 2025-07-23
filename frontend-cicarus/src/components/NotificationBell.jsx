@@ -168,7 +168,7 @@ export default function NotificationBell() {
             },
         });
 
-        client.debug = (str) => console.log("[STOMP DEBUG]", str);
+        // client.debug = (str) => console.log("[STOMP DEBUG]", str);
 
         client.activate();
         stompClientRef.current = client;

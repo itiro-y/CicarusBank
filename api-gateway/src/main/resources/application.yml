@@ -71,8 +71,8 @@ spring:
               uri: lb://notification
               predicates:
                 - Path=/notification/**
-              filters:
-                - JwtAuthenticationFilter
+#              filters:
+#                - JwtAuthenticationFilter
 
             - id: card
               uri: lb://card

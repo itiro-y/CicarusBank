@@ -20,6 +20,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/create").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/change-password").permitAll()
                         .requestMatchers(HttpMethod.GET).permitAll()
                         .anyRequest().authenticated()
                 ).csrf(csrf -> csrf.disable());

@@ -3,6 +3,7 @@ package com.sicarus.service;
 import com.sicarus.client.CustomerServiceClient;
 import com.sicarus.dto.AuthRequest;
 import com.sicarus.dto.AuthResponse;
+import com.sicarus.dto.ChangePasswordRequest;
 import com.sicarus.dto.UserCreateRequest;
 import com.sicarus.model.UserRoles;
 import com.sicarus.model.User;
@@ -60,4 +61,15 @@ public class AuthService {
         userRepository.save(user);
     }
 
+    public void changePassword(ChangePasswordRequest request) {
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new BadCredentialsException("Usuário não encontrado."));
+
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getHashPassword())) {
+            throw new BadCredentialsException("Senha antiga inválida.");
+        }
+
+        user.setHashPassword((request.getNewPassword()));
+        userRepository.save(user);
+    }
 }

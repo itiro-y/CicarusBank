@@ -8,7 +8,12 @@ const port = 3001;
 app.use(cors());
 app.use(express.json());
 
-const GEMINI_API_KEY = "AIzaSyDViInh2lawLONbtbqddBGBvIPwejaZyLs";
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
+if (!GEMINI_API_KEY) {
+    console.error("A variável de ambiente GEMINI_API_KEY não está definida.");
+    process.exit(1);
+}
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 

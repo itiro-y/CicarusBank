@@ -22,6 +22,7 @@ export default function VirtualCardCreationPage() {
     const [createdCard, setCreatedCard] = useState(null);
     const navigate = useNavigate();
     const theme = useTheme();
+    const accountId = localStorage.getItem('accountId'); // Adiciona a obtenção do accountId
 
     const generateVirtualCard = () => {
         // Simula a geração de dados do cartão
@@ -53,9 +54,11 @@ export default function VirtualCardCreationPage() {
             const newCard = generateVirtualCard();
             setCreatedCard(newCard);
 
-            // Salva o cartão no localStorage
-            const existingVirtualCards = JSON.parse(localStorage.getItem('virtualCards')) || [];
-            localStorage.setItem('virtualCards', JSON.stringify([...existingVirtualCards, newCard]));
+            // Salva o cartão no localStorage associado à conta
+            const allVirtualCards = JSON.parse(localStorage.getItem('virtualCards')) || {};
+            const userVirtualCards = allVirtualCards[accountId] || [];
+            allVirtualCards[accountId] = [...userVirtualCards, newCard];
+            localStorage.setItem('virtualCards', JSON.stringify(allVirtualCards));
 
             setActiveStep(2); // Vai para a tela de "Concluído"
         }, 3500); // Simula o tempo de criação

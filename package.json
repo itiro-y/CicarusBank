@@ -1,29 +1,17 @@
 {
-  "name": "cicarusbank",
+  "name": "cicarus-ai-servers",
   "version": "1.0.0",
-  "description": "Projeto de microsserviços simulando um banco",
-  "main": "index.js",
+  "description": "Servidores de IA para o CicarusBank",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start:server1": "node server.js",
+    "start:server2": "node server2.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/itiro-y/CicarusBank.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/itiro-y/CicarusBank/issues"
-  },
-  "homepage": "https://github.com/itiro-y/CicarusBank#readme",
   "dependencies": {
-    "@google/generative-ai": "^0.24.1",
+    "@google/generative-ai": "^0.12.0",
     "cors": "^2.8.5",
-    "dotenv": "^17.2.0",
-    "express": "^5.1.0",
-    "form-data": "^4.0.4",
-    "prop-types": "^15.8.1"
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
   }
 }
+

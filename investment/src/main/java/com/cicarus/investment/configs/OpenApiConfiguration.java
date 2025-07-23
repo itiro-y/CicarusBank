@@ -6,7 +6,7 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import org.springframework.context.annotation.Bean;
 
-@OpenAPIDefinition(info = @Info(title = "Transaction Microservice", version = "v1", description = "Documentation of Transaction Microservice"))
+@OpenAPIDefinition(info = @Info(title = "Investment Microservice", version = "v1", description = "Documentation of Investment Microservice"))
 public class OpenApiConfiguration {
     @Bean
     public OpenAPI customOpenAPI() {
